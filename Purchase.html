@@ -139,18 +139,28 @@
         }
 
         async function initPurchase() {
-            document.getElementById('purDate').valueAsDate = new Date();
-            try {
-                // ইনভেন্টরি ডাটা লোড করা
-                const response = await fetch(WEB_APP_URL + "?action=getInventoryData");
-                inventory = await response.json();
-                console.log("Inventory Loaded:", inventory.length, "items");
-            } catch (err) {
-                console.error("Error loading inventory:", err);
-                showToast("Failed to load inventory!", "danger");
-            }
-        }
+    // সঠিক স্থানীয় তারিখ সেট করার কোড
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const today = `${year}-${month}-${day}`;
+    
+    document.getElementById('purDate').value = today;
 
+    try {
+        // ইনভেন্টরি ডাটা লোড করা
+        const response = await fetch(WEB_APP_URL + "?action=getInventoryData");
+        inventory = await response.json();
+        console.log("Inventory Loaded:", inventory.length, "items");
+        
+        // তারিখ ঠিক সেট হয়েছে কি না চেক করার জন্য
+        console.log("Current Date Set To:", today);
+    } catch (err) {
+        console.error("Error loading inventory:", err);
+        showToast("Failed to load inventory!", "danger");
+    }
+}
         function handleSupplierSearch(event) {
             const val = event.target.value;
             const box = document.getElementById('supplierSuggestionBox');
