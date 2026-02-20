@@ -361,7 +361,20 @@
                 toggleInputs(false);
             });
     }
-
+// --- মোডাল বন্ধ এবং ফরম রিসেট ফাংশন ---
+    function closeSuccessModal() {
+        successModal.hide(); // মোডাল বন্ধ করবে
+        resetForm();        // ফরমের সব ডাটা মুছবে
+        cart = [];          // কার্ট খালি করবে
+        render();           // টেবিল আপডেট করবে
+        
+        // পেমেন্ট ডিফল্ট অবস্থায় ফেরানো
+        document.getElementById('paymentMode').value = "Due";
+        handlePaymentModeChange();
+        
+        // কাস্টমার বক্সে ফোকাস
+        setTimeout(() => document.getElementById('cSearch').focus(), 300);
+    }
     function handleSearch(e, type) {
         const resDiv = type === 'C' ? document.getElementById('cRes') : document.getElementById('pRes');
         const items = resDiv.querySelectorAll('.list-group-item');
