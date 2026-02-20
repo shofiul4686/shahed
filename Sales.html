@@ -427,9 +427,9 @@
                         <span class="badge bg-primary">${r.id || r.code}</span>
                     </div>
                 </button>`).join('');
-            div.style.display = 'block';
-        } else div.style.display = 'none';
-    }
+        div.style.display = 'block';
+    } else div.style.display = 'none';
+}
 
     function selectC(code, name, mobile, area, address, type, payment) {
         document.getElementById('fCCode').value = code; 
