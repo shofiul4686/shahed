@@ -1,120 +1,94 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="bn">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login | ERP System</title>
+    <title>ERP লগইন | গিটহাব হোস্ট</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body {
-            background: linear-gradient(135deg, #198754 0%, #0d5032 100%);
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
             height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex; align-items: center; justify-content: center;
+            font-family: 'Segoe UI', sans-serif; margin: 0;
         }
         .login-card {
-            width: 100%;
-            max-width: 400px;
-            background: #fff;
-            border-radius: 15px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
-            overflow: hidden;
+            background: white; padding: 40px; border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+            width: 100%; max-width: 400px; text-align: center;
         }
-        .login-header {
-            background: #f8f9fa;
-            padding: 30px;
-            text-align: center;
-            border-bottom: 2px solid #eee;
-        }
-        .login-header i {
-            font-size: 50px;
-            color: #198754;
-        }
-        .card-body { padding: 30px; }
-        .form-control {
-            border-radius: 8px;
-            padding: 12px 15px;
-            border: 1px solid #ddd;
-        }
+        .logo-icon { font-size: 50px; color: #1e3c72; margin-bottom: 20px; }
+        .form-control { border-radius: 10px; padding: 12px; margin-bottom: 15px; }
         .btn-login {
-            background: #198754;
-            color: white;
-            font-weight: bold;
-            padding: 12px;
-            border-radius: 8px;
-            transition: 0.3s;
+            background: #1e3c72; color: white; border: none;
+            padding: 12px; border-radius: 10px; font-weight: bold;
+            width: 100%; transition: 0.3s;
         }
-        .btn-login:hover { background: #146c43; color: white; }
-        #msg { font-size: 14px; display: none; margin-top: 15px; }
+        .btn-login:hover { background: #2a5298; transform: translateY(-2px); }
+        #msg { margin-top: 15px; font-size: 14px; min-height: 20px; }
     </style>
 </head>
 <body>
 
     <div class="login-card">
-        <div class="login-header">
-            <i class="fas fa-user-circle"></i>
-            <h4 class="mt-2 fw-bold text-dark">ERP LOGIN</h4>
-        </div>
-        <div class="card-body">
-            <div class="mb-3">
-                <label class="form-label fw-bold small">ইউজারনেম</label>
-                <div class="input-group">
-                    <span class="input-group-text"><i class="fas fa-user"></i></span>
-                    <input type="text" id="user" class="form-control" placeholder="Admin">
-                </div>
-            </div>
-            <div class="mb-4">
-                <label class="form-label fw-bold small">পাসওয়ার্ড</label>
-                <div class="input-group">
-                    <span class="input-group-text"><i class="fas fa-lock"></i></span>
-                    <input type="password" id="pass" class="form-control" placeholder="•••••">
-                </div>
-            </div>
-            <button class="btn btn-login w-100" id="loginBtn" onclick="handleLogin()">
-                প্রবেশ করুন <i class="fas fa-sign-in-alt ms-2"></i>
-            </button>
-            <div id="msg" class="alert text-center"></div>
-        </div>
+        <div class="logo-icon"><i class="fas fa-university"></i></div>
+        <h3 class="mb-4">ERP সিস্টেম লগইন</h3>
+        
+        <input type="text" id="userid" class="form-control" placeholder="ইউজার আইডি">
+        <input type="password" id="password" class="form-control" placeholder="পাসওয়ার্ড">
+        
+        <button class="btn-login" id="loginBtn" onclick="handleLogin()">প্রবেশ করুন</button>
+        
+        <div id="msg"></div>
     </div>
 
     <script>
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzkDCX5zax-NuoSKRSxJIjL9Rx4MbtVxvm5QlrOEIxrTR-s3sVuRHJy_ISNIm3ehDYs/exec";
+        // আপনার Deploy করা Google Web App URL এখানে বসান
+         const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzkDCX5zax-NuoSKRSxJIjL9Rx4MbtVxvm5QlrOEIxrTR-s3sVuRHJy_ISNIm3ehDYs/exec"; 
 
-        function handleLogin() {
-            const user = document.getElementById('user').value;
-            const pass = document.getElementById('pass').value;
-            const btn = document.getElementById('loginBtn');
+
+        async function handleLogin() {
+            const id = document.getElementById('userid').value.trim();
+            const pass = document.getElementById('password').value.trim();
             const msg = document.getElementById('msg');
+            const btn = document.getElementById('loginBtn');
 
-            if(!user || !pass) {
-                showMessage("সবগুলো ঘর পূরণ করুন!", "alert-danger");
+            if (!id || !pass) {
+                msg.innerHTML = '<span class="text-danger">আইডি এবং পাসওয়ার্ড প্রদান করুন!</span>';
                 return;
             }
 
             btn.disabled = true;
-            btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> যাচাই হচ্ছে...';
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> যাচাই হচ্ছে...';
+            msg.innerHTML = "";
 
-            google.script.run.withSuccessHandler(function(response) {
-                if(response.status === "success") {
-                    showMessage("লগইন সফল! অপেক্ষা করুন...", "alert-success");
-                    // সফল হলে index পেজে রিডাইরেক্ট করবে
-                    window.top.location.href = WEB_APP_URL + "?page=index";
+            try {
+                // API কল (Code.gs এর action=login কে হিট করবে)
+                const response = await fetch(`${SCRIPT_URL}?action=login&id=${id}&pass=${pass}`);
+                const data = await response.json();
+
+                if (data.status === "success") {
+                    msg.innerHTML = '<span class="text-success">সফল! ড্যাশবোর্ডে নিয়ে যাওয়া হচ্ছে...</span>';
+                    
+                    // সফল হলে গিটহাবের ড্যাশবোর্ড পেজে (index.html) পাঠিয়ে দেবে
+                    setTimeout(() => {
+                        window.location.href = `index.html?name=${encodeURIComponent(data.name)}&id=${encodeURIComponent(data.userId)}`;
+                    }, 1200);
                 } else {
-                    showMessage("ইউজারনেম বা পাসওয়ার্ড ভুল!", "alert-danger");
-                    btn.disabled = false;
-                    btn.innerHTML = 'প্রবেশ করুন <i class="fas fa-sign-in-alt ms-2"></i>';
+                    msg.innerHTML = `<span class="text-danger">${data.message}</span>`;
+                    resetBtn();
                 }
-            }).checkLogin(user, pass);
+            } catch (error) {
+                msg.innerHTML = '<span class="text-danger">সার্ভার এরর! URL সঠিক আছে কি না চেক করুন।</span>';
+                resetBtn();
+            }
         }
 
-        function showMessage(text, type) {
-            const msg = document.getElementById('msg');
-            msg.innerText = text;
-            msg.className = "alert text-center " + type;
-            msg.style.display = 'block';
+        function resetBtn() {
+            const btn = document.getElementById('loginBtn');
+            btn.disabled = false;
+            btn.innerHTML = 'প্রবেশ করুন';
         }
     </script>
 </body>
