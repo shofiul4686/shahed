@@ -213,117 +213,259 @@
         </div>
     </div>
 
-   <script>
-    // গুরুত্বপূর্ণ: আপনার Google Apps Script এর Web App URL টি এখানে বসাবেন
-    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzkDCX5zax-NuoSKRSxJIjL9Rx4MbtVxvm5QlrOEIxrTR-s3sVuRHJy_ISNIm3ehDYs/exec"; 
+    <script>
+        // 12. Global Variables
+        let inventory = [];
+        let suppliers = ["PHARMA", "INM", "ISV", "OPTHALMIC"]; 
+        let purchaseCart = [];
+        let pendingItem = null;
+        let selectedSuggestionIndex = -1;
 
-    window.onload = () => {
-        const dateInput = document.getElementById('targetDate');
-        if(dateInput) dateInput.value = new Date().toISOString().split('T')[0];
-        fetchInventory(); // শুরুতেই ইনভেন্টরি লোড হবে
-    };
-
-    // --- ইনভেন্টরি ডাটা আনার ফাংশন ---
-    async function fetchInventory() {
-        const loader = document.getElementById('loader');
-        const invBox = document.getElementById('inventoryBox');
-        
-        try {
-            const response = await fetch(`${WEB_APP_URL}?action=getFilteredData`);
-            const data = await response.json();
-            showInventory(data);
-        } catch (err) {
-            console.error("Inventory Load Error:", err);
-            if(loader) loader.innerText = "ডাটা লোড করতে ব্যর্থ!";
-        }
-    }
-
-    function showInventory(data) {
-        const head = document.getElementById('invHead');
-        const body = document.getElementById('invBody');
-        
-        if (data && data.length > 0) {
-            head.innerHTML = "<tr>" + data[0].map(h => `<th>${h}</th>`).join('') + "</tr>";
-            let rows = "";
-            for (let i = 1; i < data.length; i++) {
-                rows += "<tr>" + data[i].map(c => `<td>${c}</td>`).join('') + "</tr>";
-            }
-            body.innerHTML = rows;
-            document.getElementById('loader').style.display = 'none';
-            document.getElementById('inventoryBox').style.display = 'block';
-        }
-    }
-
-    // --- সার্চ ফিল্টার ---
-    function filterInventory() {
-        let val = document.getElementById("searchInput").value.toUpperCase();
-        let rows = document.getElementById("invBody").rows;
-        for (let row of rows) {
-            row.style.display = row.innerText.toUpperCase().includes(val) ? "" : "none";
-        }
-    }
-
-    // --- মোডাল কন্ট্রোল ---
-    function openModal() { document.getElementById('purchaseModal').style.display = 'block'; }
-    function closeModal() { document.getElementById('purchaseModal').style.display = 'none'; }
-
-    // --- নির্দিষ্ট তারিখের পারচেজ রেকর্ড দেখা ---
-    async function loadPurchaseRecords() {
-        const date = document.getElementById('targetDate').value;
-        const status = document.getElementById('pStatus');
-        const pHead = document.getElementById('pHead');
-        const pBody = document.getElementById('pBody');
-
-        if(!date) { alert("তারিখ সিলেক্ট করুন"); return; }
-
-        status.style.display = 'block';
-        status.innerText = "সার্ভার থেকে ডাটা আনা হচ্ছে...";
-        status.style.background = "#e8f0fe";
-        status.style.color = "#1a73e8";
-        pHead.innerHTML = "";
-        pBody.innerHTML = "";
-
-        try {
-            // URL এ তারিখসহ রিকোয়েস্ট পাঠানো
-            const response = await fetch(`${WEB_APP_URL}?action=getPurchaseDataByDate&date=${date}`);
-            const res = await response.json();
-
-            if (res.error) {
-                status.innerText = res.error;
-                status.style.background = "#fee8e8";
-                status.style.color = "red";
-            } else if (res.rows && res.rows.length > 0) {
-                pHead.innerHTML = "<tr>" + res.headers.map(h => `<th>${h}</th>`).join('') + "</tr>";
-                pBody.innerHTML = res.rows.map(row => 
-                    "<tr>" + row.map((cell, idx) => {
-                        // তারিখ ফরম্যাট করা (প্রথম কলাম হলে)
-                        if (idx === 0 && cell) {
-                            let d = new Date(cell);
-                            return `<td>${!isNaN(d.getTime()) ? d.toLocaleDateString('en-GB') : cell}</td>`;
-                        }
-                        return `<td>${cell}</td>`;
-                    }).join('') + "</tr>"
-                ).join('');
-                status.innerText = res.rows.length + " টি রেকর্ড পাওয়া গেছে।";
-                status.style.background = "#e8fee8";
-                status.style.color = "green";
+        // 13. Custom Notification Function
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('customToast');
+            toast.innerText = message;
+            
+            if(type === 'success') {
+                toast.style.backgroundColor = '#198754';
+                toast.style.border = '2px solid #146c43';
+            } else if(type === 'danger') {
+                toast.style.backgroundColor = '#dc3545';
+                toast.style.border = '2px solid #b02a37';
             } else {
-                status.innerText = "উক্ত তারিখে কোনো রেকর্ড নেই।";
-                status.style.background = "#fff3cd";
-                status.style.color = "#856404";
+                toast.style.backgroundColor = '#0d6efd';
+                toast.style.border = '2px solid #0a58ca';
             }
-        } catch (err) {
-            status.innerText = "Error: " + err.message;
-            status.style.background = "#fee8e8";
-            status.style.color = "red";
+            
+            toast.style.display = 'block';
+            setTimeout(() => { toast.style.display = 'none'; }, 3000);
         }
-    }
 
-    window.onclick = (e) => {
-        if (e.target == document.getElementById('purchaseModal')) closeModal();
-    }
-</script>
+        // 14. Init Page
+        function initPurchase() {
+            document.getElementById('purDate').valueAsDate = new Date();
+            if(typeof google !== 'undefined') {
+                google.script.run.withSuccessHandler(data => {
+                    inventory = data;
+                }).getInventoryData();
+                google.script.run.withSuccessHandler(data => {
+                    if(data) suppliers = [...new Set([...suppliers, ...data])];
+                }).getSupplierData();
+            }
+        }
+
+        // 15. Supplier Search Logic
+        function handleSupplierSearch(event) {
+            const val = event.target.value;
+            const box = document.getElementById('supplierSuggestionBox');
+            if (event.key === 'ArrowDown') { navigateSuggestions(box, 1); return; }
+            if (event.key === 'ArrowUp') { navigateSuggestions(box, -1); return; }
+            if (event.key === 'Enter') {
+                const active = box.querySelector('.suggestion-item.active');
+                if (active) active.click();
+                return;
+            }
+            const filtered = val ? suppliers.filter(s => s.toLowerCase().includes(val.toLowerCase())) : suppliers;
+            box.innerHTML = filtered.map(s => `<div class="suggestion-item" onclick="selectSupplier('${s}')"><b>${s}</b></div>`).join('');
+            box.style.display = filtered.length ? 'block' : 'none';
+        }
+
+        function selectSupplier(name) {
+            document.getElementById('purSupplier').value = name;
+            document.getElementById('supplierSuggestionBox').style.display = 'none';
+            document.getElementById('purNote').focus();
+        }
+
+        // 16. Product Search Logic
+        function handleSearch(event, type) {
+            const val = event.target.value;
+            const targetBox = (type === 'code') ? document.getElementById('codeSuggestionBox') : document.getElementById('nameSuggestionBox');
+            if (event.key === 'ArrowDown') { navigateSuggestions(targetBox, 1); return; }
+            if (event.key === 'ArrowUp') { navigateSuggestions(targetBox, -1); return; }
+            if (event.key === 'Enter') {
+                const active = targetBox.querySelector('.suggestion-item.active');
+                if (active) active.click();
+                return;
+            }
+            
+            document.querySelectorAll('.suggestion-box').forEach(b => b.style.display = 'none');
+            if (!val || inventory.length < 2) return;
+            
+            const searchVal = val.toLowerCase();
+            const filtered = inventory.slice(1).filter(r => 
+                r[0].toString().toLowerCase().includes(searchVal) || 
+                r[1].toString().toLowerCase().includes(searchVal)
+            );
+
+            if (filtered.length) {
+                targetBox.innerHTML = filtered.map(r => `
+                    <div class="suggestion-item" onclick='fillInputs(${JSON.stringify(r)})'>
+                        <b>${r[1]}</b><br>
+                        <small>Code: ${r[0]} | Pack: ${r[2]}</small>
+                    </div>
+                `).join('');
+                targetBox.style.display = 'block';
+            }
+        }
+
+        function navigateSuggestions(box, dir) {
+            const items = box.querySelectorAll('.suggestion-item');
+            if (!items.length) return;
+            if (selectedSuggestionIndex >= 0 && selectedSuggestionIndex < items.length) items[selectedSuggestionIndex].classList.remove('active');
+            selectedSuggestionIndex = (selectedSuggestionIndex + dir + items.length) % items.length;
+            items[selectedSuggestionIndex].classList.add('active');
+            items[selectedSuggestionIndex].scrollIntoView({ block: 'nearest' });
+        }
+
+        function fillInputs(item) {
+            document.getElementById('itemCode').value = item[0];
+            document.getElementById('itemName').value = item[1];
+            document.getElementById('itemPack').value = item[2];
+            document.querySelectorAll('.suggestion-box').forEach(b => b.style.display = 'none');
+            selectedSuggestionIndex = -1;
+            setTimeout(() => document.getElementById('buyRate').focus(), 50);
+        }
+
+        // 17. Add Item Logic
+        function addItemToCart() {
+            const code = document.getElementById('itemCode').value;
+            const name = document.getElementById('itemName').value;
+            const pack = document.getElementById('itemPack').value;
+            const bRate = parseFloat(document.getElementById('buyRate').value) || 0;
+            const sRate = parseFloat(document.getElementById('saleRate').value) || 0;
+            const qty = parseFloat(document.getElementById('itemQty').value) || 0;
+
+            if (!code || qty <= 0) {
+                showToast("Invalid item code or quantity!", "danger");
+                return;
+            }
+
+            const existingIdx = purchaseCart.findIndex(i => i.code === code);
+            if (existingIdx > -1) {
+                pendingItem = { index: existingIdx, qty, bRate, sRate, name };
+                document.getElementById('modalIcon').innerHTML = '<i class="fas fa-copy" style="color: #0d6efd"></i>';
+                document.getElementById('modalTitle').innerText = "Already in List";
+                document.getElementById('confirmMessage').innerText = `'${name}' already exists. Add ${qty} more to current quantity?`;
+                document.getElementById('confirmModal').style.display = 'flex';
+                
+                document.getElementById('btnConfirmYes').onclick = function() {
+                    const item = purchaseCart[pendingItem.index];
+                    item.qty += pendingItem.qty;
+                    item.bRate = pendingItem.bRate;
+                    item.sRate = pendingItem.sRate;
+                    item.total = item.qty * item.bRate;
+                    closeConfirmModal(true);
+                };
+            } else {
+                purchaseCart.push({ code, name, pack, bRate, sRate, qty, total: qty * bRate });
+                updateTable();
+                clearInputs();
+                showToast("Item added successfully!", "success");
+            }
+        }
+
+        function closeConfirmModal(isConfirmed) {
+            document.getElementById('confirmModal').style.display = 'none';
+            if (isConfirmed) {
+                updateTable();
+                clearInputs();
+                showToast("Entry updated!", "success");
+            }
+            pendingItem = null;
+        }
+
+        function clearInputs() {
+            ['itemCode', 'itemName', 'itemPack', 'buyRate', 'saleRate', 'itemQty'].forEach(id => document.getElementById(id).value = "");
+            setTimeout(() => document.getElementById('itemCode').focus(), 10);
+        }
+
+        // 18. Table Update Logic
+        function updateTable() {
+            const tbody = document.getElementById('cartItems');
+            if (purchaseCart.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="9" class="p-4 text-muted italic">No items in cart</td></tr>`;
+            } else {
+                tbody.innerHTML = purchaseCart.map((item, idx) => `
+                    <tr>
+                        <td class="text-muted small">${idx + 1}</td>
+                        <td>${item.code}</td>
+                        <td class="text-start">${item.name}</td>
+                        <td>${item.pack}</td>
+                        <td>${item.bRate.toFixed(2)}</td>
+                        <td>${item.sRate.toFixed(2)}</td>
+                        <td>${item.qty}</td>
+                        <td class="fw-bold">${item.total.toFixed(2)}</td>
+                        <td><button class="btn btn-sm text-danger" onclick="removeItem(${idx})"><i class="fas fa-trash"></i></button></td>
+                    </tr>
+                `).join('');
+            }
+            document.getElementById('grandTotal').innerText = purchaseCart.reduce((a, b) => a + b.total, 0).toFixed(2);
+        }
+
+        function removeItem(idx) {
+            purchaseCart.splice(idx, 1);
+            updateTable();
+            showToast("Item removed from cart.", "info");
+        }
+
+        // 19. Save Logic
+        function savePurchaseOrder() {
+            if (!purchaseCart.length) return showToast("Nothing to save!", "danger");
+            const supplier = document.getElementById('purSupplier').value;
+            if (!supplier) return showToast("Supplier name is required!", "danger");
+
+            const btn = document.getElementById('saveBtn');
+            const originalText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+
+            const data = {
+                date: document.getElementById('purDate').value,
+                supplier: supplier,
+                note: document.getElementById('purNote').value
+            };
+
+            const processSave = (index) => {
+                if (index >= purchaseCart.length) {
+                    showToast("All items saved successfully!", "success");
+                    purchaseCart = [];
+                    updateTable();
+                    document.getElementById('purSupplier').value = "";
+                    document.getElementById('purNote').value = "";
+                    clearInputs();
+                    btn.disabled = false;
+                    btn.innerHTML = originalText;
+                    return;
+                }
+                const item = purchaseCart[index];
+                const rowData = { ...data, ...item };
+                
+                if(typeof google !== 'undefined') {
+                    google.script.run
+                        .withSuccessHandler(() => processSave(index + 1))
+                        .withFailureHandler(() => {
+                            showToast("Server error occurred", "danger");
+                            btn.disabled = false;
+                            btn.innerHTML = originalText;
+                        })
+                        .savePurchase(rowData);
+                } else {
+                    console.log("Mock save:", rowData);
+                    setTimeout(() => processSave(index + 1), 300);
+                }
+            };
+            processSave(0);
+        }
+
+        // Close suggestions on outside click
+        document.addEventListener('click', e => {
+            if (!e.target.closest('.position-relative')) {
+                document.querySelectorAll('.suggestion-box').forEach(b => b.style.display = 'none');
+            }
+        });
+
+        // Init table state
+        updateTable();
+    </script>
 </body>
-
 </html>
-
