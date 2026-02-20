@@ -44,7 +44,7 @@
     </div>
 
     <script>
-        // আপনার সঠিক Deployed Web App URL (অবশ্যই শেষে /exec থাকতে হবে)
+        // আপনার সঠিক Deployed Web App URL
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzkDCX5zax-NuoSKRSxJIjL9Rx4MbtVxvm5QlrOEIxrTR-s3sVuRHJy_ISNIm3ehDYs/exec"; 
 
         async function handleLogin() {
@@ -60,14 +60,15 @@
 
             btn.disabled = true;
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> যাচাই হচ্ছে...';
-            msg.innerHTML = "";
+            msg.innerHTML = "সার্ভারের সাথে সংযোগ করা হচ্ছে...";
 
-            // fetch রিকোয়েস্ট পাঠানো
             const finalUrl = `${SCRIPT_URL}?action=login&id=${encodeURIComponent(id)}&pass=${encodeURIComponent(pass)}`;
 
-            fetch(finalUrl)
-            .then(response => response.json())
-            .then(data => {
+            try {
+                // 'no-cors' মোড ব্যবহার করবেন না, ডিফল্ট fetch ব্যবহার করুন
+                const response = await fetch(finalUrl);
+                const data = await response.json();
+
                 if (data.status === "success") {
                     msg.innerHTML = '<span class="text-success">সফল! প্রবেশ করা হচ্ছে...</span>';
                     // সফল হলে গিটহাবের ড্যাশবোর্ডে পাঠানো
@@ -75,15 +76,14 @@
                         window.location.href = `index.html?name=${encodeURIComponent(data.name)}&id=${encodeURIComponent(data.userId)}`;
                     }, 1000);
                 } else {
-                    msg.innerHTML = `<span class="text-danger">${data.message || "ভুল তথ্য!"}</span>`;
+                    msg.innerHTML = `<span class="text-danger">${data.message || "ভুল আইডি বা পাসওয়ার্ড!"}</span>`;
                     resetBtn();
                 }
-            })
-            .catch(error => {
-                console.error("Error:", error);
-                msg.innerHTML = '<span class="text-danger">নেটওয়ার্ক এরর! স্ক্রিপ্ট URL সঠিক আছে কি না এবং এটি "Anyone" এর জন্য Deploy করা কি না নিশ্চিত করুন।</span>';
+            } catch (error) {
+                console.error("Error Detail:", error);
+                msg.innerHTML = '<span class="text-danger">লগইন ব্যর্থ! আপনার গুগল স্ক্রিপ্টে "Anyone" অ্যাক্সেস দিয়ে নতুন করে Deploy করুন।</span>';
                 resetBtn();
-            });
+            }
         }
 
         function resetBtn() {
