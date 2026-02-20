@@ -122,9 +122,9 @@
                     <!-- 8. Top Section: Date, Supplier, and Note -->
                     <div class="row g-3 mb-4 pb-3 border-bottom">
                         <div class="col-md-2">
-    <label class="form-label small fw-bold">Date</label>
-    <input type="date" id="purDate" class="form-control shadow-sm" readonly>
-</div
+                            <label class="form-label small fw-bold">Date</label>
+                            <input type="date" id="purDate" class="form-control shadow-sm" readonly>
+                        </div>
                         <div class="col-md-4 position-relative">
                             <label class="form-label small fw-bold">Supplier Name</label>
                             <input type="text" id="purSupplier" class="form-control shadow-sm" placeholder="Search Supplier..." autocomplete="off" 
@@ -243,23 +243,16 @@
 
         // 14. Init Page
         function initPurchase() {
-    // আজকের তারিখ পাওয়ার কোড (YYYY-MM-DD ফরম্যাট)
-    const today = new Date().toISOString().split('T')[0];
-    const dateInput = document.getElementById('purDate');
-    
-    if (dateInput) {
-        dateInput.value = today; // তারিখ সেট করা
-    }
-
-    if(typeof google !== 'undefined') {
-        google.script.run.withSuccessHandler(data => {
-            inventory = data;
-        }).getInventoryData();
-        google.script.run.withSuccessHandler(data => {
-            if(data) suppliers = [...new Set([...suppliers, ...data])];
-        }).getSupplierData();
-    }
-}
+            document.getElementById('purDate').valueAsDate = new Date();
+            if(typeof google !== 'undefined') {
+                google.script.run.withSuccessHandler(data => {
+                    inventory = data;
+                }).getInventoryData();
+                google.script.run.withSuccessHandler(data => {
+                    if(data) suppliers = [...new Set([...suppliers, ...data])];
+                }).getSupplierData();
+            }
+        }
 
         // 15. Supplier Search Logic
         function handleSupplierSearch(event) {
