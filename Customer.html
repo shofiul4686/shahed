@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    .hidden-section { display: none; }
+    .form-container { transition: all 0.5s ease; margin-top: 20px; }
+    .btn-main { height: 80px; font-size: 1.2rem; font-weight: bold; border-radius: 15px; }
+    .new-entry-card { border-top: 8px solid #198754; }
+    .update-card { border-top: 8px solid #ffc107; }
+  </style>
+</head>
+<body class="bg-light p-4">
+
+  <div class="container text-center">
+    <h3 class="mb-4 fw-bold text-dark text-uppercase">Customer Management System</h3>
+    
+    <div class="row justify-content-center g-3">
+      <div class="col-md-5">
+        <button class="btn btn-success w-100 btn-main shadow" onclick="toggleForm('NEW')">
+          <i class="fas fa-plus-circle"></i> ADD NEW CUSTOMER
+        </button>
+      </div>
+      <div class="col-md-5">
+        <button class="btn btn-warning w-100 btn-main shadow text-dark" onclick="toggleForm('UPDATE')">
+          <i class="fas fa-user-edit"></i> UPDATE EXISTING
+        </button>
+      </div>
+    </div>
+
+    <div id="formSection" class="form-container hidden-section text-start">
+      <div id="cardTheme" class="card shadow-lg p-4">
+        <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-2">
+          <h4 id="formTitle" class="mb-0">FORM</h4>
+          <button type="button" class="btn-close" onclick="closeForm()"></button>
+        </div>
+
+        <div class="row g-3">
+          <div id="searchContainer" class="col-md-12 bg-warning bg-opacity-10 p-3 rounded mb-3 hidden-section border border-warning">
+            <label class="fw-bold text-dark small"><i class="fas fa-search"></i> SEARCH BY NAME OR ID</label>
+            <input type="text" id="cSearch" class="form-control form-control-lg shadow-sm" list="customerList" placeholder="টাইপ করুন (নাম অথবা আইডি)..." oninput="autoFill(this.value)">
+            <datalist id="customerList"></datalist>
+          </div>
+
+          <div class="col-md-3">
+            <label class="fw-bold small">CUSTOMER ID</label>
+            <input type="text" id="cCode" class="form-control fw-bold bg-white" placeholder="automatically Coustomer id" readonly>
+          </div>
+          <div class="col-md-5"><label class="fw-bold small">NAME</label><input type="text" id="cName" class="form-control shadow-sm"></div>
+          <div class="col-md-4"><label class="fw-bold small">MOBILE</label><input type="text" id="cMob" class="form-control shadow-sm"></div>
+          <div class="col-md-4"><label class="fw-bold small">AREA</label><input type="text" id="cArea" class="form-control shadow-sm"></div>
+          <div class="col-md-8"><label class="fw-bold small">ADDRESS</label><input type="text" id="cAddr" class="form-control shadow-sm"></div>
+          
+          <div class="col-md-6">
+            <label class="fw-bold small">TYPE</label>
+            <select id="cType" class="form-select shadow-sm"><option value="Retail">Retail</option><option value="Wholesale">Wholesale</option></select>
+          </div>
+          <div class="col-md-6">
+            <label class="fw-bold small">PAYMENT</label>
+            <select id="cPay" class="form-select shadow-sm"><option value="Cash">Cash</option><option value="Due">Due</option></select>
+          </div>
+
+          <div class="col-md-12 text-end mt-4 pt-3 border-top">
+            <button class="btn btn-secondary px-4 me-2" onclick="closeForm()">CANCEL</button>
+            <button id="submitBtn" class="btn btn-lg px-5 shadow text-white fw-bold"></button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+    // গুরুত্বপূর্ণ: আপনার Google Apps Script এর Web App URL টি এখানে বসাবেন
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzkDCX5zax-NuoSKRSxJIjL9Rx4MbtVxvm5QlrOEIxrTR-s3sVuRHJy_ISNIm3ehDYs/exec"; 
+
+    let allCustomers = [];
+    let currentMode = "";
+
+    async function toggleForm(mode) {
+      currentMode = mode;
+      const section = document.getElementById('formSection');
+      const card = document.getElementById('cardTheme');
+      const btn = document.getElementById('submitBtn');
+      const searchBox = document.getElementById('searchContainer');
+      
+      clearInputs();
+      section.classList.remove('hidden-section');
+
+      if(mode === 'NEW') {
+        document.getElementById('formTitle').innerHTML = '<i class="fas fa-user-plus text-success"></i> NEW ENTRY';
+        card.className = "card shadow-lg p-4 new-entry-card";
+        btn.className = "btn btn-success btn-lg px-5 shadow text-white fw-bold";
+        btn.innerText = "SAVE NEW";
+        searchBox.classList.add('hidden-section');
+        
+        // আইডি আনার জন্য fetch
+        try {
+            const response = await fetch(`${WEB_APP_URL}?action=getNextId`);
+            const id = await response.json();
+            document.getElementById('cCode').value = id;
+        } catch(e) { console.error("ID Fetch Error", e); }
+
+      } else {
+        document.getElementById('formTitle').innerHTML = '<i class="fas fa-user-edit text-warning"></i> UPDATE DATA';
+        card.className = "card shadow-lg p-4 update-card";
+        btn.className = "btn btn-warning btn-lg px-5 shadow text-dark fw-bold";
+        btn.innerText = "UPDATE DATA";
+        searchBox.classList.remove('hidden-section');
+        
+        loadCustomerList(); 
+      }
+    }
+
+    // কাস্টমার লিস্ট লোড করার ফাংশন
+    async function loadCustomerList() {
+      try {
+          const response = await fetch(`${WEB_APP_URL}?action=getAllCustomers`);
+          const data = await response.json();
+          allCustomers = data;
+          const list = document.getElementById('customerList');
+          list.innerHTML = "";
+          data.forEach(c => {
+            let opt = document.createElement('option');
+            opt.value = `${c.id} | ${c.name}`;
+            list.appendChild(opt);
+          });
+      } catch(e) { console.error("Load Customer Error", e); }
+    }
+
+    function autoFill(val) {
+      if(!val.includes(" | ")) return;
+      const id = val.split(" | ")[0];
+      const customer = allCustomers.find(c => c.id === id);
+      
+      if(customer) {
+        document.getElementById('cCode').value = customer.id;
+        document.getElementById('cName').value = customer.name;
+        document.getElementById('cMob').value = customer.mobile;
+        document.getElementById('cArea').value = customer.area;
+        document.getElementById('cAddr').value = customer.address;
+        document.getElementById('cType').value = customer.type || "Retail";
+        document.getElementById('cPay').value = customer.payment || "Cash";
+      }
+    }
+
+    function clearInputs() {
+      const ids = ['cCode', 'cName', 'cMob', 'cArea', 'cAddr', 'cSearch'];
+      ids.forEach(id => {
+          const el = document.getElementById(id);
+          if(el) el.value = "";
+      });
+      document.getElementById('cType').value = "Retail";
+      document.getElementById('cPay').value = "Cash";
+    }
+
+    function closeForm() {
+      document.getElementById('formSection').classList.add('hidden-section');
+    }
+
+    // সাবমিট বাটন লজিক (Fetch POST ব্যবহার করা হয়েছে)
+    document.getElementById('submitBtn').onclick = async function() {
+      const btn = document.getElementById('submitBtn');
+      
+      let customerData = {
+        action: "saveCustomer", // Code.gs চেনার জন্য
+        mode: currentMode,
+        code: document.getElementById('cCode').value,
+        name: document.getElementById('cName').value,
+        mobile: document.getElementById('cMob').value,
+        area: document.getElementById('cArea').value,
+        address: document.getElementById('cAddr').value,
+        type: document.getElementById('cType').value,
+        payment: document.getElementById('cPay').value
+      };
+      
+      if(!customerData.name || !customerData.code) return alert("দয়া করে নাম এবং আইডি নিশ্চিত করুন!");
+
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Processing...';
+
+      try {
+          // POST রিকোয়েস্ট পাঠানো
+          await fetch(WEB_APP_URL, {
+              method: "POST",
+              mode: "no-cors",
+              body: JSON.stringify(customerData)
+          });
+
+          // যেহেতু no-cors মোডে সাকসেস মেসেজ পড়া যায় না, তাই আমরা সাকসেস ধরে নিয়ে কাজ করছি
+          alert("ডেটা প্রসেস করা হয়েছে! (গুগল শিট চেক করুন)");
+          
+          if (currentMode === 'UPDATE') {
+              loadCustomerList();
+          }
+          
+          clearInputs();
+          closeForm();
+      } catch (err) {
+          alert("Error: " + err);
+      } finally {
+          btn.disabled = false;
+          btn.innerText = (currentMode === 'NEW') ? "SAVE NEW" : "UPDATE DATA";
+      }
+    };
+</script>
+</body>
+</html>

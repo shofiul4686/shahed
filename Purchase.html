@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Purchase Entry System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* 1. General Page Design */
+        body { background-color: #f0f2f5; font-family: 'Segoe UI', Tahoma, sans-serif; }
+        .card { border-radius: 12px; border: none; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+        .header-title { border-left: 5px solid #0d6efd; padding-left: 15px; color: #0d6efd; font-weight: bold; }
+        
+        /* 2. Search Suggestion Box Design */
+        .suggestion-box {
+            position: absolute;
+            z-index: 1050;
+            width: 100%;
+            background: white;
+            border: 1px solid #ddd;
+            max-height: 250px;
+            overflow-y: auto;
+            border-radius: 8px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+            display: none;
+        }
+        .suggestion-item {
+            padding: 10px 15px;
+            cursor: pointer;
+            border-bottom: 1px solid #f1f1f1;
+            font-size: 14px;
+            transition: 0.2s;
+        }
+        .suggestion-item.active, .suggestion-item:hover { 
+            background-color: #0d6efd !important; 
+            color: white !important; 
+        }
+        
+        /* 3. Table and Input Row Styles */
+        .table thead { background-color: #343a40; color: white; }
+        .total-section { background: #f8f9fa; font-weight: bold; }
+        .input-row { background: #ffffff; border: 1px solid #dee2e6; border-radius: 8px; margin-bottom: 20px; }
+
+        /* 4. Custom Modal Design (Centered) */
+        .custom-modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6);
+            display: none;
+            align-items: center; 
+            justify-content: center; 
+            z-index: 2000;
+            backdrop-filter: blur(4px);
+        }
+        .custom-modal {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: modalPop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        @keyframes modalPop {
+            from { transform: scale(0.5); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        /* 5. Custom Toast (Centered) */
+        #customToast {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 3000;
+            padding: 20px 40px;
+            border-radius: 15px;
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 600;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+            display: none;
+            text-align: center;
+            min-width: 300px;
+            animation: toastFadeIn 0.4s ease-out;
+        }
+        @keyframes toastFadeIn {
+            from { transform: translate(-50%, -60%); opacity: 0; }
+            to { transform: translate(-50%, -50%); opacity: 1; }
+        }
+    </style>
+</head>
+<body onload="initPurchase()">
+
+    <!-- 6. Custom Alert Toast Box -->
+    <div id="customToast"></div>
+
+    <!-- 7. Duplicate Item and Confirmation Modal -->
+    <div id="confirmModal" class="custom-modal-overlay">
+        <div class="custom-modal">
+            <div id="modalIcon" style="font-size: 60px; color: #ffc107; margin-bottom: 20px;">
+                <i class="fas fa-exclamation-circle"></i>
+            </div>
+            <h4 id="modalTitle" class="fw-bold mb-3">Confirmation</h4>
+            <p id="confirmMessage" class="text-muted fs-5"></p>
+            <div class="d-flex justify-content-center gap-3 mt-4">
+                <button class="btn btn-outline-secondary px-4 py-2 fw-bold" onclick="closeConfirmModal(false)">No, Cancel</button>
+                <button id="btnConfirmYes" class="btn btn-primary px-4 py-2 fw-bold">Yes, Update</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid mt-4 mb-5">
+        <div class="row justify-content-center">
+            <div class="col-md-11">
+                <div class="card p-4">
+                    <h4 class="header-title mb-4"><i class="fas fa-shopping-basket me-2"></i>Purchase Entry</h4>
+                    
+                    <!-- 8. Top Section: Date, Supplier, and Note -->
+                    <div class="row g-3 mb-4 pb-3 border-bottom">
+                        <div class="col-md-2">
+                            <label class="form-label small fw-bold">Date</label>
+                            <input type="date" id="purDate" class="form-control shadow-sm">
+                        </div>
+                        <div class="col-md-4 position-relative">
+                            <label class="form-label small fw-bold">Supplier Name</label>
+                            <input type="text" id="purSupplier" class="form-control shadow-sm" placeholder="Search Supplier..." autocomplete="off" 
+                                   onfocus="handleSupplierSearch(event)" 
+                                   onkeyup="handleSupplierSearch(event)">
+                            <div id="supplierSuggestionBox" class="suggestion-box"></div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold">Note</label>
+                            <input type="text" id="purNote" class="form-control shadow-sm" placeholder="Additional info...">
+                        </div>
+                    </div>
+
+                    <!-- 9. Item Input Section -->
+                    <div class="input-row p-3 shadow-sm">
+                        <div class="row g-2 align-items-end">
+                            <div class="col-md-2 position-relative">
+                                <label class="form-label small fw-bold">Code</label>
+                                <input type="text" id="itemCode" class="form-control" placeholder="Code" autocomplete="off" onkeyup="handleSearch(event, 'code')">
+                                <div id="codeSuggestionBox" class="suggestion-box"></div>
+                            </div>
+                            <div class="col-md-3 position-relative">
+                                <label class="form-label small fw-bold">Item Name</label>
+                                <input type="text" id="itemName" class="form-control" placeholder="Name" autocomplete="off" onkeyup="handleSearch(event, 'name')">
+                                <div id="nameSuggestionBox" class="suggestion-box"></div>
+                            </div>
+                            <div class="col-md-1">
+                                <label class="form-label small fw-bold">Pack</label>
+                                <input type="text" id="itemPack" class="form-control bg-light" readonly tabindex="-1">
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label small fw-bold">Purchase Rate</label>
+                                <input type="number" id="buyRate" class="form-control" placeholder="0.00" onkeydown="if(event.key==='Enter') document.getElementById('saleRate').focus()">
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label small fw-bold text-danger">Sales Price</label>
+                                <input type="number" id="saleRate" class="form-control" placeholder="0.00" onkeydown="if(event.key==='Enter') document.getElementById('itemQty').focus()">
+                            </div>
+                            <div class="col-md-1">
+                                <label class="form-label small fw-bold">Quantity</label>
+                                <input type="number" id="itemQty" class="form-control" placeholder="Qty" onkeydown="if(event.key==='Enter') addItemToCart()">
+                            </div>
+                            <div class="col-md-1">
+                                <button class="btn btn-primary w-100 fw-bold" onclick="addItemToCart()">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 10. Purchase Cart Table -->
+                    <div class="table-responsive">
+                        <table class="table table-hover table-bordered text-center align-middle">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th style="width: 50px;">SL</th>
+                                    <th>Code</th>
+                                    <th class="text-start">Item Name</th>
+                                    <th>Pack</th>
+                                    <th>Pur. Rate</th>
+                                    <th>Sale Price</th>
+                                    <th>Qty</th>
+                                    <th>Total (৳)</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="cartItems"></tbody>
+                            <tfoot class="total-section">
+                                <tr>
+                                    <td colspan="7" class="text-end">Grand Total:</td>
+                                    <td id="grandTotal" class="text-primary fs-5">0.00</td>
+                                    <td class="fw-bold">৳</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+
+                    <!-- 11. Save Button -->
+                    <div class="text-end mt-4">
+                        <button id="saveBtn" class="btn btn-success btn-lg px-5 fw-bold" onclick="savePurchaseOrder()">
+                            <i class="fas fa-save me-2"></i> Save Voucher
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+   <script>
+    // গুরুত্বপূর্ণ: আপনার Google Apps Script এর Web App URL টি এখানে বসাবেন
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzkDCX5zax-NuoSKRSxJIjL9Rx4MbtVxvm5QlrOEIxrTR-s3sVuRHJy_ISNIm3ehDYs/exec"; 
+
+    window.onload = () => {
+        const dateInput = document.getElementById('targetDate');
+        if(dateInput) dateInput.value = new Date().toISOString().split('T')[0];
+        fetchInventory(); // শুরুতেই ইনভেন্টরি লোড হবে
+    };
+
+    // --- ইনভেন্টরি ডাটা আনার ফাংশন ---
+    async function fetchInventory() {
+        const loader = document.getElementById('loader');
+        const invBox = document.getElementById('inventoryBox');
+        
+        try {
+            const response = await fetch(`${WEB_APP_URL}?action=getFilteredData`);
+            const data = await response.json();
+            showInventory(data);
+        } catch (err) {
+            console.error("Inventory Load Error:", err);
+            if(loader) loader.innerText = "ডাটা লোড করতে ব্যর্থ!";
+        }
+    }
+
+    function showInventory(data) {
+        const head = document.getElementById('invHead');
+        const body = document.getElementById('invBody');
+        
+        if (data && data.length > 0) {
+            head.innerHTML = "<tr>" + data[0].map(h => `<th>${h}</th>`).join('') + "</tr>";
+            let rows = "";
+            for (let i = 1; i < data.length; i++) {
+                rows += "<tr>" + data[i].map(c => `<td>${c}</td>`).join('') + "</tr>";
+            }
+            body.innerHTML = rows;
+            document.getElementById('loader').style.display = 'none';
+            document.getElementById('inventoryBox').style.display = 'block';
+        }
+    }
+
+    // --- সার্চ ফিল্টার ---
+    function filterInventory() {
+        let val = document.getElementById("searchInput").value.toUpperCase();
+        let rows = document.getElementById("invBody").rows;
+        for (let row of rows) {
+            row.style.display = row.innerText.toUpperCase().includes(val) ? "" : "none";
+        }
+    }
+
+    // --- মোডাল কন্ট্রোল ---
+    function openModal() { document.getElementById('purchaseModal').style.display = 'block'; }
+    function closeModal() { document.getElementById('purchaseModal').style.display = 'none'; }
+
+    // --- নির্দিষ্ট তারিখের পারচেজ রেকর্ড দেখা ---
+    async function loadPurchaseRecords() {
+        const date = document.getElementById('targetDate').value;
+        const status = document.getElementById('pStatus');
+        const pHead = document.getElementById('pHead');
+        const pBody = document.getElementById('pBody');
+
+        if(!date) { alert("তারিখ সিলেক্ট করুন"); return; }
+
+        status.style.display = 'block';
+        status.innerText = "সার্ভার থেকে ডাটা আনা হচ্ছে...";
+        status.style.background = "#e8f0fe";
+        status.style.color = "#1a73e8";
+        pHead.innerHTML = "";
+        pBody.innerHTML = "";
+
+        try {
+            // URL এ তারিখসহ রিকোয়েস্ট পাঠানো
+            const response = await fetch(`${WEB_APP_URL}?action=getPurchaseDataByDate&date=${date}`);
+            const res = await response.json();
+
+            if (res.error) {
+                status.innerText = res.error;
+                status.style.background = "#fee8e8";
+                status.style.color = "red";
+            } else if (res.rows && res.rows.length > 0) {
+                pHead.innerHTML = "<tr>" + res.headers.map(h => `<th>${h}</th>`).join('') + "</tr>";
+                pBody.innerHTML = res.rows.map(row => 
+                    "<tr>" + row.map((cell, idx) => {
+                        // তারিখ ফরম্যাট করা (প্রথম কলাম হলে)
+                        if (idx === 0 && cell) {
+                            let d = new Date(cell);
+                            return `<td>${!isNaN(d.getTime()) ? d.toLocaleDateString('en-GB') : cell}</td>`;
+                        }
+                        return `<td>${cell}</td>`;
+                    }).join('') + "</tr>"
+                ).join('');
+                status.innerText = res.rows.length + " টি রেকর্ড পাওয়া গেছে।";
+                status.style.background = "#e8fee8";
+                status.style.color = "green";
+            } else {
+                status.innerText = "উক্ত তারিখে কোনো রেকর্ড নেই।";
+                status.style.background = "#fff3cd";
+                status.style.color = "#856404";
+            }
+        } catch (err) {
+            status.innerText = "Error: " + err.message;
+            status.style.background = "#fee8e8";
+            status.style.color = "red";
+        }
+    }
+
+    window.onclick = (e) => {
+        if (e.target == document.getElementById('purchaseModal')) closeModal();
+    }
+</script>
+</body>
+</html>
