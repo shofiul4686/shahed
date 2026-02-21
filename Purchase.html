@@ -121,193 +121,207 @@
     </div>
 
     <script>
-        // API URL (আপনার দেওয়া URL)
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzkDCX5zax-NuoSKRSxJIjL9Rx4MbtVxvm5QlrOEIxrTR-s3sVuRHJy_ISNIm3ehDYs/exec";
+    // API URL
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzkDCX5zax-NuoSKRSxJIjL9Rx4MbtVxvm5QlrOEIxrTR-s3sVuRHJy_ISNIm3ehDYs/exec";
 
-        let inventory = [];
-        let suppliers = ["PHARMA", "INM", "ISV", "OPTHALMIC"]; 
-        let purchaseCart = [];
-        let pendingItem = null;
-        let selectedSuggestionIndex = -1;
-
-        function showToast(message, type = 'info') {
-            const toast = document.getElementById('customToast');
-            toast.innerText = message;
-            toast.style.backgroundColor = type === 'success' ? '#198754' : (type === 'danger' ? '#dc3545' : '#0d6efd');
-            toast.style.display = 'block';
-            setTimeout(() => { toast.style.display = 'none'; }, 3000);
-        }
-
-        async function initPurchase() {
-    // সঠিক স্থানীয় তারিখ সেট করার কোড
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = String(now.getMonth() + 1).padStart(2, '0');
-    const day = String(now.getDate()).padStart(2, '0');
-    const today = `${year}-${month}-${day}`;
+    let inventory = [];
+    let suppliers = ["PHARMA", "INM", "ISV", "OPTHALMIC"]; 
+    let purchaseCart = [];
+    let pendingItem = null;
+    let selectedSuggestionIndex = -1;
     
-    document.getElementById('purDate').value = today;
+    // --- ইউজার ডাটা রাখার জন্য অবজেক্ট ---
+    let activeUser = { name: "Guest", id: "0000" };
 
-    try {
-        // ইনভেন্টরি ডাটা লোড করা
-        const response = await fetch(WEB_APP_URL + "?action=getInventoryData");
-        inventory = await response.json();
-        console.log("Inventory Loaded:", inventory.length, "items");
-        
-        // তারিখ ঠিক সেট হয়েছে কি না চেক করার জন্য
-        console.log("Current Date Set To:", today);
-    } catch (err) {
-        console.error("Error loading inventory:", err);
-        showToast("Failed to load inventory!", "danger");
+    function showToast(message, type = 'info') {
+        const toast = document.getElementById('customToast');
+        toast.innerText = message;
+        toast.style.backgroundColor = type === 'success' ? '#198754' : (type === 'danger' ? '#dc3545' : '#0d6efd');
+        toast.style.display = 'block';
+        setTimeout(() => { toast.style.display = 'none'; }, 3000);
     }
-}
-        function handleSupplierSearch(event) {
-            const val = event.target.value;
-            const box = document.getElementById('supplierSuggestionBox');
-            if (event.key === 'ArrowDown') { navigateSuggestions(box, 1); return; }
-            if (event.key === 'ArrowUp') { navigateSuggestions(box, -1); return; }
-            if (event.key === 'Enter') { const active = box.querySelector('.suggestion-item.active'); if (active) active.click(); return; }
-            const filtered = val ? suppliers.filter(s => s.toLowerCase().includes(val.toLowerCase())) : suppliers;
-            box.innerHTML = filtered.map(s => `<div class="suggestion-item" onclick="selectSupplier('${s}')"><b>${s}</b></div>`).join('');
-            box.style.display = filtered.length ? 'block' : 'none';
+
+    async function initPurchase() {
+        // --- ইউআরএল (Link) থেকে ইউজার নেম ও আইডি নেওয়া ---
+        const urlParams = new URLSearchParams(window.location.search);
+        const nameParam = urlParams.get('name');
+        const idParam = urlParams.get('id');
+        if (nameParam) activeUser.name = decodeURIComponent(nameParam);
+        if (idParam) activeUser.id = idParam;
+
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        const today = `${year}-${month}-${day}`;
+        
+        document.getElementById('purDate').value = today;
+
+        try {
+            const response = await fetch(WEB_APP_URL + "?action=getInventoryData");
+            inventory = await response.json();
+            console.log("Inventory Loaded:", inventory.length, "items");
+            console.log("Active User:", activeUser.name); // ডিবাগিং এর জন্য
+        } catch (err) {
+            console.error("Error loading inventory:", err);
+            showToast("Failed to load inventory!", "danger");
         }
+    }
 
-        function selectSupplier(name) {
-            document.getElementById('purSupplier').value = name;
-            document.getElementById('supplierSuggestionBox').style.display = 'none';
-            document.getElementById('purNote').focus();
+    function handleSupplierSearch(event) {
+        const val = event.target.value;
+        const box = document.getElementById('supplierSuggestionBox');
+        if (event.key === 'ArrowDown') { navigateSuggestions(box, 1); return; }
+        if (event.key === 'ArrowUp') { navigateSuggestions(box, -1); return; }
+        if (event.key === 'Enter') { const active = box.querySelector('.suggestion-item.active'); if (active) active.click(); return; }
+        const filtered = val ? suppliers.filter(s => s.toLowerCase().includes(val.toLowerCase())) : suppliers;
+        box.innerHTML = filtered.map(s => `<div class="suggestion-item" onclick="selectSupplier('${s}')"><b>${s}</b></div>`).join('');
+        box.style.display = filtered.length ? 'block' : 'none';
+    }
+
+    function selectSupplier(name) {
+        document.getElementById('purSupplier').value = name;
+        document.getElementById('supplierSuggestionBox').style.display = 'none';
+        document.getElementById('purNote').focus();
+    }
+
+    function handleSearch(event, type) {
+        const val = event.target.value;
+        const targetBox = (type === 'code') ? document.getElementById('codeSuggestionBox') : document.getElementById('nameSuggestionBox');
+        if (event.key === 'ArrowDown') { navigateSuggestions(targetBox, 1); return; }
+        if (event.key === 'ArrowUp') { navigateSuggestions(targetBox, -1); return; }
+        if (event.key === 'Enter') { const active = targetBox.querySelector('.suggestion-item.active'); if (active) active.click(); return; }
+        
+        document.querySelectorAll('.suggestion-box').forEach(b => b.style.display = 'none');
+        if (!val || inventory.length < 2) return;
+        
+        const searchVal = val.toLowerCase();
+        const filtered = inventory.slice(1).filter(r => 
+            r[0].toString().toLowerCase().includes(searchVal) || 
+            r[1].toString().toLowerCase().includes(searchVal)
+        );
+
+        if (filtered.length) {
+            targetBox.innerHTML = filtered.map(r => `
+                <div class="suggestion-item" onclick='fillInputs(${JSON.stringify(r)})'>
+                    <b>${r[1]}</b><br><small>Code: ${r[0]} | Pack: ${r[2]}</small>
+                </div>`).join('');
+            targetBox.style.display = 'block';
         }
+    }
 
-        function handleSearch(event, type) {
-            const val = event.target.value;
-            const targetBox = (type === 'code') ? document.getElementById('codeSuggestionBox') : document.getElementById('nameSuggestionBox');
-            if (event.key === 'ArrowDown') { navigateSuggestions(targetBox, 1); return; }
-            if (event.key === 'ArrowUp') { navigateSuggestions(targetBox, -1); return; }
-            if (event.key === 'Enter') { const active = targetBox.querySelector('.suggestion-item.active'); if (active) active.click(); return; }
-            
-            document.querySelectorAll('.suggestion-box').forEach(b => b.style.display = 'none');
-            if (!val || inventory.length < 2) return;
-            
-            const searchVal = val.toLowerCase();
-            const filtered = inventory.slice(1).filter(r => 
-                r[0].toString().toLowerCase().includes(searchVal) || 
-                r[1].toString().toLowerCase().includes(searchVal)
-            );
+    function navigateSuggestions(box, dir) {
+        const items = box.querySelectorAll('.suggestion-item');
+        if (!items.length) return;
+        if (selectedSuggestionIndex >= 0 && selectedSuggestionIndex < items.length) items[selectedSuggestionIndex].classList.remove('active');
+        selectedSuggestionIndex = (selectedSuggestionIndex + dir + items.length) % items.length;
+        items[selectedSuggestionIndex].classList.add('active');
+        items[selectedSuggestionIndex].scrollIntoView({ block: 'nearest' });
+    }
 
-            if (filtered.length) {
-                targetBox.innerHTML = filtered.map(r => `
-                    <div class="suggestion-item" onclick='fillInputs(${JSON.stringify(r)})'>
-                        <b>${r[1]}</b><br><small>Code: ${r[0]} | Pack: ${r[2]}</small>
-                    </div>`).join('');
-                targetBox.style.display = 'block';
-            }
+    function fillInputs(item) {
+        document.getElementById('itemCode').value = item[0];
+        document.getElementById('itemName').value = item[1];
+        document.getElementById('itemPack').value = item[2];
+        document.querySelectorAll('.suggestion-box').forEach(b => b.style.display = 'none');
+        selectedSuggestionIndex = -1;
+        setTimeout(() => document.getElementById('buyRate').focus(), 50);
+    }
+
+    function addItemToCart() {
+        const code = document.getElementById('itemCode').value;
+        const name = document.getElementById('itemName').value;
+        const pack = document.getElementById('itemPack').value;
+        const bRate = parseFloat(document.getElementById('buyRate').value) || 0;
+        const sRate = parseFloat(document.getElementById('saleRate').value) || 0;
+        const qty = parseFloat(document.getElementById('itemQty').value) || 0;
+
+        if (!code || qty <= 0) { showToast("Invalid item code or quantity!", "danger"); return; }
+
+        const existingIdx = purchaseCart.findIndex(i => i.code === code);
+        if (existingIdx > -1) {
+            pendingItem = { index: existingIdx, qty, bRate, sRate, name };
+            document.getElementById('modalIcon').innerHTML = '<i class="fas fa-copy" style="color: #0d6efd"></i>';
+            document.getElementById('modalTitle').innerText = "Already in List";
+            document.getElementById('confirmMessage').innerText = `'${name}' already exists. Add more?`;
+            document.getElementById('confirmModal').style.display = 'flex';
+            document.getElementById('btnConfirmYes').onclick = function() {
+                const item = purchaseCart[pendingItem.index];
+                item.qty += pendingItem.qty; item.bRate = pendingItem.bRate;
+                item.sRate = pendingItem.sRate; item.total = item.qty * item.bRate;
+                closeConfirmModal(true);
+            };
+        } else {
+            purchaseCart.push({ code, name, pack, bRate, sRate, qty, total: qty * bRate });
+            updateTable(); clearInputs(); showToast("Added!", "success");
         }
+    }
 
-        function navigateSuggestions(box, dir) {
-            const items = box.querySelectorAll('.suggestion-item');
-            if (!items.length) return;
-            if (selectedSuggestionIndex >= 0 && selectedSuggestionIndex < items.length) items[selectedSuggestionIndex].classList.remove('active');
-            selectedSuggestionIndex = (selectedSuggestionIndex + dir + items.length) % items.length;
-            items[selectedSuggestionIndex].classList.add('active');
-            items[selectedSuggestionIndex].scrollIntoView({ block: 'nearest' });
-        }
+    function closeConfirmModal(isConfirmed) {
+        document.getElementById('confirmModal').style.display = 'none';
+        if (isConfirmed) { updateTable(); clearInputs(); showToast("Updated!", "success"); }
+        pendingItem = null;
+    }
 
-        function fillInputs(item) {
-            document.getElementById('itemCode').value = item[0];
-            document.getElementById('itemName').value = item[1];
-            document.getElementById('itemPack').value = item[2];
-            document.querySelectorAll('.suggestion-box').forEach(b => b.style.display = 'none');
-            selectedSuggestionIndex = -1;
-            setTimeout(() => document.getElementById('buyRate').focus(), 50);
-        }
+    function clearInputs() {
+        ['itemCode', 'itemName', 'itemPack', 'buyRate', 'saleRate', 'itemQty'].forEach(id => document.getElementById(id).value = "");
+        setTimeout(() => document.getElementById('itemCode').focus(), 10);
+    }
 
-        function addItemToCart() {
-            const code = document.getElementById('itemCode').value;
-            const name = document.getElementById('itemName').value;
-            const pack = document.getElementById('itemPack').value;
-            const bRate = parseFloat(document.getElementById('buyRate').value) || 0;
-            const sRate = parseFloat(document.getElementById('saleRate').value) || 0;
-            const qty = parseFloat(document.getElementById('itemQty').value) || 0;
+    function updateTable() {
+        const tbody = document.getElementById('cartItems');
+        tbody.innerHTML = purchaseCart.length === 0 ? '<tr><td colspan="9" class="p-4 text-muted">No items in cart</td></tr>' : 
+            purchaseCart.map((item, idx) => `
+            <tr>
+                <td>${idx + 1}</td><td>${item.code}</td><td class="text-start">${item.name}</td><td>${item.pack}</td>
+                <td>${item.bRate.toFixed(2)}</td><td>${item.sRate.toFixed(2)}</td><td>${item.qty}</td>
+                <td class="fw-bold">${item.total.toFixed(2)}</td>
+                <td><button class="btn btn-sm text-danger" onclick="removeItem(${idx})"><i class="fas fa-trash"></i></button></td>
+            </tr>`).join('');
+        document.getElementById('grandTotal').innerText = purchaseCart.reduce((a, b) => a + b.total, 0).toFixed(2);
+    }
 
-            if (!code || qty <= 0) { showToast("Invalid item code or quantity!", "danger"); return; }
+    function removeItem(idx) { purchaseCart.splice(idx, 1); updateTable(); }
 
-            const existingIdx = purchaseCart.findIndex(i => i.code === code);
-            if (existingIdx > -1) {
-                pendingItem = { index: existingIdx, qty, bRate, sRate, name };
-                document.getElementById('modalIcon').innerHTML = '<i class="fas fa-copy" style="color: #0d6efd"></i>';
-                document.getElementById('modalTitle').innerText = "Already in List";
-                document.getElementById('confirmMessage').innerText = `'${name}' already exists. Add more?`;
-                document.getElementById('confirmModal').style.display = 'flex';
-                document.getElementById('btnConfirmYes').onclick = function() {
-                    const item = purchaseCart[pendingItem.index];
-                    item.qty += pendingItem.qty; item.bRate = pendingItem.bRate;
-                    item.sRate = pendingItem.sRate; item.total = item.qty * item.bRate;
-                    closeConfirmModal(true);
+    async function savePurchaseOrder() {
+        if (!purchaseCart.length) return showToast("Cart is empty!", "danger");
+        const supplier = document.getElementById('purSupplier').value;
+        if (!supplier) return showToast("Supplier required!", "danger");
+
+        const btn = document.getElementById('saveBtn');
+        btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+
+        try {
+            for (const item of purchaseCart) {
+                const payload = {
+                    action: "savePurchase",
+                    date: document.getElementById('purDate').value,
+                    supplier: supplier,
+                    note: document.getElementById('purNote').value,
+                    ...item,
+                    // --- ইউজার আইডি ও নাম পাঠানো হচ্ছে ---
+                    operatorName: activeUser.name,
+                    operatorId: activeUser.id
                 };
-            } else {
-                purchaseCart.push({ code, name, pack, bRate, sRate, qty, total: qty * bRate });
-                updateTable(); clearInputs(); showToast("Added!", "success");
+                await fetch(WEB_APP_URL, { method: "POST", body: JSON.stringify(payload) });
             }
+            showToast("Voucher Saved!", "success");
+            purchaseCart = []; updateTable(); 
+            document.getElementById('purSupplier').value = ""; document.getElementById('purNote').value = "";
+        } catch (err) {
+            showToast("Save error!", "danger");
+        } finally {
+            btn.disabled = false; btn.innerHTML = '<i class="fas fa-save me-2"></i> Save Voucher';
         }
+    }
 
-        function closeConfirmModal(isConfirmed) {
-            document.getElementById('confirmModal').style.display = 'none';
-            if (isConfirmed) { updateTable(); clearInputs(); showToast("Updated!", "success"); }
-            pendingItem = null;
-        }
+    document.addEventListener('click', e => {
+        if (!e.target.closest('.position-relative')) document.querySelectorAll('.suggestion-box').forEach(b => b.style.display = 'none');
+    });
 
-        function clearInputs() {
-            ['itemCode', 'itemName', 'itemPack', 'buyRate', 'saleRate', 'itemQty'].forEach(id => document.getElementById(id).value = "");
-            setTimeout(() => document.getElementById('itemCode').focus(), 10);
-        }
-
-        function updateTable() {
-            const tbody = document.getElementById('cartItems');
-            tbody.innerHTML = purchaseCart.length === 0 ? '<tr><td colspan="9" class="p-4 text-muted">No items in cart</td></tr>' : 
-                purchaseCart.map((item, idx) => `
-                <tr>
-                    <td>${idx + 1}</td><td>${item.code}</td><td class="text-start">${item.name}</td><td>${item.pack}</td>
-                    <td>${item.bRate.toFixed(2)}</td><td>${item.sRate.toFixed(2)}</td><td>${item.qty}</td>
-                    <td class="fw-bold">${item.total.toFixed(2)}</td>
-                    <td><button class="btn btn-sm text-danger" onclick="removeItem(${idx})"><i class="fas fa-trash"></i></button></td>
-                </tr>`).join('');
-            document.getElementById('grandTotal').innerText = purchaseCart.reduce((a, b) => a + b.total, 0).toFixed(2);
-        }
-
-        function removeItem(idx) { purchaseCart.splice(idx, 1); updateTable(); }
-
-        async function savePurchaseOrder() {
-            if (!purchaseCart.length) return showToast("Cart is empty!", "danger");
-            const supplier = document.getElementById('purSupplier').value;
-            if (!supplier) return showToast("Supplier required!", "danger");
-
-            const btn = document.getElementById('saveBtn');
-            btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
-
-            try {
-                for (const item of purchaseCart) {
-                    const payload = {
-                        action: "savePurchase",
-                        date: document.getElementById('purDate').value,
-                        supplier: supplier,
-                        note: document.getElementById('purNote').value,
-                        ...item
-                    };
-                    await fetch(WEB_APP_URL, { method: "POST", body: JSON.stringify(payload) });
-                }
-                showToast("Voucher Saved!", "success");
-                purchaseCart = []; updateTable(); 
-                document.getElementById('purSupplier').value = ""; document.getElementById('purNote').value = "";
-            } catch (err) {
-                showToast("Save error!", "danger");
-            } finally {
-                btn.disabled = false; btn.innerHTML = '<i class="fas fa-save me-2"></i> Save Voucher';
-            }
-        }
-
-        document.addEventListener('click', e => {
-            if (!e.target.closest('.position-relative')) document.querySelectorAll('.suggestion-box').forEach(b => b.style.display = 'none');
-        });
-    </script>
+    // ইনিশিয়ালাইজেশন কল
+    window.onload = initPurchase;
+</script>
 </body>
+
 </html>
