@@ -73,13 +73,23 @@
     <input type="text" id="cAddr" class="form-control shadow-sm" placeholder="Type Your New Coustomer Permanet Address">
 </div>
           <div class="col-md-6">
-            <label class="fw-bold small">TYPE</label>
-            <select id="cType" class="form-select shadow-sm"><option value="Select">Select</option><option value="Retail">Retail</option><option value="Wholesale">Wholesale</option><option value="Wholesale">Special</option></select>
-          </div>
-          <div class="col-md-6">
-            <label class="fw-bold small">PAYMENT TYPE</label>
-            <select id="cPay" class="form-select shadow-sm"><option value="Select">Select</option><option value="Cash">Cash</option><option value="Due">Credit</option></select>
-          </div>
+    <label class="fw-bold small">TYPE</label>
+    <select id="cType" class="form-select shadow-sm">
+        <option value="Select" selected disabled>Select Type</option>
+        <option value="Retail">Retail</option>
+        <option value="Wholesale">Wholesale</option>
+        <option value="Special">Special</option>
+    </select>
+</div>
+
+<div class="col-md-6">
+    <label class="fw-bold small">PAYMENT TYPE</label>
+    <select id="cPay" class="form-select shadow-sm">
+        <option value="Select" selected disabled>Select Payment</option>
+        <option value="Cash">Cash</option>
+        <option value="Due">Credit</option>
+    </select>
+</div>
 
           <div class="col-md-12 text-end mt-4 pt-3 border-top">
             <button class="btn btn-secondary px-4 me-2" onclick="closeForm()">CANCEL</button>
@@ -170,8 +180,8 @@
           const el = document.getElementById(id);
           if(el) el.value = "";
       });
-      document.getElementById('cType').value = "Retail";
-      document.getElementById('cPay').value = "Cash";
+      document.getElementById('cType').value = "Select";
+    document.getElementById('cPay').value = "Select";
     }
 
     function closeForm() {
@@ -188,6 +198,11 @@
           document.getElementById('cMob').focus();
           return;
       }
+      // আপনার আগের ভ্যালিডেশনের সাথে এটি যোগ করুন
+if (customerData.type === "Select" || customerData.payment === "Select") {
+    alert("দয়া করে Type এবং Payment Type সিলেক্ট করুন!");
+    return;
+}
       
       let customerData = {
         action: "saveCustomer", // Code.gs চেনার জন্য
@@ -234,6 +249,7 @@
 </body>
 
 </html>
+
 
 
 
