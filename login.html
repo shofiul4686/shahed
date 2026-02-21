@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ERP লগইন | সিস্টেম প্রবেশ</title>
+    <title>Login Page</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -33,12 +33,12 @@
 
     <div class="login-card">
         <div class="logo-icon"><i class="fas fa-university"></i></div>
-        <h3 class="mb-4">ERP সিস্টেম লগইন</h3>
+        <h3 class="mb-4">Login Interface</h3>
         
-        <input type="text" id="userid" class="form-control" placeholder="ইউজার আইডি">
-        <input type="password" id="password" class="form-control" placeholder="পাসওয়ার্ড">
+        <input type="text" id="userid" class="form-control" placeholder="User ID">
+        <input type="password" id="password" class="form-control" placeholder="Password">
         
-        <button class="btn-login" id="loginBtn" onclick="handleLogin()">প্রবেশ করুন</button>
+        <button class="btn-login" id="loginBtn" onclick="handleLogin()">Login</button>
         
         <div id="msg"></div>
     </div>
@@ -89,7 +89,7 @@
         function resetBtn() {
             const btn = document.getElementById('loginBtn');
             btn.disabled = false;
-            btn.innerHTML = 'প্রবেশ করুন';
+            btn.innerHTML = 'Enter;
         }
     </script>
 </body>
