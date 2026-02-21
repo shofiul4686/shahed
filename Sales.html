@@ -471,19 +471,25 @@
         toggleLoader(true, "Saving Invoice..."); 
         toggleInputs(true);
         let status = (paid >= total) ? "Paid" : (paid > 0 ? "Partial" : "Unpaid");
-        let master = { 
-            action: "saveInvoice", 
-            invNo: currentInvNo, 
-            date: document.getElementById('invDate').value, 
-            custCode: custCode, 
-            custName: document.getElementById('fCName').value,
-            mobile: document.getElementById('dispCMobile').value,
-            area: document.getElementById('dispCArea').value,
-            address: document.getElementById('dispCAddress').value,
-            type: document.getElementById('dispCType').value,
-            paymentType: document.getElementById('dispCPayment').value,
-            total: total, paid: paid, status: status, cart: cart
-        };
+       let master = { 
+        action: "saveInvoice", 
+        invNo: currentInvNo, 
+        date: document.getElementById('invDate').value, 
+        custCode: custCode, 
+        custName: document.getElementById('fCName').value,
+        mobile: document.getElementById('dispCMobile').value,
+        area: document.getElementById('dispCArea').value,
+        address: document.getElementById('dispCAddress').value,
+        type: document.getElementById('dispCType').value,
+        paymentType: document.getElementById('dispCPayment').value,
+        total: total, 
+        paid: paid, 
+        status: status, 
+        cart: cart,
+        // --- এই দুটি লাইন ইউজার আইডি ও নাম সিটে পাঠানোর জন্য ---
+        operatorName: activeUser.name,
+        operatorId: activeUser.id
+    };
 
         fetch(WEB_APP_URL, {
             method: "POST",
@@ -677,6 +683,7 @@ function initApp() {
 </body>
 
 </html>
+
 
 
 
