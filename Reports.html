@@ -201,7 +201,10 @@
 <script>
     // গুরুত্বপূর্ণ: আপনার Google Apps Script Web App URL এখানে বসান
     const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzkDCX5zax-NuoSKRSxJIjL9Rx4MbtVxvm5QlrOEIxrTR-s3sVuRHJy_ISNIm3ehDYs/exec";
-
+// URL থেকে প্যারামিটার নেওয়ার ফাংশন
+const urlParams = new URLSearchParams(window.location.search);
+const currentUserName = urlParams.get('name') || "Unknown";
+const currentUserId = urlParams.get('id') || "Unknown";
     let rawSalesData = [];
     let currentFilteredData = [];
     let rawHistoryData = [];
@@ -262,10 +265,12 @@
         wrapper.innerHTML = '<span class="spinner-border spinner-border-sm text-primary"></span>';
 
         const payload = {
-            action: "updateSalesPaidAmount",
-            invNo: inv,
-            amount: amt
-        };
+    action: "updateSalesPaidAmount",
+    invNo: inv,
+    amount: amt,
+    operatorName: currentUserName, // URL থেকে পাওয়া নাম
+    operatorId: currentUserId     // URL থেকে পাওয়া আইডি
+};
 
         try {
             // গিটহাব থেকে গুগল স্ক্রিপ্টে POST পাঠানো
@@ -444,4 +449,5 @@ function handleActionChange(selectObj, invNo, due) {
 </body>
 
 </html>
+
 
