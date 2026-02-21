@@ -8,24 +8,18 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- আপডেট করা নিরাপত্তা স্ক্রিপ্ট: রিডাইরেক্ট লুপ ফিক্সড -->
     <script>
         (function() {
             const urlParams = new URLSearchParams(window.location.search);
             const nameFromUrl = urlParams.get('name');
             const idFromUrl = urlParams.get('id');
 
-            // ১. যদি URL-এ ডাটা থাকে, তবে সেটি সেশনে সেভ করো এবং পেজেই থাকো
             if (nameFromUrl && idFromUrl) {
                 sessionStorage.setItem('erp_user_name', decodeURIComponent(nameFromUrl));
                 sessionStorage.setItem('erp_user_id', decodeURIComponent(idFromUrl));
-                console.log("Login detected from URL");
             } else {
-                // ২. যদি URL-এ না থাকে, তবে সেশন চেক করো
                 const savedName = sessionStorage.getItem('erp_user_name');
                 const savedId = sessionStorage.getItem('erp_user_id');
-
-                // ৩. যদি সেশনেও ডাটা না থাকে, তবেই কেবল লগইন পেজে পাঠাও
                 if (!savedName || !savedId) {
                     window.location.href = "login.html"; 
                 }
@@ -35,6 +29,16 @@
         function logoutUser() {
             sessionStorage.clear();
             window.location.href = "login.html";
+        }
+
+        // বাটন ক্লিকের জন্য ডাইনামিক নেভিগেশন ফাংশন
+        function navigateTo(page) {
+            const name = sessionStorage.getItem('erp_user_name');
+            const id = sessionStorage.getItem('erp_user_id');
+            
+            // নাম এবং আইডি এনকোড করে ইউআরএল তৈরি করা
+            const url = `${page}?name=${encodeURIComponent(name)}&id=${encodeURIComponent(id)}`;
+            window.open(url, '_blank');
         }
     </script>
 
@@ -55,7 +59,6 @@
             overflow-x: hidden;
         }
 
-        /* প্রোফাইল ডিসপ্লে স্টাইল */
         .user-profile-box {
             position: absolute;
             top: 20px;
@@ -93,6 +96,7 @@
             border: none; border-radius: 15px; padding: 25px 15px; color: white; font-weight: 700;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             transition: all 0.3s ease; cursor: pointer; text-decoration: none;
+            width: 100%;
         }
 
         .erp-button i { font-size: 1.8rem; margin-bottom: 10px; }
@@ -133,7 +137,6 @@
 </head>
 <body>
 
-<!-- ইউজার প্রোফাইল ডিসপ্লে -->
 <div class="user-profile-box">
     <i class="fas fa-user-circle fa-2x text-success me-2"></i>
     <div class="text-start">
@@ -154,35 +157,36 @@
 
 <div class="quick-actions">
     <div class="action-grid">
-        <a href="Sales.html" target="_blank" class="erp-button btn-sales">
+        <!-- href সরিয়ে onclick ব্যবহার করা হয়েছে ডাইনামিক ইউআরএল-এর জন্য -->
+        <div onclick="navigateTo('Sales.html')" class="erp-button btn-sales">
             <i class="fas fa-file-invoice-dollar"></i>
             <span>NEW INVOICE</span>
-        </a>
+        </div>
 
-        <a href="Purchase.html" target="_blank" class="erp-button btn-purchase">
+        <div onclick="navigateTo('Purchase.html')" class="erp-button btn-purchase">
             <i class="fas fa-cart-plus"></i>
             <span>PURCHASE</span>
-        </a>
+        </div>
 
-        <a href="Product.html" target="_blank" class="erp-button btn-product">
+        <div onclick="navigateTo('Product.html')" class="erp-button btn-product">
             <i class="fas fa-boxes-stacked"></i>
             <span>ADD PRODUCT</span>
-        </a>
+        </div>
 
-        <a href="Customer.html" target="_blank" class="erp-button btn-customer">
+        <div onclick="navigateTo('Customer.html')" class="erp-button btn-customer">
             <i class="fas fa-users"></i>
             <span>ADD CUSTOMER</span>
-        </a>
+        </div>
 
-        <a href="Reports.html" target="_blank" class="erp-button btn-report">
+        <div onclick="navigateTo('Reports.html')" class="erp-button btn-report">
             <i class="fas fa-chart-pie"></i>
             <span>REPORTS</span>
-        </a>
+        </div>
 
-        <a href="Stock.html" target="_blank" class="erp-button btn-stock">
+        <div onclick="navigateTo('Stock.html')" class="erp-button btn-stock">
             <i class="fas fa-warehouse"></i>
             <span>STOCK REPORT</span>
-        </a>
+        </div>
     </div>
 </div>
 
@@ -194,7 +198,6 @@
 </div>
 
 <script>
-    // পেজ লোড হওয়ার পর প্রোফাইল তথ্য আপডেট করা
     window.addEventListener('load', function() {
         const name = sessionStorage.getItem('erp_user_name');
         const id = sessionStorage.getItem('erp_user_id');
