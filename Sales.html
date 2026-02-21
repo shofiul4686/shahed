@@ -196,6 +196,87 @@ label.small.fw-bold {
         page-break-before: auto;
     }
 }
+/* মোবাইল ডিভাইসের জন্য অপ্টিমাইজেশন (max-width: 768px) */
+@media (max-width: 768px) {
+    /* কন্টেইনারের প্যাডিং কমানো */
+    .container-fluid {
+        padding-left: 5px;
+        padding-right: 5px;
+    }
+    
+    .card {
+        padding: 10px !important;
+    }
+
+    /* ফন্ট সাইজ ছোট করা যাতে সব ফিট হয় */
+    label.small {
+        font-size: 11px !important;
+    }
+
+    .form-control, .form-select, .btn {
+        font-size: 13px !important;
+        padding: 5px 8px !important;
+    }
+
+    /* কাস্টমার ডিটেইল সেকশনকে গ্রিড আকারে সাজানো (এক লাইনে ২-৩টি তথ্য) */
+    #custDetailContainer .row {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr); /* ৩ কলামে ভাগ করা */
+        gap: 5px;
+    }
+    
+    #custDetailContainer .col-md-1, 
+    #custDetailContainer .col-md-2 {
+        width: 100% !important;
+    }
+
+    /* প্রোডাক্ট এন্ট্রি সেকশন টাইট করা */
+    .bg-light.p-3 {
+        padding: 10px !important;
+    }
+
+    /* টেবিল রেসপনসিভনেস ফিক্স */
+    .table-responsive {
+        border: 0;
+    }
+
+    .table thead {
+        font-size: 10px;
+    }
+
+    .table tbody td {
+        font-size: 11px;
+        padding: 4px !important;
+    }
+
+    /* টোটাল এবং সেভ বাটন সেকশন */
+    .cart-footer-bg td {
+        padding: 5px !important;
+        font-size: 12px !important;
+    }
+
+    #saveBtn {
+        padding: 10px !important;
+        font-size: 14px !important;
+    }
+
+    /* মারকুই বা ইউজার ইনফো ছোট করা */
+    .user-footer-info {
+        font-size: 11px;
+    }
+
+    /* ইনপুট গ্রুপ আইকন সাইজ */
+    .input-group-text {
+        padding: 0 8px;
+    }
+}
+
+/* অতিরিক্ত ছোট স্ক্রিনের জন্য (iPhone SE বা ছোট ফোন) */
+@media (max-width: 380px) {
+    #custDetailContainer .row {
+        grid-template-columns: repeat(2, 1fr); /* খুব ছোট ফোনে ২ কলাম */
+    }
+}
     </style>
 </head>
 <body onload="initApp()">
@@ -857,7 +938,6 @@ function initApp() {
 </body>
 
 </html>
-
 
 
 
