@@ -288,6 +288,24 @@
         }
     }
 
+    // Action ড্রপডাউন পরিবর্তন হলে যা হবে
+function handleActionChange(selectObj, invNo, due) {
+    const action = selectObj.value;
+    const partArea = document.getElementById(`part-input-area-${invNo}`);
+
+    if (action === "FULL") {
+        partArea.classList.add('d-none'); // ইনপুট বক্স লুকিয়ে ফেলবে
+        if (confirm(`ইনভয়েস ${invNo} এর পুরো ${due} টাকা পেমেন্ট করতে চান?`)) {
+            submitPay(invNo, due, true); // সরাসরি পেমেন্ট ফাংশন কল করবে
+        } else {
+            selectObj.value = ""; // ইউজার না চাইলে রিসেট হবে
+        }
+    } else if (action === "PART") {
+        partArea.classList.remove('d-none'); // ইনপুট বক্স দেখাবে
+    } else {
+        partArea.classList.add('d-none'); // অন্যথায় লুকিয়ে থাকবে
+    }
+}
     // --- বাল্ক পেমেন্ট ফাংশন (গিটহাব ফ্রেন্ডলি) ---
     async function bulkPayFiltered() {
         const dueRows = currentFilteredData.filter(row => Number(row[12] || 0) > 0);
@@ -426,3 +444,4 @@
 </body>
 
 </html>
+
