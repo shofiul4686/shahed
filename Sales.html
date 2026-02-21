@@ -111,6 +111,27 @@
                 opacity: 0.6;
             }
         }
+        /* এনিমেশন সেটআপ */
+.user-footer-info {
+    display: inline-block;
+    white-space: nowrap;
+    padding-left: 100%; /* স্ক্রিনের বাইরে থেকে শুরু হবে */
+    animation: smoothScroll 20s linear infinite; /* ২০ সেকেন্ড সময় নিবে একপাশ থেকে অন্যপাশে যেতে */
+    font-size: 14px;
+    color: #333;
+}
+
+/* টেক্সট যদি আরও ধীর করতে চান, তাহলে 20s বাড়িয়ে 30s করে দিন */
+@keyframes smoothScroll {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-100%); }
+}
+         <div class="user-footer-wrapper">
+    <div class="user-footer-info">
+        <i class="fas fa-user-circle me-2"></i>
+        <span>User Name: <strong id="footerUserName">Loading...</strong> | User ID: <strong id="footerUserId">Loading...</strong></span>
+    </div>
+</div>
         /* প্রিন্ট এর জন্য স্পেশাল CSS */
     @media print {
         #printArea {
@@ -938,6 +959,7 @@ function initApp() {
 </body>
 
 </html>
+
 
 
 
