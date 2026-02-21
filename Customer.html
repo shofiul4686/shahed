@@ -11,6 +11,10 @@
     .btn-main { height: 80px; font-size: 1.2rem; font-weight: bold; border-radius: 15px; }
     .new-entry-card { border-top: 8px solid #198754; }
     .update-card { border-top: 8px solid #ffc107; }
+    .form-control:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15) !important;
+}
   </style>
 </head>
 <body class="bg-light p-4">
@@ -26,7 +30,7 @@
       </div>
       <div class="col-md-5">
         <button class="btn btn-warning w-100 btn-main shadow text-dark" onclick="toggleForm('UPDATE')">
-          <i class="fas fa-user-edit"></i> UPDATE EXISTING
+          <i class="fas fa-user-edit"></i> UPDATE COUSTOMER
         </button>
       </div>
     </div>
@@ -41,26 +45,40 @@
         <div class="row g-3">
           <div id="searchContainer" class="col-md-12 bg-warning bg-opacity-10 p-3 rounded mb-3 hidden-section border border-warning">
             <label class="fw-bold text-dark small"><i class="fas fa-search"></i> SEARCH BY NAME OR ID</label>
-            <input type="text" id="cSearch" class="form-control form-control-lg shadow-sm" list="customerList" placeholder="টাইপ করুন (নাম অথবা আইডি)..." oninput="autoFill(this.value)">
+            <input type="text" id="cSearch" class="form-control form-control-lg shadow-sm" list="customerList" placeholder="Type Coustomer ID,Name Or Mobil No " oninput="autoFill(this.value)">
             <datalist id="customerList"></datalist>
           </div>
 
           <div class="col-md-3">
             <label class="fw-bold small">CUSTOMER ID</label>
-            <input type="text" id="cCode" class="form-control fw-bold bg-white" placeholder="automatically Coustomer id" readonly>
+            <input type="text" id="cCode" class="form-control fw-bold bg-white" placeholder="automatically New Coustomer id" readonly>
           </div>
-          <div class="col-md-5"><label class="fw-bold small">NAME</label><input type="text" id="cName" class="form-control shadow-sm"></div>
-          <div class="col-md-4"><label class="fw-bold small">MOBILE</label><input type="text" id="cMob" class="form-control shadow-sm"></div>
-          <div class="col-md-4"><label class="fw-bold small">AREA</label><input type="text" id="cArea" class="form-control shadow-sm"></div>
-          <div class="col-md-8"><label class="fw-bold small">ADDRESS</label><input type="text" id="cAddr" class="form-control shadow-sm"></div>
-          
+          <div class="col-md-5">
+    <label class="fw-bold small">CUSTOMER NAME</label>
+    <input type="text" id="cName" class="form-control shadow-sm" placeholder="Type Your New Coustomer Name">
+</div>
+
+<div class="col-md-4">
+    <label class="fw-bold small">MOBILE</label>
+    <input type="tel" id="cMob" class="form-control shadow-sm" placeholder="Type Your New Coustomer Valied Mob- No" inputmode="numeric" pattern="[0-9]*">
+</div>
+
+<div class="col-md-4">
+    <label class="fw-bold small">AREA</label>
+    <input type="text" id="cArea" class="form-control shadow-sm" placeholder="Type Your New Coustomer Area Name">
+</div>
+
+<div class="col-md-8">
+    <label class="fw-bold small">ADDRESS</label>
+    <input type="text" id="cAddr" class="form-control shadow-sm" placeholder="Type Your New Coustomer Permanet Address">
+</div>
           <div class="col-md-6">
             <label class="fw-bold small">TYPE</label>
-            <select id="cType" class="form-select shadow-sm"><option value="Retail">Retail</option><option value="Wholesale">Wholesale</option></select>
+            <select id="cType" class="form-select shadow-sm"><option value="Retail">Retail</option><option value="Wholesale">Wholesale</option><option value="Wholesale">Special</option></select>
           </div>
           <div class="col-md-6">
-            <label class="fw-bold small">PAYMENT</label>
-            <select id="cPay" class="form-select shadow-sm"><option value="Cash">Cash</option><option value="Due">Due</option></select>
+            <label class="fw-bold small">PAYMENT TYPE</label>
+            <select id="cPay" class="form-select shadow-sm"><option value="Cash">Cash</option><option value="Due">Credit</option></select>
           </div>
 
           <div class="col-md-12 text-end mt-4 pt-3 border-top">
@@ -163,6 +181,13 @@
     // সাবমিট বাটন লজিক (Fetch POST ব্যবহার করা হয়েছে)
     document.getElementById('submitBtn').onclick = async function() {
       const btn = document.getElementById('submitBtn');
+      // ২. মোবাইল নম্বর ভ্যালিডেশন (১১ ডিজিট এবং প্যাটার্ন চেক)
+      const mobPattern = /^01[3-9]\d{8}$/;
+      if(!mobPattern.test(customerData.mobile)) {
+          alert("সঠিক ১১ ডিজিটের মোবাইল নম্বর দিন (যেমন: 01712345678)!");
+          document.getElementById('cMob').focus();
+          return;
+      }
       
       let customerData = {
         action: "saveCustomer", // Code.gs চেনার জন্য
@@ -209,3 +234,4 @@
 </body>
 
 </html>
+
