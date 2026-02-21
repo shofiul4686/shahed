@@ -632,26 +632,36 @@
         return currentPrefix + (lastSerial + 1).toString().padStart(4, '0');
     }
 function initApp() {
-        // --- ইউআরএল থেকে ডাটা নেওয়ার লজিক ---
-        const urlParams = new URLSearchParams(window.location.search);
-        const nameParam = urlParams.get('name');
-        const idParam = urlParams.get('id');
+    // ১. লোকাল স্টোরেজ থেকে ক্যাশ লোড করা
+    loadFromCache();
 
-        if (nameParam) activeUser.name = decodeURIComponent(nameParam);
-        if (idParam) activeUser.id = idParam;
+    // ২. ইউআরএল থেকে ডাটা নেওয়ার লজিক
+    const urlParams = new URLSearchParams(window.location.search);
+    const nameParam = urlParams.get('name');
+    const idParam = urlParams.get('id');
 
-        // ফুটার আপডেট
-        document.getElementById('footerUserName').innerText = activeUser.name;
-        document.getElementById('footerUserId').innerText = activeUser.id;
-        
-        // প্রিন্ট কপি এর জন্য অপারেটর সেট
-        document.getElementById('pOperatorName').innerText = activeUser.name;
-        document.getElementById('pOperatorId').innerText = activeUser.id;
+    if (nameParam) activeUser.name = decodeURIComponent(nameParam);
+    if (idParam) activeUser.id = idParam;
 
-        document.getElementById('invDate').valueAsDate = new Date();
-        toggleLoader(true, "Initial Loading...");
-        refreshData();
-    ,,tahole ata past kore dile hobe? 
+    // ফুটার আপডেট
+    const fName = document.getElementById('footerUserName');
+    const fId = document.getElementById('footerUserId');
+    if(fName) fName.innerText = activeUser.name;
+    if(fId) fId.innerText = activeUser.id;
+    
+    // প্রিন্ট কপির জন্য অপারেটর সেট
+    const pName = document.getElementById('pOperatorName');
+    const pId = document.getElementById('pOperatorId');
+    if(pName) pName.innerText = activeUser.name;
+    if(pId) pId.innerText = activeUser.id;
+
+    // তারিখ সেট এবং ডাটা রিফ্রেশ
+    const invDateEl = document.getElementById('invDate');
+    if(invDateEl) invDateEl.valueAsDate = new Date();
+    
+    toggleLoader(true, "ইনিশিয়াল ডাটা লোড হচ্ছে...");
+    refreshData();
+}
 
     function loadFromCache() {
         try {
@@ -667,5 +677,6 @@ function initApp() {
 </body>
 
 </html>
+
 
 
