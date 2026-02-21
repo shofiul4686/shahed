@@ -59,8 +59,8 @@
             }
 
             btn.disabled = true;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> যাচাই হচ্ছে...';
-            msg.innerHTML = "সার্ভারের সাথে সংযোগ করা হচ্ছে...";
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Please Wait...';
+            msg.innerHTML = "Cheking Now...";
 
             const finalUrl = `${SCRIPT_URL}?action=login&id=${encodeURIComponent(id)}&pass=${encodeURIComponent(pass)}`;
 
@@ -70,7 +70,7 @@
                 const data = await response.json();
 
                 if (data.status === "success") {
-                    msg.innerHTML = '<span class="text-success">সফল! প্রবেশ করা হচ্ছে...</span>';
+                    msg.innerHTML = '<span class="text-success">Processing...</span>';
                     // সফল হলে গিটহাবের ড্যাশবোর্ডে পাঠানো
                     setTimeout(() => {
                         window.location.href = `index.html?name=${encodeURIComponent(data.name)}&id=${encodeURIComponent(data.userId)}`;
