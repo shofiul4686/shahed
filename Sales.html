@@ -251,8 +251,8 @@
                                 <select id="paymentMode" class="form-select form-select-sm payment-method-select ms-2" onchange="handlePaymentModeChange()">
     <option value="Full">Full Paid</option>
     <option value="Part">Part Paid</option>
-    <option value="Due" selected>Unpaid/Due</option> </select>
-                                </select>
+    <option value="Due" selected>Due</option> 
+</select>
                             </td>
                             <td class="py-1">
                                 <div id="paidInputWrapper">
@@ -277,7 +277,7 @@
         <!-- মেইন পেজ এর একদম নিচে ইউজারের নাম ও আইডি -->
         <div class="user-footer-info">
             <i class="fas fa-user-circle me-2"></i>
-            <span>অপারেটর: <strong id="footerUserName">লোড হচ্ছে...</strong> | আইডি: <strong id="footerUserId">লোড হচ্ছে...</strong></span>
+            <span>User Name: <strong id="footerUserName">Loading...</strong> User ID: <strong id="footerUserId">Loading...</strong></span>
         </div>
     </div>
 </div>
@@ -317,6 +317,7 @@
             paidInput.value = (0).toFixed(2);
             paidInput.readOnly = true;
             paidInput.classList.add('bg-light');
+            
         } else {
             paidInput.value = "";
             paidInput.readOnly = false;
@@ -665,6 +666,9 @@ function initApp() {
     const invDateEl = document.getElementById('invDate');
     if(invDateEl) invDateEl.valueAsDate = new Date();
     
+    // পেমেন্ট মোড ডিফল্ট (Due) অনুযায়ী ইনপুট বক্স সেট করা
+    handlePaymentModeChange();
+    
     toggleLoader(true, "ইনিশিয়াল ডাটা লোড হচ্ছে...");
     refreshData();
 }
@@ -683,6 +687,7 @@ function initApp() {
 </body>
 
 </html>
+
 
 
 
