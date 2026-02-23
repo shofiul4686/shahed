@@ -13,7 +13,7 @@
     
     <style>
         :root{--report-blue:#3498db;--header-bg:#2c3e50;--history-bg:#ffffff}
-        body{background-color:#f4f7f6;font-family:'Segoe UI',Tahoma,sans-serif}
+        body{background-color:#082901f6;font-family:'Segoe UI',Tahoma,sans-serif}
         .sticky-top-container{position:sticky;top:0;z-index:1050;background-color:#f4f7f6;padding:10px 0}
         .table-container,.history-container{background:#fff;border-radius:12px;box-shadow:0 4px 20px rgba(0,0,0,.05);position:relative;overflow:hidden;margin-bottom:20px}
         .history-container{display:none;border:2px solid var(--report-blue);margin-top:10px}
@@ -33,7 +33,14 @@
 
         /* Receipt Modal Styles */
         #receiptModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 3000; justify-content: center; align-items: center; }
-        .receipt-content { background: white; width: 400px; padding: 20px; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); max-height: 90vh; overflow-y: auto; }
+        .receipt-content {
+    background: white;
+    width: 95%; /* ফিক্সড ৪০০ পিক্সেল থেকে পরিবর্তন */
+    max-width: 600px; /* স্ক্রিনে দেখার জন্য একটি সুন্দর সাইজ */
+    padding: 30px;
+    border-radius: 8px;
+    margin: auto;
+}
         .receipt-header { text-align: center; border-bottom: 1px dashed #ccc; padding-bottom: 10px; margin-bottom: 10px; }
         .receipt-row { display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 5px; }
         .receipt-total { border-top: 1px solid #000; padding-top: 5px; margin-top: 10px; font-weight: bold; }
@@ -42,12 +49,36 @@
         /* Bulk Pay Styles */
         #bulkPayContainer { display: none; margin-bottom: 10px; padding: 10px; background: #e8f4fd; border-radius: 8px; border: 1px solid #3498db; }
 
-        @media print {
-            body * { visibility: hidden; }
-            #receiptModal, #receiptModal * { visibility: visible; }
-            #receiptModal { position: absolute; left: 0; top: 0; width: 100%; background: white; }
-            .no-print { display: none; }
-        }
+       @media print {
+    /* পুরো পেজ সেটআপ */
+    @page {
+        size: A4;
+        margin: 20mm;
+    }
+    
+    body * { visibility: hidden; }
+    
+    /* রিসিটটি পুরো পেজ জুড়ে দেখাবে */
+    #receiptModal, #receiptModal * { visibility: visible; }
+    
+    #receiptModal {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        background: white;
+        display: block !important;
+    }
+
+    .receipt-content {
+        width: 100% !important; /* A4 এর পুরো প্রস্থ নিবে */
+        box-shadow: none !important;
+        padding: 0 !important;
+        border: none !important;
+    }
+
+    .no-print { display: none !important; }
+}
     </style>
 </head>
 <body>
@@ -111,7 +142,7 @@
             </div>
         </div>
 
-        <div class="row g-2 mb-3 text-center" id="mainSummary">
+        <div class="row g-1 mb-2 text-center" id="mainSummary">
             <div class="col-md-2">
                 <div class="card p-2 shadow-sm card-stat bg-primary-subtle border-primary">
                     <h6 class="text-muted small mb-1" style="font-size: 0.6rem;">TODAY SALE</h6>
@@ -311,8 +342,8 @@
 <script>
     const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzkDCX5zax-NuoSKRSxJIjL9Rx4MbtVxvm5QlrOEIxrTR-s3sVuRHJy_ISNIm3ehDYs/exec";
     const urlParams = new URLSearchParams(window.location.search);
-    const currentUserName = urlParams.get('name') || "Unknown";
-    const currentUserId = urlParams.get('id') || "Unknown";
+    const currentUserName = urlParams.get('name') || "ADMIN";
+    const currentUserId = urlParams.get('id') || "ADMIN";
 
     let rawSalesData = [];
     let currentFilteredData = [];
@@ -560,16 +591,16 @@
         document.getElementById('rDate').innerText = new Date().toLocaleString();
         document.getElementById('rMRNo').innerText = mrNo;
         document.getElementById('rCust').innerText = cust;
-        document.getElementById('rStatus').innerText = "FULL PAID (BULK)";
+        document.getElementById('rStatus').innerText = "FULL PAID";
         document.getElementById('rOp').innerText = currentUserName;
 
         let total = 0;
-        let itemsHtml = '<div class="small fw-bold border-bottom mb-1 pb-1">Bulk Payment List:</div>';
+        let itemsHtml = '<div class="small fw-bold border-bottom mb-1 pb-1">Payment Invoice List:</div>';
         items.forEach(item => {
             total += item.amt;
             itemsHtml += `
                 <div class="receipt-row small">
-                    <span>Inv: ${item.inv}</span>
+                    <span>Invoice No: ${item.inv}</span>
                     <span>${item.amt.toLocaleString()}</span>
                 </div>`;
         });
