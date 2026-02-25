@@ -215,28 +215,9 @@
         <button onclick="saveData()" class="bg-green-600 text-white px-10 py-2.5 rounded-lg font-bold hover:bg-green-700 transition shadow-lg border-2 border-green-800">SAVE (সেভ করুন)</button>
       </div>
     </div>
-
-    <script>
-      window.onload = function () {
-        document.getElementById("custName").focus();
-        addRow(false);
-        calculateStatement();
-      };
-
-      function showAlert() {
-        const alertBox = document.getElementById("customAlert");
-        alertBox.style.display = "block";
-        setTimeout(() => {
-          alertBox.style.display = "none";
-        }, 3000);
-      }
-
-      function handleInfoNav(event, nextId) {
-        if (event.key === "Enter") {
-          event.preventDefault();
-          document.getElementById(nextId).focus();
-        }
-      }
+<script>
+    // আপনার Apps Script থেকে পাওয়া Web App URL এখানে বসান
+      const SCRIPT_URL = "আপনার_নতুন_স্ক্রিপ্ট_ইউআরএল_এখানে_দিন";
 
       function focusFirstDeposit() {
         const input = document.querySelector(".deposit-input");
@@ -255,7 +236,7 @@
             const expVal = currentRow.querySelector(".expense-input").value.trim();
             
             if (depVal === "" && expVal === "") {
-               showAlert();
+               alert("অনুগ্রহ করে জমা বা খরচের পরিমাণ লিখুন।");
                return; 
             }
             addRow(true);
@@ -275,8 +256,8 @@
             <td class="border-r border-black"><input type="text" class="w-full text-center outline-none bg-transparent" value="${dateStr}" onkeydown="handleKeyNavigation(event, 'general')"></td>
             <td class="border-r border-black"><input type="text" class="w-full px-2 outline-none bg-transparent" placeholder="বিবরণ..." onkeydown="handleKeyNavigation(event, 'general')"></td>
             <td class="border-r border-black"><input type="text" class="w-full text-center outline-none bg-transparent" placeholder="-" onkeydown="handleKeyNavigation(event, 'general')"></td>
-            <td class="border-r border-black bg-green-50"><input type="text" class="deposit-input w-full text-right font-bold text-green-700 bg-transparent outline-none px-2" oninput="calculateStatement()" onkeydown="handleKeyNavigation(event, 'deposit')" placeholder="0"></td>
-            <td class="border-r border-black bg-red-50"><input type="text" class="expense-input w-full text-right font-bold text-red-700 bg-transparent outline-none px-2" oninput="calculateStatement()" onkeydown="handleKeyNavigation(event, 'expense')" placeholder="0"></td>
+            <td class="border-r border-black bg-green-50"><input type="number" class="deposit-input w-full text-right font-bold text-green-700 bg-transparent outline-none px-2" oninput="calculateStatement()" onkeydown="handleKeyNavigation(event, 'deposit')" placeholder="0"></td>
+            <td class="border-r border-black bg-red-50"><input type="number" class="expense-input w-full text-right font-bold text-red-700 bg-transparent outline-none px-2" oninput="calculateStatement()" onkeydown="handleKeyNavigation(event, 'expense')" placeholder="0"></td>
             <td class="text-right font-bold px-3 text-blue-900 bg-blue-50 row-balance">0.00</td>
             <td class="border-l border-black no-print text-center"><button onclick="removeRow(this)" class="text-red-400 hover:text-red-600 font-bold">×</button></td>
         `;
@@ -313,12 +294,8 @@
       }
 
       function clearAllFields() {
-        document.getElementById("cod").value = "";
-        document.getElementById("custName").value = "";
-        document.getElementById("mobile").value = "";
-        document.getElementById("area").value = "";
-        document.getElementById("address").value = "";
-        document.getElementById("openingBalance").value = "";
+        const ids = ["cod", "custName", "mobile", "area", "address", "openingBalance"];
+        ids.forEach(id => document.getElementById(id).value = "");
         document.getElementById("custType").selectedIndex = 0;
         document.getElementById("payType").selectedIndex = 0;
         document.getElementById("statementBody").innerHTML = "";
@@ -327,15 +304,15 @@
         document.getElementById("custName").focus();
       }
 
-      function saveData() {
+      // ডাটা সেভ করার মূল ফাংশন
+      async function saveData() {
         const fields = [
           { id: "cod", label: "কোড" },
           { id: "custName", label: "কাস্টমারের নাম" },
           { id: "mobile", label: "মোবাইল নম্বর" },
           { id: "area", label: "এলাকা" },
           { id: "custType", label: "Customer Type" },
-          { id: "payType", label: "Payment Type" },
-          { id: "openingBalance", label: "ওপেনিং ব্যালেন্স" }
+          { id: "payType", label: "Payment Type" }
         ];
 
         let emptyFields = fields.filter(f => {
@@ -345,23 +322,55 @@
 
         if (emptyFields.length > 0) {
           const labels = emptyFields.map(f => f.label).join(", ");
-          const msg = `নিম্নোক্ত ঘরগুলো ফাঁকা আছে:\n(${labels})\n\nআপনি কি তবুও সেভ করতে চান? (হ্যাঁ ক্লিক করলে সেভ হবে, না ক্লিক করলে ফাঁকা ঘরে ফেরত যাবে)`;
-          
-          if (confirm(msg)) {
-            finalizeSave();
-          } else {
+          if (!confirm(`নিম্নোক্ত ঘরগুলো ফাঁকা আছে:\n(${labels})\n\nআপনি কি তবুও সেভ করতে চান?`)) {
             document.getElementById(emptyFields[0].id).focus();
+            return;
           }
-        } else {
-          finalizeSave();
         }
+        
+        await finalizeSave();
       }
 
-      function finalizeSave() {
-        const custName = document.getElementById("custName").value || "অজানা";
-        alert(`ডাটা সফলভাবে সেভ হয়েছে!\nকাস্টমার: ${custName}`);
-        clearAllFields();
+      async function finalizeSave() {
+        const btn = document.querySelector("button[onclick='saveData()']");
+        const originalText = btn.innerText;
+        btn.disabled = true;
+        btn.innerText = "সেভ হচ্ছে...";
+
+        const payload = {
+          action: "saveLedger", // Apps Script এ 'action' শনাক্ত করার জন্য
+          cod: document.getElementById("cod").value,
+          custName: document.getElementById("custName").value,
+          mobile: document.getElementById("mobile").value,
+          area: document.getElementById("area").value,
+          address: document.getElementById("address").value,
+          custType: document.getElementById("custType").value,
+          payType: document.getElementById("payType").value,
+          totalDeposit: document.getElementById("totalDeposit").innerText.replace(/,/g, ""),
+          totalExpense: document.getElementById("totalExpense").innerText.replace(/,/g, ""),
+          finalBalance: document.getElementById("finalBalance").innerText.replace(/,/g, "")
+        };
+
+        try {
+          // fetch এর মাধ্যমে ডাটা Apps Script এ পাঠানো
+          await fetch(SCRIPT_URL, {
+            method: "POST",
+            mode: "no-cors",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+          });
+
+          alert(`ডাটা সফলভাবে সেভ হয়েছে!\nকাস্টমার: ${payload.custName}`);
+          clearAllFields();
+        } catch (error) {
+          console.error("Error saving data:", error);
+          alert("সেভ করতে সমস্যা হয়েছে। ইন্টারনেট কানেকশন চেক করে আবার চেষ্টা করুন।");
+        } finally {
+          btn.disabled = false;
+          btn.innerText = originalText;
+        }
       }
+    </script>
     </script>
   </body>
 </html>
