@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+  </head>
+  <body>
+    <!doctype html>
+<html lang="bn">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ব্যবসায়িক খতিয়ান ফরম</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;700&display=swap");
+
+      body {
+        font-family: "Noto Sans Bengali", sans-serif;
+        background-color: #f1f5f9;
+      }
+
+      /* প্রিন্ট ডিজাইন */
+      @media print {
+        @page {
+          size: A4;
+          margin: 15mm;
+        }
+        body {
+          background-color: white;
+          padding: 0;
+        }
+        .no-print {
+          display: none !important;
+        }
+        .print-container {
+          box-shadow: none !important;
+          border: none !important;
+          width: 100% !important;
+          max-width: 100% !important;
+          padding: 0 !important;
+        }
+        .bank-table {
+          border: 1.5pt solid black !important;
+        }
+        .bank-table th,
+        .bank-table td {
+          border: 0.5pt solid black !important;
+          color: black !important;
+        }
+        .row-balance {
+          background-color: #f8fafc !important;
+          -webkit-print-color-adjust: exact;
+        }
+        input, select {
+          border: none !important;
+          background: transparent !important;
+          appearance: none;
+        }
+      }
+
+      .bank-table input {
+        width: 100%;
+        border: none;
+        background: transparent;
+        padding: 6px 4px;
+        font-size: 14px;
+      }
+      .bank-table input:focus {
+        outline: none;
+        background: #eff6ff;
+      }
+      .focus-ring:focus {
+        border-color: #1e3a8a !important;
+        box-shadow: 0 0 0 2px rgba(30, 58, 138, 0.2);
+      }
+      
+      /* কাস্টম মেসেজ বক্স স্টাইল */
+      #customAlert {
+        display: none;
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 1000;
+        background-color: #ef4444;
+        color: white;
+        padding: 12px 24px;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        font-weight: bold;
+        animation: slideIn 0.3s ease-out;
+      }
+      @keyframes slideIn {
+        from { top: -50px; opacity: 0; }
+        to { top: 20px; opacity: 1; }
+      }
+    </style>
+  </head>
+  <body class="p-4 md:p-8">
+    <!-- কাস্টম অ্যালার্ট বক্স (ইনপুট ভ্যালিডেশনের জন্য) -->
+    <div id="customAlert">জমা অথবা খরচ ঘরে কোনো সংখ্যা লিখুন!</div>
+
+    <div
+      class="max-w-6xl mx-auto bg-white p-8 rounded-xl shadow-2xl border border-gray-200 print-container"
+    >
+      <!-- Header -->
+      <div class="flex justify-between items-start border-b-4 border-blue-900 pb-6 mb-8">
+        <div class="flex-1">
+          <input type="text" placeholder="প্রতিষ্ঠানের নাম লিখুন" class="text-4xl font-black text-blue-900 mb-2 focus:outline-none w-full bg-transparent" />
+          <div class="flex flex-col text-gray-600 font-bold">
+            <input type="text" placeholder="ঠিকানা লাইন ১" class="text-sm bg-transparent border-none p-0 focus:outline-none" />
+            <input type="text" placeholder="মোবাইল নম্বর" class="text-sm bg-transparent border-none p-0 focus:outline-none" />
+          </div>
+        </div>
+        <div class="text-right flex-shrink-0">
+          <h2 class="text-2xl font-bold text-gray-800 uppercase tracking-widest border-b-2 border-gray-800 inline-block mb-2">LEDGER / খতিয়ান</h2>
+          <div class="mt-4">
+            <span class="text-sm font-bold bg-blue-900 text-white px-3 py-1 rounded">হিসাব ফরম</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Information Section -->
+      <div class="mb-8 bg-slate-50 p-6 rounded-xl border border-gray-200 shadow-sm">
+        <div class="mb-4">
+          <div class="flex flex-col w-32">
+            <label class="text-blue-900 font-bold uppercase text-[10px] mb-1">Cod:</label>
+            <input type="text" id="cod" maxlength="8" placeholder="কোড" class="bg-white border border-blue-400 rounded px-2 py-1.5 text-sm focus:border-blue-700 outline-none font-semibold uppercase focus-ring" onkeydown="handleInfoNav(event, 'custName')">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+          <div class="flex flex-col">
+            <label class="text-blue-900 font-bold uppercase text-[10px] mb-1">Customer Name:</label>
+            <input type="text" id="custName" placeholder="নাম লিখুন" class="bg-white border border-blue-400 rounded px-3 py-1.5 text-sm focus:border-blue-700 outline-none font-semibold focus-ring" onkeydown="handleInfoNav(event, 'mobile')">
+          </div>
+          <div class="flex flex-col">
+            <label class="text-blue-900 font-bold uppercase text-[10px] mb-1">Mobile:</label>
+            <input type="text" id="mobile" placeholder="মোবাইল নম্বর" class="bg-white border border-blue-400 rounded px-3 py-1.5 text-sm focus:border-blue-700 outline-none font-semibold focus-ring" onkeydown="handleInfoNav(event, 'area')">
+          </div>
+          <div class="flex flex-col">
+            <label class="text-blue-900 font-bold uppercase text-[10px] mb-1">Area:</label>
+            <input type="text" id="area" placeholder="এলাকা" class="bg-white border border-blue-400 rounded px-3 py-1.5 text-sm focus:border-blue-700 outline-none font-semibold focus-ring" onkeydown="handleInfoNav(event, 'address')">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+          <div class="flex flex-col md:col-span-2">
+            <label class="text-blue-900 font-bold uppercase text-[10px] mb-1">Address:</label>
+            <input type="text" id="address" placeholder="বিস্তারিত ঠিকানা লিখুন" class="bg-white border border-blue-400 rounded px-3 py-1.5 text-sm focus:border-blue-700 outline-none font-semibold focus-ring" onkeydown="handleInfoNav(event, 'openingBalance')">
+          </div>
+          <div class="flex flex-col">
+            <label class="text-blue-900 font-bold uppercase text-[10px] mb-1">Customer Type:</label>
+            <select id="custType" class="bg-white border border-blue-400 rounded px-3 py-1.5 text-sm focus:border-blue-700 outline-none font-semibold focus-ring">
+              <option value="" disabled selected>Select</option>
+              <option value="Retailer">Retailer</option>
+              <option value="Deler">Deler</option>
+              <option value="Sub-Delar">Sub-Delar</option>
+            </select>
+          </div>
+          <div class="flex flex-col">
+            <label class="text-blue-900 font-bold uppercase text-[10px] mb-1">Payment Type:</label>
+            <select id="payType" class="bg-white border border-blue-400 rounded px-3 py-1.5 text-sm focus:border-blue-700 outline-none font-semibold focus-ring">
+              <option value="" disabled selected>Select</option>
+              <option value="Cash">Cash</option>
+              <option value="Cridit">Cridit</option>
+              <option value="Chack">Chack</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <div class="flex flex-col w-40">
+            <label class="text-blue-900 font-bold uppercase text-[10px] mb-1">Opening Balance:</label>
+            <div class="bg-white border border-blue-400 rounded overflow-hidden focus-within:border-blue-700 transition-colors">
+              <input type="number" id="openingBalance" oninput="calculateStatement()" onkeydown="if (event.key === 'Enter') { event.preventDefault(); focusFirstDeposit(); }" class="w-full px-3 py-1.5 text-right font-bold text-blue-900 focus:outline-none bg-transparent text-sm" placeholder="0.00" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Table Section -->
+      <div class="overflow-x-auto">
+        <table class="w-full border-collapse border-2 border-black bank-table text-center text-sm">
+          <thead class="bg-gray-800 text-white">
+            <tr class="border-b-2 border-black">
+              <th class="p-3 border-r border-black w-28">তারিখ</th>
+              <th class="p-3 border-r border-black">বিবরণ (Particulars)</th>
+              <th class="p-3 border-r border-black w-24">ভাউচার</th>
+              <th class="p-3 border-r border-black w-32 bg-green-700">জমা</th>
+              <th class="p-3 border-r border-black w-32 bg-red-700">খরচ</th>
+              <th class="p-3 w-40 bg-blue-800">মোট পাওনা</th>
+              <th class="p-3 border-l border-black w-10 no-print"></th>
+            </tr>
+          </thead>
+          <tbody id="statementBody"></tbody>
+          <tfoot class="bg-gray-100 border-t-2 border-black">
+            <tr class="font-bold">
+              <td colspan="3" class="p-3 text-right text-base uppercase border-r border-black">সর্বমোট:</td>
+              <td class="p-3 text-right text-green-700 border-r border-black" id="totalDeposit">0.00</td>
+              <td class="p-3 text-right text-red-700 border-r border-black" id="totalExpense">0.00</td>
+              <td class="p-3 text-right text-xl text-blue-900" id="finalBalance">0.00</td>
+              <td class="border-l border-black no-print"></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+
+      <!-- Controls -->
+      <div class="mt-8 flex flex-wrap gap-4 justify-between items-center no-print">
+        <div class="flex gap-2">
+          <button onclick="addRow(true)" class="bg-blue-600 text-white px-6 py-2.5 rounded-lg font-bold hover:bg-blue-700 transition flex items-center shadow-lg">+ নতুন রো</button>
+          <button onclick="window.print()" class="bg-gray-700 text-white px-6 py-2.5 rounded-lg font-bold hover:bg-gray-800 transition flex items-center shadow-lg">প্রিন্ট করুন</button>
+        </div>
+        <button onclick="saveData()" class="bg-green-600 text-white px-10 py-2.5 rounded-lg font-bold hover:bg-green-700 transition shadow-lg border-2 border-green-800">SAVE (সেভ করুন)</button>
+      </div>
+    </div>
+
+    <script>
+      window.onload = function () {
+        document.getElementById("custName").focus();
+        addRow(false);
+        calculateStatement();
+      };
+
+      function showAlert() {
+        const alertBox = document.getElementById("customAlert");
+        alertBox.style.display = "block";
+        setTimeout(() => {
+          alertBox.style.display = "none";
+        }, 3000);
+      }
+
+      function handleInfoNav(event, nextId) {
+        if (event.key === "Enter") {
+          event.preventDefault();
+          document.getElementById(nextId).focus();
+        }
+      }
+
+      function focusFirstDeposit() {
+        const input = document.querySelector(".deposit-input");
+        if (input) input.focus();
+      }
+
+      function handleKeyNavigation(event, type) {
+        if (event.key === "Enter") {
+          event.preventDefault();
+          const currentRow = event.target.closest("tr");
+          
+          if (type === "deposit") {
+            currentRow.querySelector(".expense-input").focus();
+          } else if (type === "expense") {
+            const depVal = currentRow.querySelector(".deposit-input").value.trim();
+            const expVal = currentRow.querySelector(".expense-input").value.trim();
+            
+            if (depVal === "" && expVal === "") {
+               showAlert();
+               return; 
+            }
+            addRow(true);
+          } else {
+            currentRow.querySelector(".deposit-input").focus();
+          }
+        }
+      }
+
+      function addRow(focusToDeposit = false) {
+        const tbody = document.getElementById("statementBody");
+        const row = document.createElement("tr");
+        row.className = "border-b border-gray-400 even:bg-gray-50 hover:bg-blue-50 transition-colors";
+        const dateStr = new Date().toLocaleDateString('en-GB');
+
+        row.innerHTML = `
+            <td class="border-r border-black"><input type="text" class="w-full text-center outline-none bg-transparent" value="${dateStr}" onkeydown="handleKeyNavigation(event, 'general')"></td>
+            <td class="border-r border-black"><input type="text" class="w-full px-2 outline-none bg-transparent" placeholder="বিবরণ..." onkeydown="handleKeyNavigation(event, 'general')"></td>
+            <td class="border-r border-black"><input type="text" class="w-full text-center outline-none bg-transparent" placeholder="-" onkeydown="handleKeyNavigation(event, 'general')"></td>
+            <td class="border-r border-black bg-green-50"><input type="text" class="deposit-input w-full text-right font-bold text-green-700 bg-transparent outline-none px-2" oninput="calculateStatement()" onkeydown="handleKeyNavigation(event, 'deposit')" placeholder="0"></td>
+            <td class="border-r border-black bg-red-50"><input type="text" class="expense-input w-full text-right font-bold text-red-700 bg-transparent outline-none px-2" oninput="calculateStatement()" onkeydown="handleKeyNavigation(event, 'expense')" placeholder="0"></td>
+            <td class="text-right font-bold px-3 text-blue-900 bg-blue-50 row-balance">0.00</td>
+            <td class="border-l border-black no-print text-center"><button onclick="removeRow(this)" class="text-red-400 hover:text-red-600 font-bold">×</button></td>
+        `;
+        tbody.appendChild(row);
+        if (focusToDeposit) setTimeout(() => row.querySelector(".deposit-input").focus(), 10);
+      }
+
+      function removeRow(btn) {
+        const rows = document.querySelectorAll("#statementBody tr");
+        if (rows.length > 1) { btn.closest("tr").remove(); calculateStatement(); }
+      }
+
+      function calculateStatement() {
+        const opening = parseFloat(document.getElementById("openingBalance").value) || 0;
+        let runningBal = opening;
+        let totalDep = 0;
+        let totalExp = 0;
+
+        const rows = document.querySelectorAll("#statementBody tr");
+        rows.forEach((row) => {
+          const dep = parseFloat(row.querySelector(".deposit-input").value.replace(/,/g, "")) || 0;
+          const exp = parseFloat(row.querySelector(".expense-input").value.replace(/,/g, "")) || 0;
+          
+          totalDep += dep;
+          totalExp += exp;
+
+          runningBal = (runningBal + exp) - dep;
+          row.querySelector(".row-balance").innerText = runningBal.toLocaleString("en-IN", { minimumFractionDigits: 2 });
+        });
+
+        document.getElementById("totalDeposit").innerText = totalDep.toLocaleString("en-IN", { minimumFractionDigits: 2 });
+        document.getElementById("totalExpense").innerText = totalExp.toLocaleString("en-IN", { minimumFractionDigits: 2 });
+        document.getElementById("finalBalance").innerText = runningBal.toLocaleString("en-IN", { minimumFractionDigits: 2 });
+      }
+
+      function clearAllFields() {
+        document.getElementById("cod").value = "";
+        document.getElementById("custName").value = "";
+        document.getElementById("mobile").value = "";
+        document.getElementById("area").value = "";
+        document.getElementById("address").value = "";
+        document.getElementById("openingBalance").value = "";
+        document.getElementById("custType").selectedIndex = 0;
+        document.getElementById("payType").selectedIndex = 0;
+        document.getElementById("statementBody").innerHTML = "";
+        addRow(false);
+        calculateStatement();
+        document.getElementById("custName").focus();
+      }
+
+      function saveData() {
+        const fields = [
+          { id: "cod", label: "কোড" },
+          { id: "custName", label: "কাস্টমারের নাম" },
+          { id: "mobile", label: "মোবাইল নম্বর" },
+          { id: "area", label: "এলাকা" },
+          { id: "custType", label: "Customer Type" },
+          { id: "payType", label: "Payment Type" },
+          { id: "openingBalance", label: "ওপেনিং ব্যালেন্স" }
+        ];
+
+        let emptyFields = fields.filter(f => {
+            const el = document.getElementById(f.id);
+            return !el.value || el.value.trim() === "";
+        });
+
+        if (emptyFields.length > 0) {
+          const labels = emptyFields.map(f => f.label).join(", ");
+          const msg = `নিম্নোক্ত ঘরগুলো ফাঁকা আছে:\n(${labels})\n\nআপনি কি তবুও সেভ করতে চান? (হ্যাঁ ক্লিক করলে সেভ হবে, না ক্লিক করলে ফাঁকা ঘরে ফেরত যাবে)`;
+          
+          if (confirm(msg)) {
+            finalizeSave();
+          } else {
+            document.getElementById(emptyFields[0].id).focus();
+          }
+        } else {
+          finalizeSave();
+        }
+      }
+
+      function finalizeSave() {
+        const custName = document.getElementById("custName").value || "অজানা";
+        alert(`ডাটা সফলভাবে সেভ হয়েছে!\nকাস্টমার: ${custName}`);
+        clearAllFields();
+      }
+    </script>
+  </body>
+</html>
+  </body>
+</html>
