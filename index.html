@@ -4,11 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/619/619153.png">
-    <title>Home</title>
+    <title>Home - Smart ERP</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <script>
+        // ইউজার অথেন্টিকেশন চেক
         (function() {
             const urlParams = new URLSearchParams(window.location.search);
             const nameFromUrl = urlParams.get('name');
@@ -31,28 +32,47 @@
             window.location.href = "login.html";
         }
 
-        // বাটন ক্লিকের জন্য ডাইনামিক নেভিগেশন ফাংশন
         function navigateTo(page) {
             const name = sessionStorage.getItem('erp_user_name');
             const id = sessionStorage.getItem('erp_user_id');
-            
-            // নাম এবং আইডি এনকোড করে ইউআরএল তৈরি করা
             const url = `${page}?name=${encodeURIComponent(name)}&id=${encodeURIComponent(id)}`;
             window.open(url, '_blank');
         }
+
+        // ডিজিটাল ঘড়ির ফাংশন
+        function updateClock() {
+            const now = new Date();
+            
+            let hours = now.getHours();
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+            hours = hours % 12;
+            hours = hours ? hours : 12; 
+            
+            document.getElementById('hrs').textContent = String(hours).padStart(2, '0');
+            document.getElementById('min').textContent = minutes;
+            document.getElementById('sec').textContent = seconds;
+            document.getElementById('ampm').textContent = ampm;
+            
+            const options = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' };
+            document.getElementById('current-date').textContent = now.toLocaleDateString('en-US', options);
+        }
+        setInterval(updateClock, 1000);
     </script>
 
     <style>
         :root {
             --nature-green: #27ae60;
+            --neon-green: #2ecc71;
             --sales-btn: #2ecc71;
             --purchase-btn: #3498db;
             --product-btn: #f1c40f;
             --customer-btn: #9b59b6;
             --report-btn: #e67e22;
-            --Dataentry-btn: #2E2EFF; 
-            --Dataentryauto-btn: #F54927; /* Added -btn here */
-}
+            --stock-btn: #FF1493;
+            --dataentry-btn: #2E2EFF; 
+            --dataentryauto-btn: #F54927;
         }
         
         body {
@@ -68,7 +88,7 @@
             right: 20px;
             z-index: 100;
             background: rgba(255, 255, 255, 0.95);
-            padding: 10px 18px;
+            padding: 8px 15px;
             border-radius: 50px;
             display: flex;
             align-items: center;
@@ -78,7 +98,7 @@
 
         .hero-banner {
             height: 55vh;
-            background: linear-gradient(135deg, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.2) 100%), 
+            background: linear-gradient(135deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.4) 100%), 
                         url('https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&q=80&w=1600');
             background-size: cover;
             background-position: center;
@@ -86,68 +106,187 @@
             align-items: center;
             position: relative;
             color: white;
+            padding: 0 8%;
         }
 
-        .hero-overlay-content { padding-left: 8%; z-index: 10; animation: fadeInUp 1s ease-out; }
-        .main-title { font-size: clamp(2rem, 7vw, 4.5rem); font-weight: 900; text-transform: uppercase; line-height: 1.1; margin-bottom: 15px; }
-        .sub-badge { background: var(--nature-green); color: white; padding: 8px 25px; border-radius: 4px; display: inline-block; margin-bottom: 25px; }
+        .hero-overlay-content { 
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            z-index: 10; 
+            animation: fadeInUp 1s ease-out; 
+        }
 
-        .quick-actions { margin-top: -50px; position: relative; z-index: 30; padding: 0 15px; }
-        .action-grid { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 15px; }
+        .title-section { text-align: left; }
+        .main-title { font-size: clamp(1.8rem, 5vw, 3.2rem); font-weight: 900; text-transform: uppercase; line-height: 1.1; margin-bottom: 5px; }
+        .sub-badge { background: var(--nature-green); color: white; padding: 6px 20px; border-radius: 4px; display: inline-block; margin-bottom: 15px; font-size: 0.8rem; letter-spacing: 1px; box-shadow: 0 4px 10px rgba(39, 174, 96, 0.3); }
+
+        /* ইউনিক ডিজিটাল ঘড়ি ডিজাইন */
+        .unique-clock-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-right: 5px solid var(--neon-green);
+            padding: 20px 30px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .unique-clock-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
+            transition: 0.5s;
+            animation: shine 3s infinite;
+        }
+
+        @keyframes shine {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        .time-display {
+            display: flex;
+            align-items: baseline;
+            gap: 10px;
+        }
+
+        .time-box {
+            font-family: 'JetBrains Mono', 'Courier New', monospace;
+            font-size: 3rem;
+            font-weight: 800;
+            color: #fff;
+            text-shadow: 0 0 20px rgba(46, 204, 113, 0.6);
+            line-height: 1;
+        }
+
+        .time-divider {
+            font-size: 2.5rem;
+            color: var(--neon-green);
+            animation: blink 1s infinite;
+            font-weight: 300;
+        }
+
+        @keyframes blink {
+            50% { opacity: 0.3; }
+        }
+
+        .ampm-box {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--neon-green);
+            text-transform: uppercase;
+            margin-left: 5px;
+        }
+
+        #current-date {
+            display: block;
+            text-align: right;
+            font-size: 0.9rem;
+            margin-top: 8px;
+            color: rgba(255,255,255,0.8);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        /* বাটন গ্রিড সেকশন */
+        .quick-actions { 
+            margin-top: -60px; 
+            position: relative; 
+            z-index: 30; 
+            padding: 0 20px; 
+            max-width: 1200px; 
+            margin-left: auto; 
+            margin-right: auto;
+        }
+
+        .action-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); 
+            gap: 15px; 
+        }
 
         .erp-button {
-            border: none; border-radius: 15px; padding: 25px 15px; color: white; font-weight: 700;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            transition: all 0.3s ease; cursor: pointer; text-decoration: none;
+            border: none; 
+            border-radius: 15px; 
+            padding: 20px 10px; 
+            color: white; 
+            font-weight: 700;
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+            cursor: pointer; 
+            text-decoration: none;
             width: 100%;
+            min-height: 130px; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            text-align: center;
         }
 
-        .erp-button i { font-size: 1.8rem; margin-bottom: 10px; }
-        .erp-button:hover { transform: translateY(-5px); box-shadow: 0 15px 30px rgba(0,0,0,0.2); filter: brightness(1.1); }
+        .erp-button i { font-size: 2rem; margin-bottom: 12px; }
+        .erp-button span { font-size: 0.85rem; text-transform: uppercase; line-height: 1.2; }
+        .erp-button:hover { transform: translateY(-8px); box-shadow: 0 15px 30px rgba(0,0,0,0.2); filter: brightness(1.1); }
 
         .btn-sales { background-color: var(--sales-btn); }
         .btn-purchase { background-color: var(--purchase-btn); }
         .btn-product { background-color: var(--product-btn); }
         .btn-customer { background-color: var(--customer-btn); }
         .btn-report { background-color: var(--report-btn); }
-        .btn-stock { background-color: #FF1493; }
-        .btn-Dataentry { background-color: var(--Dataentry-btn); }
-        
-        .btn-Dataentryauto { background-color: var(--Dataentryauto-btn);}
+        .btn-stock { background-color: var(--stock-btn); }
+        .btn-dataentry { background-color: var(--dataentry-btn); }
+        .btn-dataentryauto { background-color: var(--dataentryauto-btn); }
 
-        .developer-footer { padding: 40px 0; text-align: center; }
-        .dev-name { font-weight: 700; color: var(--nature-green); }
+        .developer-footer { 
+            padding: 60px 0 40px; 
+            text-align: center; 
+            width: 100%;
+            clear: both;
+        }
+        .dev-text { font-size: 0.9rem; color: #666; line-height: 1.6; }
+        .dev-name { font-weight: 700; color: var(--nature-green); font-size: 1.1rem; }
 
         .btn-logout {
             background: #e74c3c;
             color: white;
             border: none;
-            padding: 6px 14px;
+            padding: 6px 12px;
             border-radius: 20px;
             font-size: 12px;
-            margin-left: 12px;
+            margin-left: 10px;
             cursor: pointer;
             transition: 0.2s;
         }
-        .btn-logout:hover { background: #c0392b; }
+        .btn-logout:hover { background: #c0392b; transform: scale(1.05); }
 
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
 
         @media (max-width: 768px) {
-            .hero-banner { height: 45vh; text-align: center; justify-content: center; }
-            .hero-overlay-content { padding-left: 0; }
-            .action-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
-            .user-profile-box { top: 10px; right: 10px; padding: 6px 12px; }
+            .hero-banner { height: auto; min-height: 50vh; padding: 50px 15px; }
+            .hero-overlay-content { flex-direction: column; text-align: center; gap: 30px; }
+            .title-section { order: 2; text-align: center; }
+            .unique-clock-card { order: 1; width: 100%; max-width: 280px; padding: 15px 20px; border-right: none; border-bottom: 5px solid var(--neon-green); }
+            .time-box { font-size: 2.2rem; }
+            .time-divider { font-size: 1.8rem; }
+            .action-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+            .user-profile-box { top: 10px; right: 10px; padding: 5px 10px; }
+            .erp-button { min-height: 110px; padding: 15px 8px; }
         }
     </style>
 </head>
-<body>
+<body onload="updateClock()">
 
 <div class="user-profile-box">
     <i class="fas fa-user-circle fa-2x text-success me-2"></i>
     <div class="text-start">
-        <div id="display-user-name" class="fw-bold text-dark text-uppercase" style="font-size: 12px; line-height: 1.1;">Loading...</div>
-        <small id="display-user-id" class="text-muted" style="font-size: 10px;">ID: ....</small>
+        <div id="display-user-name" class="fw-bold text-dark text-uppercase" style="font-size: 11px; line-height: 1.1;">Loading...</div>
+        <small id="display-user-id" class="text-muted" style="font-size: 9px;">ID: ....</small>
     </div>
     <button class="btn-logout" title="Logout" onclick="logoutUser()">
         <i class="fas fa-sign-out-alt"></i>
@@ -156,50 +295,59 @@
 
 <div class="hero-banner">
     <div class="hero-overlay-content">
-        <div class="sub-badge">SMART INVOICE & REPORT </div>
-        <h1 class="main-title">MANAGEMENT<br>SYSTEM</h1>
+        <div class="title-section">
+            <div class="sub-badge">ERP DASHBOARD v2.0</div>
+            <h1 class="main-title">SMART MANAGEMENT<br>SYSTEM</h1>
+        </div>
+
+        <!-- ইউনিক ডিজিটাল ঘড়ি -->
+        <div class="unique-clock-card">
+            <div class="time-display">
+                <span id="hrs" class="time-box">00</span>
+                <span class="time-divider">:</span>
+                <span id="min" class="time-box">00</span>
+                <span class="time-divider" style="font-size: 1.5rem; opacity: 0.6;">:</span>
+                <span id="sec" class="time-box" style="font-size: 2rem; opacity: 0.8; color: var(--neon-green);">00</span>
+                <span id="ampm" class="ampm-box">AM</span>
+            </div>
+            <div id="current-date">FRIDAY, FEB 27, 2026</div>
+        </div>
     </div>
 </div>
 
 <div class="quick-actions">
     <div class="action-grid">
-        <!-- href সরিয়ে onclick ব্যবহার করা হয়েছে ডাইনামিক ইউআরএল-এর জন্য -->
         <div onclick="navigateTo('Sales.html')" class="erp-button btn-sales">
             <i class="fas fa-file-invoice-dollar"></i>
-            <span>NEW INVOICE</span>
+            <span>New Invoice</span>
         </div>
-
         <div onclick="navigateTo('Purchase.html')" class="erp-button btn-purchase">
             <i class="fas fa-cart-plus"></i>
-            <span>PURCHASE</span>
+            <span>Purchase</span>
         </div>
-
         <div onclick="navigateTo('Product.html')" class="erp-button btn-product">
             <i class="fas fa-boxes-stacked"></i>
-            <span>ADD PRODUCT</span>
+            <span>Add Product</span>
         </div>
-
         <div onclick="navigateTo('Customer.html')" class="erp-button btn-customer">
             <i class="fas fa-users"></i>
-            <span>ADD CUSTOMER</span>
+            <span>Add Customer</span>
         </div>
-
         <div onclick="navigateTo('Reports.html')" class="erp-button btn-report">
             <i class="fas fa-chart-pie"></i>
-            <span>REPORTS</span>
+            <span>Reports</span>
         </div>
-
         <div onclick="navigateTo('Stock.html')" class="erp-button btn-stock">
             <i class="fas fa-warehouse"></i>
-            <span>STOCK REPORT</span>
+            <span>Stock Report</span>
         </div>
-        <div onclick="navigateTo('Dataentry.html')" class="erp-button btn-Dataentry">
-            <i class="fas fa-warehouse"></i>
-            <span>Dataentry</span>
+        <div onclick="navigateTo('Dataentry.html')" class="erp-button btn-dataentry">
+            <i class="fas fa-keyboard"></i>
+            <span>Data Entry</span>
         </div>
-        <div onclick="navigateTo('Dataentryauto.html')" class="erp-button btn-Dataentryauto">
-            <i class="fas fa-warehouse"></i>
-            <span>New Update Comingson</span>
+        <div onclick="navigateTo('Dataentryauto.html')" class="erp-button btn-dataentryauto">
+            <i class="fas fa-magic"></i>
+            <span>Auto Entry</span>
         </div>
     </div>
 </div>
@@ -215,13 +363,8 @@
     window.addEventListener('load', function() {
         const name = sessionStorage.getItem('erp_user_name');
         const id = sessionStorage.getItem('erp_user_id');
-
-        if (name) {
-            document.getElementById('display-user-name').innerText = name;
-        }
-        if (id) {
-            document.getElementById('display-user-id').innerText = "ID: " + id;
-        }
+        if (name) document.getElementById('display-user-name').innerText = name;
+        if (id) document.getElementById('display-user-id').innerText = "ID: " + id;
     });
 </script>
 
@@ -229,12 +372,3 @@
 
 </body>
 </html>
-
-
-
-
-
-
-
-
-
