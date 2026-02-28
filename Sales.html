@@ -904,7 +904,7 @@ label.small.fw-bold {
         const now = new Date();
         const year = now.getFullYear();
         const month = (now.getMonth() + 1).toString().padStart(2, '0');
-        const currentPrefix = `INVO-${year}-${month}-`;
+        const currentPrefix = `NEP-${year}-${month}-`;
         if (!lastInv || !lastInv.toString().startsWith(currentPrefix)) return currentPrefix + "0001";
         const parts = lastInv.toString().split("-");
         const lastSerial = parseInt(parts[parts.length - 1], 10);
@@ -959,6 +959,7 @@ function initApp() {
 </body>
 
 </html>
+
 
 
 
