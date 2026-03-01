@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Ledger Management System</title>
+      <title>Data Entry Auto</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
       @import url("https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;700;900&display=swap");
@@ -134,7 +134,7 @@
       >
         <div class="loader !w-12 !h-12 mb-4"></div>
         <p class="font-bold text-slate-600">
-          সার্ভার থেকে তথ্য সংগ্রহ করা হচ্ছে...
+         Dta Loading Please Wait
         </p>
       </div>
     </div>
@@ -149,15 +149,15 @@
         >
           ✓
         </div>
-        <h2 class="text-2xl font-black text-slate-800 mb-2">সফল হয়েছে!</h2>
+        <h2 class="text-2xl font-black text-slate-800 mb-2">Successfull!</h2>
         <p class="text-gray-500 mb-8 font-medium">
-          ডাটাবেজ (Sales_Master) আপডেট করা হয়েছে।
+          Update Ok
         </p>
         <button
           onclick="closeSuccess()"
           class="w-full bg-slate-900 text-white py-4 rounded-2xl font-bold hover:bg-black transition-all shadow-lg active:scale-95"
         >
-          ঠিক আছে
+         Ok
         </button>
       </div>
     </div>
@@ -175,14 +175,14 @@
             type="text"
             id="companyName"
             class="text-3xl md:text-5xl font-black text-blue-900 mb-2 w-full focus:outline-none bg-transparent hover:bg-blue-50 rounded px-1 transition-all"
-            value="আপনার কোম্পানির নাম"
+            value="YOUER INSTITUTION NAME "
           />
           <div class="flex items-center gap-2">
             <span class="w-8 h-1 bg-blue-600"></span>
             <p
               class="text-slate-400 font-bold tracking-widest uppercase text-sm"
             >
-              Customer Ledger System
+              Customer Data Entry System
             </p>
           </div>
         </div>
@@ -190,7 +190,7 @@
           <h2
             class="text-xl md:text-2xl font-black text-slate-800 border-b-2 border-slate-800 mb-2 pb-1"
           >
-            খতিয়ান কার্ড (LEDGER)
+            Cutomer Panel Auto
           </h2>
           <div class="flex items-center gap-2 no-print">
             <span
@@ -262,7 +262,7 @@
             <div>
               <label
                 class="block text-xs font-black text-slate-500 uppercase mb-2 ml-1"
-                >Current Balance</label
+                >Opening Balance</label
               >
               <input
                 type="number"
@@ -281,7 +281,7 @@
           >
             <label
               class="text-[10px] font-black text-slate-400 block mb-1 uppercase"
-              >Customer Name (D)</label
+              >Customer Name </label
             >
             <input
               type="text"
@@ -295,7 +295,7 @@
           >
             <label
               class="text-[10px] font-black text-slate-400 block mb-1 uppercase"
-              >Mobile (E)</label
+              >Mobile No</label
             >
             <input
               type="text"
@@ -309,7 +309,7 @@
           >
             <label
               class="text-[10px] font-black text-slate-400 block mb-1 uppercase"
-              >Area (F)</label
+              >Area Name</label
             >
             <input
               type="text"
@@ -323,7 +323,7 @@
           >
             <label
               class="text-[10px] font-black text-slate-400 block mb-1 uppercase"
-              >Address (G)</label
+              >Address</label
             >
             <input
               type="text"
@@ -337,7 +337,7 @@
           >
             <label
               class="text-[10px] font-black text-slate-400 block mb-1 uppercase"
-              >Type (H)</label
+              >Customer Type</label
             >
             <input
               type="text"
@@ -351,7 +351,7 @@
           >
             <label
               class="text-[10px] font-black text-slate-400 block mb-1 uppercase"
-              >Payment Type (I)</label
+              >Payment Type </label
             >
             <input
               type="text"
@@ -370,7 +370,7 @@
             >IN WORDS</span
           >
           <span id="inwordText" class="text-sm font-bold text-slate-600 italic"
-            >Zero Taka Only</span
+            ></span
           >
         </div>
       </div>
@@ -381,7 +381,7 @@
           <thead class="bg-slate-900 text-white">
             <tr>
               <th class="p-4 w-32">তারিখ</th>
-              <th class="p-4 text-left">বিবরণ (Particulars)</th>
+              <th class="p-4 text-left">বিবরণ </th>
               <th class="p-4 w-28 bg-green-800">জমা</th>
               <th class="p-4 w-28 bg-red-800">খরচ</th>
               <th class="p-4 w-36 bg-blue-900">ব্যালেন্স</th>
@@ -392,25 +392,25 @@
           <tfoot class="bg-slate-100 border-t-2 border-slate-900">
             <tr class="font-black text-slate-900">
               <td colspan="2" class="p-4 text-right text-base">
-                TOTAL CALCULATION:
+                GRAND TOTAL:
               </td>
               <td
                 id="totalDeposit"
                 class="p-4 text-right text-green-700 bg-green-50"
               >
-                0.00
+              
               </td>
               <td
                 id="totalExpense"
                 class="p-4 text-right text-red-700 bg-red-50"
               >
-                0.00
+              
               </td>
               <td
                 id="finalBalance"
                 class="p-4 text-right text-blue-900 text-xl bg-blue-50"
               >
-                0.00
+              
               </td>
               <td class="no-print"></td>
             </tr>
@@ -455,7 +455,7 @@
           onclick="saveData()"
           class="w-full sm:w-auto bg-green-600 text-white px-12 py-4 rounded-2xl font-black hover:bg-green-700 shadow-xl shadow-green-100 transition-all active:scale-95 flex items-center justify-center gap-3 border-b-4 border-green-800"
         >
-          <span>UPDATE DATABASE</span>
+          <span>SAVE</span>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             class="h-6 w-6"
