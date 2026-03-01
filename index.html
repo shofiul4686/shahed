@@ -9,7 +9,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <script>
-        // ইউজার অথেন্টিকেশন চেক
         (function() {
             const urlParams = new URLSearchParams(window.location.search);
             const nameFromUrl = urlParams.get('name');
@@ -18,31 +17,65 @@
             if (nameFromUrl && idFromUrl) {
                 sessionStorage.setItem('erp_user_name', decodeURIComponent(nameFromUrl));
                 sessionStorage.setItem('erp_user_id', decodeURIComponent(idFromUrl));
-            } else {
-                const savedName = sessionStorage.getItem('erp_user_name');
-                const savedId = sessionStorage.getItem('erp_user_id');
-                if (!savedName || !savedId) {
-                    window.location.href = "login.html"; 
-                }
             }
         })();
 
         function logoutUser() {
             sessionStorage.clear();
+            // এখানে আপনি আপনার লগইন পেজের লিংক দিতে পারেন
             window.location.href = "login.html";
         }
 
         function navigateTo(page) {
-            const name = sessionStorage.getItem('erp_user_name');
-            const id = sessionStorage.getItem('erp_user_id');
-            const url = `${page}?name=${encodeURIComponent(name)}&id=${encodeURIComponent(id)}`;
-            window.open(url, '_blank');
+            const name = sessionStorage.getItem('erp_user_name') || 'Guest';
+            const id = sessionStorage.getItem('erp_user_id') || '000';
+            let targetPage = page.endsWith('.html') ? page : page + '.html';
+            window.location.href = `${targetPage}?name=${encodeURIComponent(name)}&id=${encodeURIComponent(id)}`;
         }
 
-        // ডিজিটাল ঘড়ির ফাংশন
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('active');
+            document.getElementById('overlay').classList.toggle('active');
+        }
+
+        function resetToHome() {
+            const allSubmenus = document.querySelectorAll('.submenu');
+            const allArrows = document.querySelectorAll('.arrow-icon');
+            
+            allSubmenus.forEach(sub => sub.classList.remove('open'));
+            allArrows.forEach(arrow => arrow.style.transform = "rotate(0deg)");
+            
+            const scrollContainer = document.getElementById('sidebar-scroll-area');
+            scrollContainer.scrollTo({ top: 0, behavior: 'smooth' });
+            
+            if(window.innerWidth < 992) {
+                toggleSidebar();
+            }
+        }
+
+        function toggleSubMenu(id, element) {
+            const allSubmenus = document.querySelectorAll('.submenu');
+            const allArrows = document.querySelectorAll('.arrow-icon');
+            const targetSubmenu = document.getElementById(id);
+            const targetArrow = element.querySelector('.arrow-icon');
+
+            const isAlreadyOpen = targetSubmenu.classList.contains('open');
+
+            allSubmenus.forEach(sub => sub.classList.remove('open'));
+            allArrows.forEach(arrow => arrow.style.transform = "rotate(0deg)");
+
+            if (!isAlreadyOpen) {
+                targetSubmenu.classList.add('open');
+                targetArrow.style.transform = "rotate(90deg)";
+                
+                setTimeout(() => {
+                    element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }, 300);
+            }
+        }
+
         function updateClock() {
             const now = new Date();
-            
             let hours = now.getHours();
             const minutes = String(now.getMinutes()).padStart(2, '0');
             const seconds = String(now.getSeconds()).padStart(2, '0');
@@ -55,7 +88,7 @@
             document.getElementById('sec').textContent = seconds;
             document.getElementById('ampm').textContent = ampm;
             
-            const options = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' };
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
             document.getElementById('current-date').textContent = now.toLocaleDateString('en-US', options);
         }
         setInterval(updateClock, 1000);
@@ -63,312 +96,399 @@
 
     <style>
         :root {
-            --nature-green: #27ae60;
-            --neon-green: #2ecc71;
-            --sales-btn: #2ecc71;
-            --purchase-btn: #3498db;
-            --product-btn: #f1c40f;
-            --customer-btn: #9b59b6;
-            --report-btn: #e67e22;
-            --stock-btn: #FF1493;
-            --dataentry-btn: #2E2EFF; 
-            --dataentryauto-btn: #F54927;
+            --sidebar-bg: #0f1216; 
+            --card-bg: rgba(28, 33, 40, 0.95);
+            --header-bg: #05070a;
+            --accent-gold: #f1c40f; 
+            --sidebar-width: 290px;
+            --text-main: #ecf0f1;
+            --glass-border: rgba(255, 255, 255, 0.08);
         }
         
         body {
-            background-color: #f8fbf9;
+            background-color: #f0f3f6;
             margin: 0;
-            font-family: 'Segoe UI', Tahoma, sans-serif;
+            font-family: 'Inter', 'Segoe UI', 'SolaimanLipi', sans-serif;
             overflow-x: hidden;
         }
 
-        .user-profile-box {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            z-index: 100;
-            background: rgba(255, 255, 255, 0.95);
-            padding: 8px 15px;
-            border-radius: 50px;
+        /* Sidebar Styling */
+        #sidebar {
+            width: var(--sidebar-width);
+            height: 100vh;
+            background: var(--sidebar-bg);
+            position: fixed;
+            left: -var(--sidebar-width);
+            top: 0;
+            z-index: 1100;
+            transition: 0.5s cubic-bezier(0.19, 1, 0.22, 1);
+            color: var(--text-main);
             display: flex;
-            align-items: center;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
-            border: 2px solid var(--nature-green);
+            flex-direction: column;
+            box-shadow: 25px 0 50px rgba(0,0,0,0.6);
+            backdrop-filter: blur(10px);
         }
+        #sidebar.active { left: 0; }
 
-        .hero-banner {
-            height: 55vh;
-            background: linear-gradient(135deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.4) 100%), 
-                        url('https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&q=80&w=1600');
-            background-size: cover;
-            background-position: center;
-            display: flex;
-            align-items: center;
+        .sidebar-header {
+            margin: 20px 15px 15px;
+            padding: 25px 15px;
+            text-align: center;
+            background: linear-gradient(145deg, #1c2128, #14181d);
+            border-radius: 16px;
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.4), inset 0 1px 1px rgba(255,255,255,0.05);
             position: relative;
-            color: white;
-            padding: 0 8%;
+            transform: perspective(1000px) translateZ(0);
+            transition: 0.3s;
+        }
+        .sidebar-header:hover {
+            transform: perspective(1000px) translateZ(10px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.6);
         }
 
-        .hero-overlay-content { 
+        .sidebar-logo {
+            width: 52px; 
+            filter: drop-shadow(0 0 12px rgba(241, 196, 15, 0.5));
+            margin-bottom: 10px;
+        }
+
+        .sticky-home-area {
+            position: sticky;
+            top: 0;
+            z-index: 20;
+            padding: 5px 15px 15px;
+        }
+
+        #sidebar-scroll-area {
+            flex: 1;
+            overflow-y: auto;
+            scrollbar-width: none;
+            padding: 0 15px 20px;
+        }
+        #sidebar-scroll-area::-webkit-scrollbar { display: none; }
+
+        .sidebar-menu { list-style: none; padding: 0; margin: 0; }
+        
+        .sidebar-menu li {
+            padding: 14px 18px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            width: 100%;
-            z-index: 10; 
-            animation: fadeInUp 1s ease-out; 
-        }
-
-        .title-section { text-align: left; }
-        .main-title { font-size: clamp(1.8rem, 5vw, 3.2rem); font-weight: 900; text-transform: uppercase; line-height: 1.1; margin-bottom: 5px; }
-        .sub-badge { background: var(--nature-green); color: white; padding: 6px 20px; border-radius: 4px; display: inline-block; margin-bottom: 15px; font-size: 0.8rem; letter-spacing: 1px; box-shadow: 0 4px 10px rgba(39, 174, 96, 0.3); }
-
-        /* ইউনিক ডিজিটাল ঘড়ি ডিজাইন */
-        .unique-clock-card {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(15px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-right: 5px solid var(--neon-green);
-            padding: 20px 30px;
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+            gap: 14px;
+            font-size: 0.92rem;
+            color: var(--text-main);
+            border-radius: 12px;
+            background: linear-gradient(145deg, #232a33, #1c2128);
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.3);
             position: relative;
             overflow: hidden;
         }
 
-        .unique-clock-card::before {
-            content: '';
-            position: absolute;
-            top: 0; left: -100%;
-            width: 100%; height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
-            transition: 0.5s;
-            animation: shine 3s infinite;
+        .sidebar-menu li:hover {
+            background: linear-gradient(145deg, #2b343f, #232a33);
+            transform: translateY(-4px);
+            box-shadow: 0 12px 20px rgba(0,0,0,0.5);
+            border-color: rgba(241, 196, 15, 0.3);
+            color: white;
         }
 
-        @keyframes shine {
-            0% { left: -100%; }
-            100% { left: 100%; }
+        .home-btn {
+            background: linear-gradient(145deg, #2c333c, #1a2027) !important;
+            border-left: 4px solid var(--accent-gold) !important;
         }
 
-        .time-display {
+        .submenu {
+            display: none;
+            list-style: none;
+            padding: 10px;
+            margin: -8px 0 15px 15px; 
+            background: rgba(0, 0, 0, 0.2); 
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.03);
+            box-shadow: inset 0 2px 10px rgba(0,0,0,0.5);
+        }
+        
+        .submenu li {
+            background: #252d37;
+            font-size: 0.85rem;
+            padding: 11px 15px;
+            margin-bottom: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        .submenu.open { display: block; animation: slideDown 0.4s ease-out; }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .sidebar-footer-profile {
+            margin: 10px 15px 20px;
+            padding: 16px;
+            background: linear-gradient(145deg, #1c2128, #11151a);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
             display: flex;
-            align-items: baseline;
-            gap: 10px;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.2), 0 10px 20px rgba(0,0,0,0.4);
+            position: relative;
+            transition: 0.3s;
+        }
+
+        .user-avatar {
+            width: 48px; height: 48px;
+            background: linear-gradient(135deg, var(--accent-gold), #b7950b);
+            color: #000;
+            border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 900; font-size: 1.3rem;
+            box-shadow: 0 5px 15px rgba(241, 196, 15, 0.2);
+        }
+
+        .logout-btn {
+            background: rgba(255, 71, 87, 0.1);
+            color: #ff4757;
+            width: 36px; height: 36px;
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
+            transition: 0.3s;
+            border: 1px solid rgba(255, 71, 87, 0.2);
+        }
+
+        .menu-toggle {
+            position: fixed;
+            top: 20px; left: 20px;
+            z-index: 1001;
+            background: #1a1d23;
+            color: var(--accent-gold);
+            border: 1.5px solid var(--accent-gold);
+            width: 46px; height: 46px;
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            transition: 0.3s;
+        }
+
+        .overlay {
+            position: fixed; top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(5px);
+            z-index: 1050; display: none;
+        }
+        .overlay.active { display: block; }
+
+        .hero-banner {
+            min-height: 100vh;
+            background: linear-gradient(rgba(0,0,0,0.75), rgba(0,0,0,0.75)), 
+                        url('https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&q=80&w=1600');
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            text-align: center;
+            color: white;
+            padding: 40px 20px;
+        }
+
+        .hero-text .combined-title {
+            font-size: clamp(2rem, 8vw, 4.2rem);
+            font-weight: 900;
+            margin-bottom: 15px;
+            background: linear-gradient(to bottom, #f1c40f, #f9e79f);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 5px 15px rgba(0,0,0,0.5));
+        }
+
+        .unique-clock-card {
+            background: transparent; 
+            padding: 10px 20px;
+            margin-top: 30px;
+            position: relative;
+            animation: fadeInUp 1s ease-out;
+            display: inline-block;
         }
 
         .time-box {
-            font-family: 'JetBrains Mono', 'Courier New', monospace;
-            font-size: 3rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: clamp(2.5rem, 10vw, 4.5rem);
             font-weight: 800;
-            color: #fff;
-            text-shadow: 0 0 20px rgba(46, 204, 113, 0.6);
-            line-height: 1;
+            letter-spacing: -2px;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.4), 2px 2px 10px rgba(0,0,0,0.8);
         }
-
+        
         .time-divider {
-            font-size: 2.5rem;
-            color: var(--neon-green);
-            animation: blink 1s infinite;
-            font-weight: 300;
-        }
-
-        @keyframes blink {
-            50% { opacity: 0.3; }
+            font-size: clamp(2rem, 8vw, 3.5rem);
+            color: var(--accent-gold);
+            text-shadow: 0 0 15px rgba(241, 196, 15, 0.6);
+            margin: 0 5px;
         }
 
         .ampm-box {
-            font-size: 1rem;
-            font-weight: 700;
-            color: var(--neon-green);
+            font-size: 1.2rem;
+            font-weight: 900;
+            color: var(--accent-gold);
             text-transform: uppercase;
-            margin-left: 5px;
+            margin-left: 10px;
+            text-shadow: 0 0 10px rgba(241, 196, 15, 0.5);
         }
 
         #current-date {
-            display: block;
-            text-align: right;
-            font-size: 0.9rem;
-            margin-top: 8px;
-            color: rgba(255,255,255,0.8);
-            letter-spacing: 1px;
+            margin-top: 10px;
+            font-size: 0.95rem;
+            color: #fff;
+            letter-spacing: 4px;
             text-transform: uppercase;
-        }
-
-        /* বাটন গ্রিড সেকশন */
-        .quick-actions { 
-            margin-top: -60px; 
-            position: relative; 
-            z-index: 30; 
-            padding: 0 20px; 
-            max-width: 1200px; 
-            margin-left: auto; 
-            margin-right: auto;
-        }
-
-        .action-grid { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); 
-            gap: 15px; 
-        }
-
-        .erp-button {
-            border: none; 
-            border-radius: 15px; 
-            padding: 20px 10px; 
-            color: white; 
             font-weight: 700;
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            justify-content: center;
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
-            cursor: pointer; 
-            text-decoration: none;
-            width: 100%;
-            min-height: 130px; 
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-            text-align: center;
+            opacity: 0.8;
+            text-shadow: 1px 1px 5px rgba(0,0,0,0.5);
         }
 
-        .erp-button i { font-size: 2rem; margin-bottom: 12px; }
-        .erp-button span { font-size: 0.85rem; text-transform: uppercase; line-height: 1.2; }
-        .erp-button:hover { transform: translateY(-8px); box-shadow: 0 15px 30px rgba(0,0,0,0.2); filter: brightness(1.1); }
-
-        .btn-sales { background-color: var(--sales-btn); }
-        .btn-purchase { background-color: var(--purchase-btn); }
-        .btn-product { background-color: var(--product-btn); }
-        .btn-customer { background-color: var(--customer-btn); }
-        .btn-report { background-color: var(--report-btn); }
-        .btn-stock { background-color: var(--stock-btn); }
-        .btn-dataentry { background-color: var(--dataentry-btn); }
-        .btn-dataentryauto { background-color: var(--dataentryauto-btn); }
-
-        .developer-footer { 
-            padding: 60px 0 40px; 
-            text-align: center; 
-            width: 100%;
-            clear: both;
+        .business-info .proprietor {
+            background: linear-gradient(135deg, #00acee, #0072b1);
+            padding: 8px 35px;
+            font-size: 1.2rem;
+            letter-spacing: 1px;
+            border-radius: 50px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+            display: inline-block;
+            margin-bottom: 15px;
         }
-        .dev-text { font-size: 0.9rem; color: #666; line-height: 1.6; }
-        .dev-name { font-weight: 700; color: var(--nature-green); font-size: 1.1rem; }
-
-        .btn-logout {
-            background: #e74c3c;
-            color: white;
-            border: none;
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            margin-left: 10px;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-        .btn-logout:hover { background: #c0392b; transform: scale(1.05); }
 
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
 
         @media (max-width: 768px) {
-            .hero-banner { height: auto; min-height: 50vh; padding: 50px 15px; }
-            .hero-overlay-content { flex-direction: column; text-align: center; gap: 30px; }
-            .title-section { order: 2; text-align: center; }
-            .unique-clock-card { order: 1; width: 100%; max-width: 280px; padding: 15px 20px; border-right: none; border-bottom: 5px solid var(--neon-green); }
-            .time-box { font-size: 2.2rem; }
-            .time-divider { font-size: 1.8rem; }
-            .action-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
-            .user-profile-box { top: 10px; right: 10px; padding: 5px 10px; }
-            .erp-button { min-height: 110px; padding: 15px 8px; }
+            .hero-banner { padding-top: 100px; } 
+            .unique-clock-card { padding: 10px; }
         }
     </style>
 </head>
 <body onload="updateClock()">
 
-<div class="user-profile-box">
-    <i class="fas fa-user-circle fa-2x text-success me-2"></i>
-    <div class="text-start">
-        <div id="display-user-name" class="fw-bold text-dark text-uppercase" style="font-size: 11px; line-height: 1.1;">Loading...</div>
-        <small id="display-user-id" class="text-muted" style="font-size: 9px;">ID: ....</small>
+<div id="sidebar">
+    <div class="sidebar-header">
+        <img src="https://cdn-icons-png.flaticon.com/512/619/619153.png" alt="Logo" class="sidebar-logo">
+        <h6 class="mb-0 text-white fw-bold mt-1" style="letter-spacing: 2px;">SMART ERP</h6>
+        <p style="color: var(--accent-gold); font-size: 0.68rem; font-weight: 800; margin-bottom: 0; opacity: 0.8;">ENTERPRISE EDITION</p>
     </div>
-    <button class="btn-logout" title="Logout" onclick="logoutUser()">
-        <i class="fas fa-sign-out-alt"></i>
+
+    <div class="sticky-home-area">
+        <ul class="sidebar-menu">
+            <li onclick="resetToHome()" class="home-btn"><i class="fas fa-home" style="color: var(--accent-gold);"></i> HOME DASHBOARD</li>
+        </ul>
+    </div>
+
+    <div id="sidebar-scroll-area">
+        <ul class="sidebar-menu">
+            <li onclick="toggleSidebar()"><i class="fas fa-desktop" style="color: #3498db;"></i> Overview Dashboard</li>
+            <li onclick="navigateTo('Sales.html')"><i class="fas fa-file-invoice" style="color: #2ecc71;"></i> Sales Entry</li>
+            <li onclick="navigateTo('Purchase.html')"><i class="fas fa-shopping-basket" style="color: #e67e22;"></i> Purchase Entry</li>
+            
+            <li onclick="toggleSubMenu('inv-sub', this)">
+                <i class="fas fa-warehouse" style="color: #9b59b6;"></i> Inventory 
+                <i class="fas fa-chevron-right arrow-icon" style="margin-left: auto; font-size: 0.7rem; opacity: 0.5;"></i>
+            </li>
+            <ul class="submenu" id="inv-sub">
+                <li onclick="navigateTo('Product.html')">Product List</li>
+                <li onclick="navigateTo('Stock.html')">Stock Report</li>
+            </ul>
+
+            <li onclick="navigateTo('Customer.html')"><i class="fas fa-address-book" style="color: #1abc9c;"></i> Customer List</li>
+            
+            <li onclick="toggleSubMenu('rep-sub', this)">
+                <i class="fas fa-chart-bar" style="color: #f1c40f;"></i> Report Center 
+                <i class="fas fa-chevron-right arrow-icon" style="margin-left: auto; font-size: 0.7rem; opacity: 0.5;"></i>
+            </li>
+            <ul class="submenu" id="rep-sub">
+                <li onclick="navigateTo('Reports.html')">Business Summary</li>
+                <li onclick="navigateTo('Sales-Report.html')">Daily Sales Report</li>
+                <li onclick="navigateTo('Profit-Loss.html')">Profit & Loss</li>
+            </ul>
+
+            <li onclick="toggleSubMenu('data-sub', this)">
+                <i class="fas fa-edit" style="color: #e74c3c;"></i> Data Entry 
+                <i class="fas fa-chevron-right arrow-icon" style="margin-left: auto; font-size: 0.7rem; opacity: 0.5;"></i>
+            </li>
+            <ul class="submenu" id="data-sub">
+                <li onclick="navigateTo('Dataentry.html')">Manual Entry</li>
+                <li onclick="navigateTo('Dataentryauto.html')">AI Auto Entry</li>
+            </ul>
+        </ul>
+    </div>
+
+    <div class="sidebar-footer-profile">
+        <div class="user-avatar" id="user-initial">U</div>
+        <div class="user-info-text" style="flex: 1; overflow: hidden; padding-left: 10px;">
+            <div id="display-user-name" style="white-space: nowrap; text-overflow: ellipsis; font-weight: bold; font-size: 0.85rem;">GUEST USER</div>
+            <div id="display-user-id" style="font-size: 0.75rem; opacity: 0.7;">ID: 0000</div>
+        </div>
+        <div class="logout-btn" onclick="logoutUser()" title="Logout">
+            <i class="fas fa-power-off"></i>
+        </div>
+    </div>
+</div>
+
+<div id="overlay" class="overlay" onclick="toggleSidebar()"></div>
+
+<div id="main-content">
+    <button class="menu-toggle" onclick="toggleSidebar()">
+        <i class="fas fa-bars"></i>
     </button>
-</div>
 
-<div class="hero-banner">
-    <div class="hero-overlay-content">
-        <div class="title-section">
-            <div class="sub-badge">ERP DASHBOARD v2.0</div>
-            <h1 class="main-title">SMART MANAGEMENT<br>SYSTEM</h1>
-        </div>
-
-        <!-- ইউনিক ডিজিটাল ঘড়ি -->
-        <div class="unique-clock-card">
-            <div class="time-display">
-                <span id="hrs" class="time-box">00</span>
-                <span class="time-divider">:</span>
-                <span id="min" class="time-box">00</span>
-                <span class="time-divider" style="font-size: 1.5rem; opacity: 0.6;">:</span>
-                <span id="sec" class="time-box" style="font-size: 2rem; opacity: 0.8; color: var(--neon-green);">00</span>
-                <span id="ampm" class="ampm-box">AM</span>
+    <div class="hero-banner">
+        <div class="hero-text">
+            <div class="bismillah" style="letter-spacing: 2px; opacity: 0.8; margin-bottom: 10px;">বিসমিল্লাহির রাহমানির রাহিম</div>
+            <div class="combined-title">মেসার্স নূর এন্টারপ্রাইজ</div>
+            
+            <div class="business-info">
+                <div class="proprietor shadow-lg">প্রোঃ এম. এম. নূর-ই-মোহাম্মদ</div>
+                <div class="info-line">বি.সি.আই.সি অনুমোদিত ডিলার, রাসায়নিক সার, কীটনাশক ও সিমেন্ট বিক্রেতা।</div>
+                <div class="address">আমবাড়ী বাজার, পার্বতীপুর, দিনাজপুর।</div>
+                <div class="mobile mt-3">
+                    <i class="fas fa-phone-alt me-2" style="color: var(--accent-gold);"></i>
+                    ০১ ৭৭২-৯৫৭৫১৫, ০১৭২০-৩৩৭৮১২, ০১৭১৭-৫২৭২৯২
+                </div>
             </div>
-            <div id="current-date">FRIDAY, FEB 27, 2026</div>
-        </div>
-    </div>
-</div>
 
-<div class="quick-actions">
-    <div class="action-grid">
-        <div onclick="navigateTo('Sales.html')" class="erp-button btn-sales">
-            <i class="fas fa-file-invoice-dollar"></i>
-            <span>New Invoice</span>
+            <div class="unique-clock-card">
+                <div class="time-display">
+                    <span id="hrs" class="time-box">00</span>
+                    <span class="time-divider">:</span>
+                    <span id="min" class="time-box">00</span>
+                    <span class="time-divider" style="font-size: 1.5rem; opacity: 0.4;">:</span>
+                    <span id="sec" class="time-box" style="font-size: 2.5rem; color: var(--accent-gold); opacity: 0.9;">00</span>
+                    <span id="ampm" class="ampm-box">AM</span>
+                </div>
+                <div id="current-date">MONDAY, MARCH 2, 2026</div>
+            </div>
         </div>
-        <div onclick="navigateTo('Purchase.html')" class="erp-button btn-purchase">
-            <i class="fas fa-cart-plus"></i>
-            <span>Purchase</span>
-        </div>
-        <div onclick="navigateTo('Product.html')" class="erp-button btn-product">
-            <i class="fas fa-boxes-stacked"></i>
-            <span>Add Product</span>
-        </div>
-        <div onclick="navigateTo('Customer.html')" class="erp-button btn-customer">
-            <i class="fas fa-users"></i>
-            <span>Add Customer</span>
-        </div>
-        <div onclick="navigateTo('Reports.html')" class="erp-button btn-report">
-            <i class="fas fa-chart-pie"></i>
-            <span>Reports</span>
-        </div>
-        <div onclick="navigateTo('Stock.html')" class="erp-button btn-stock">
-            <i class="fas fa-warehouse"></i>
-            <span>Stock Report</span>
-        </div>
-        <div onclick="navigateTo('Dataentry.html')" class="erp-button btn-dataentry">
-            <i class="fas fa-keyboard"></i>
-            <span>Data Entry</span>
-        </div>
-        <div onclick="navigateTo('Dataentryauto.html')" class="erp-button btn-dataentryauto">
-            <i class="fas fa-magic"></i>
-            <span>Auto Entry</span>
-        </div>
-    </div>
-</div>
-
-<div class="developer-footer">
-    <div class="dev-text">
-        Software Development by <br>
-        <span class="dev-name">MD SHOFIUL ALOM</span>
     </div>
 </div>
 
 <script>
     window.addEventListener('load', function() {
-        const name = sessionStorage.getItem('erp_user_name');
-        const id = sessionStorage.getItem('erp_user_id');
-        if (name) document.getElementById('display-user-name').innerText = name;
-        if (id) document.getElementById('display-user-id').innerText = "ID: " + id;
+        const name = sessionStorage.getItem('erp_user_name') || 'Guest User';
+        const id = sessionStorage.getItem('erp_user_id') || '0000';
+        
+        document.getElementById('display-user-name').innerText = name.toUpperCase();
+        document.getElementById('display-user-id').innerText = "ID: " + id;
+        
+        const firstLetter = name.charAt(0).toUpperCase();
+        document.getElementById('user-initial').innerText = firstLetter;
     });
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
 </body>
 </html>
