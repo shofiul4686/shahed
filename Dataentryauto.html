@@ -564,7 +564,7 @@
                 address: row[6] ? row[6].toString() : "",
                 custType: row[7] ? row[7].toString() : "",
                 payType: row[8] ? row[8].toString() : "",
-                balance: row[12] ? row[12].toString() : "0",
+                balance: row[12] ? row[12].toString() : "",
               }))
               .filter((c) => c.cod);
           }
@@ -663,8 +663,8 @@
         row.innerHTML = `
       <td class="border-r border-slate-900"><input type="text" class="text-center" value="${new Date().toLocaleDateString("en-GB")}"></td>
       <td class="border-r border-slate-900"><input type="text" placeholder="বিবরণ লিখুন..." class="text-left font-bold text-slate-700"></td>
-      <td class="border-r border-slate-900 bg-green-50"><input type="number" class="deposit-input text-right font-black text-green-700" oninput="calculateStatement()" value="0"></td>
-      <td class="border-r border-slate-900 bg-red-50"><input type="number" class="expense-input text-right font-black text-red-700" oninput="calculateStatement()" value="0"></td>
+      <td class="border-r border-slate-900 bg-green-50"><input type="number" class="deposit-input text-right font-black text-green-700" oninput="calculateStatement()" value=""></td>
+      <td class="border-r border-slate-900 bg-red-50"><input type="number" class="expense-input text-right font-black text-red-700" oninput="calculateStatement()" value=""></td>
       <td class="text-right px-4 py-3 font-black text-blue-900 bg-blue-50 row-balance">0.00</td>
       <td class="no-print"><button onclick="this.closest('tr').remove(); calculateStatement();" class="text-red-400 hover:text-red-600 font-bold p-2 transition-colors">×</button></td>
     `;
