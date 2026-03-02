@@ -11,6 +11,173 @@
     .new-entry-card { border-top: 8px solid #198754; }
     .update-card { border-top: 8px solid #ffc107; }
     
+    /* প্রিন্ট এরিয়া স্টাইল */
+    #printableArea { background: white; padding: 20px; border-radius: 10px; margin-top: 30px; box-shadow: 0 0 15px rgba(0,0,0,0.1); }
+    
+    @media print {
+      body * { visibility: hidden; }
+      #printableArea, #printableArea * { visibility: visible; }
+      #printableArea { position: absolute; left: 0; top: 0; width: 100%; box-shadow: none; }
+      .no-print { display: none !important; }
+    }
+  </style>
+</head>
+<body class="bg-light p-4">
+
+  <div class="container text-center no-print">
+    <h3 class="mb-4 fw-bold text-dark text-uppercase">Customer Management System</h3>
+    
+    <div class="row justify-content-center g-3">
+      <div class="col-md-4">
+        <button class="btn btn-success w-100 btn-main shadow" onclick="toggleForm('NEW')">
+          <i class="fas fa-plus-circle"></i> <span>ADD NEW CUSTOMER</span>
+        </button>
+      </div>
+      <div class="col-md-4">
+        <button class="btn btn-warning w-100 btn-main shadow text-dark" onclick="toggleForm('UPDATE')">
+          <i class="fas fa-user-edit"></i> <span>UPDATE EXISTING</span>
+        </button>
+      </div>
+      <div class="col-md-4">
+        <button id="printBtn" class="btn btn-primary w-100 btn-main shadow" onclick="showAndPrintList()">
+          <i class="fas fa-list"></i> <span>VIEW & PRINT LIST</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- ডাটা এন্ট্রি ফর্ম (আগের মতোই) -->
+    <div id="formSection" class="form-container hidden-section text-start">
+      <div id="cardTheme" class="card shadow-lg p-4">
+        <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-2">
+          <h4 id="formTitle" class="mb-0">FORM</h4>
+          <button type="button" class="btn-close" onclick="closeForm()"></button>
+        </div>
+        <div class="row g-3">
+          <div id="searchContainer" class="col-md-12 bg-warning bg-opacity-10 p-3 rounded mb-3 hidden-section border border-warning">
+            <input type="text" id="cSearch" class="form-control form-control-lg shadow-sm" list="customerList" placeholder="সার্চ করুন..." oninput="autoFill(this.value)">
+            <datalist id="customerList"></datalist>
+          </div>
+          <div class="col-md-3">
+            <label class="fw-bold small">ID</label>
+            <input type="text" id="cCode" class="form-control fw-bold" readonly>
+          </div>
+          <div class="col-md-5"><label class="fw-bold small">NAME</label><input type="text" id="cName" class="form-control"></div>
+          <div class="col-md-4"><label class="fw-bold small">MOBILE</label><input type="text" id="cMob" class="form-control"></div>
+          <div class="col-md-12 text-end mt-4 pt-3 border-top">
+             <button class="btn btn-secondary me-2" onclick="closeForm()">CLOSE</button>
+            <button id="submitBtn" class="btn btn-primary px-5 shadow fw-bold">SAVE</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- একই পেজে লিস্ট দেখার জন্য নতুন সেকশন -->
+  <div id="printableArea" class="container hidden-section mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-3 no-print">
+      <h4 class="text-primary fw-bold">CUSTOMER DIRECTORY</h4>
+      <div>
+        <button class="btn btn-dark btn-sm me-2" onclick="window.print()"><i class="fas fa-print"></i> PRINT NOW</button>
+        <button class="btn btn-danger btn-sm" onclick="hideList()">CLOSE LIST</button>
+      </div>
+    </div>
+    <div class="table-responsive">
+      <table class="table table-bordered table-striped">
+        <thead class="table-dark">
+          <tr>
+            <th>ID</th>
+            <th>NAME</th>
+            <th>MOBILE</th>
+            <th>AREA</th>
+            <th>TYPE</th>
+            <th>PAYMENT</th>
+          </tr>
+        </thead>
+        <tbody id="listBody">
+          <!-- ডাটা এখানে আসবে -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+<script>
+    let allCustomers = [];
+
+    // পপ-আপ এর বদলে একই পেজে ডাটা দেখানোর ফাংশন
+    function showAndPrintList() {
+      const btn = document.getElementById('printBtn');
+      const listArea = document.getElementById('printableArea');
+      const listBody = document.getElementById('listBody');
+
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> LOADING DATA...';
+
+      google.script.run
+        .withSuccessHandler(data => {
+          btn.disabled = false;
+          btn.innerHTML = '<i class="fas fa-list"></i> VIEW & PRINT LIST';
+
+          if (!data || data.length === 0) {
+            alert("শিটে কোনো ডাটা পাওয়া যায়নি!");
+            return;
+          }
+
+          listBody.innerHTML = "";
+          data.forEach(c => {
+            listBody.innerHTML += `
+              <tr>
+                <td class="fw-bold">${c.code || c.id || '-'}</td>
+                <td>${c.name || '-'}</td>
+                <td>${c.mobile || '-'}</td>
+                <td>${c.area || '-'}</td>
+                <td>${c.type || '-'}</td>
+                <td>${c.payment || '-'}</td>
+              </tr>`;
+          });
+
+          // লিস্টটি দেখান এবং ফর্ম সেকশন লুকান
+          listArea.classList.remove('hidden-section');
+          document.getElementById('formSection').classList.add('hidden-section');
+          
+          // অটোমেটিক স্ক্রল করে লিস্টে নিয়ে যাবে
+          listArea.scrollIntoView({ behavior: 'smooth' });
+        })
+        .withFailureHandler(err => {
+          btn.disabled = false;
+          btn.innerHTML = '<i class="fas fa-list"></i> VIEW & PRINT LIST';
+          alert("সার্ভার এরর: " + err);
+        })
+        .getAllCustomers();
+    }
+
+    function hideList() {
+      document.getElementById('printableArea').classList.add('hidden-section');
+    }
+
+    // বাকি ফাংশনগুলো আগের মতোই থাকবে
+    function toggleForm(mode) {
+      hideList(); // লিস্ট খোলা থাকলে বন্ধ করে দেবে
+      const section = document.getElementById('formSection');
+      section.classList.remove('hidden-section');
+      // ... (বাকি কোড আগের মতো)
+    }
+
+    function closeForm() { document.getElementById('formSection').classList.add('hidden-section'); }
+</script>
+</body>
+</html><!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    .hidden-section { display: none; }
+    .form-container { transition: all 0.5s ease; margin-top: 20px; }
+    .btn-main { height: 80px; font-size: 1.1rem; font-weight: bold; border-radius: 15px; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 5px; }
+    .new-entry-card { border-top: 8px solid #198754; }
+    .update-card { border-top: 8px solid #ffc107; }
+    
     @media print {
       .no-print { display: none !important; }
     }
@@ -278,3 +445,4 @@
 </script>
 </body>
 </html>
+
