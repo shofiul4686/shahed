@@ -132,91 +132,42 @@
         <span>User Name: <strong id="footerUserName">Loading...</strong> | User ID: <strong id="footerUserId">Loading...</strong></span>
     </div>
 </div>
-       /* প্রিন্ট লেআউট কন্ট্রোল */
+        /* প্রিন্ট এর জন্য স্পেশাল CSS */
     @media print {
-        body * { display: none !important; } /* মেইন পেজের সব কিছু প্রিন্টে লুকাবে */
-        #invoice-print-area, #invoice-print-area * { display: block !important; } /* শুধু ইনভয়েস দেখাবে */
-        #invoice-print-area { position: absolute; left: 0; top: 0; width: 100%; margin: 0; padding: 0; }
-        .inv-table { display: table !important; width: 100% !important; border-collapse: collapse !important; }
-        .inv-table th, .inv-table td { display: table-cell !important; border: 1px solid #000 !important; }
-    }
+        #printArea {
+            display: flex;
+            flex-direction: column;
+            min-height: 95vh; /* পুরো পাতার উচ্চতা নিবে */
+        }
+        
+        .print-footer {
+            margin-top: auto; /* এটি সিগনেচার বক্সকে সবসময় নিচে ঠেলে দিবে */
+            padding-bottom: 20px;
+        }
 
-    /* ইনভয়েস ডিজাইন */
-    .invoice-container {
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        color: #000;
-        background: #fff;
-        padding: 40px;
-        max-width: 850px;
-        margin: auto;
-    }
-    .inv-header { 
-        text-align: center; 
-        border-bottom: 2px solid #000; 
-        padding-bottom: 10px; 
-        margin-bottom: 20px; 
-    }
-    .inv-header h1 { margin: 0; font-size: 32px; font-weight: bold; text-transform: uppercase; }
-    .inv-header p { margin: 2px 0; font-size: 15px; }
+        .signature-wrapper {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            width: 100%;
+        }
 
-    .inv-info-row { 
-        display: flex; 
-        justify-content: space-between; 
-        margin-bottom: 20px; 
-        font-size: 14px; 
-    }
-    .inv-col { width: 48%; }
-    .inv-field { display: flex; margin-bottom: 6px; align-items: flex-start; }
-    .inv-label { 
-        font-weight: bold; 
-        width: 130px; 
-        display: flex; 
-        justify-content: space-between; 
-        flex-shrink: 0; 
-    }
-    .inv-colon { padding-right: 8px; font-weight: bold; }
-    .inv-value { 
-        border-bottom: 1px dotted #999; 
-        flex-grow: 1; 
-        min-height: 18px; 
-        padding-left: 5px; 
-        word-break: break-all;
-    }
+        .sig-box {
+            text-align: center;
+            width: 200px;
+        }
 
-    .inv-table { 
-        width: 100%; 
-        border-collapse: collapse; 
-        margin-top: 10px; 
-    }
-    .inv-table th, .inv-table td { 
-        border: 1px solid #000; 
-        padding: 8px; 
-        text-align: center; 
-        font-size: 13px; 
-    }
-    .inv-table th { background: #f2f2f2 !important; font-weight: bold; }
-    .text-left { text-align: left !important; }
-    .text-right { text-align: right !important; }
+        .sig-line {
+            border-top: 1px solid #000;
+            margin-bottom: 5px;
+            width: 100%;
+        }
 
-    .inv-total-row { font-weight: bold; }
-    .inv-words { 
-        margin-top: 20px; 
-        border-bottom: 1px solid #000; 
-        padding-bottom: 5px; 
-        display: flex; 
-        font-size: 14px; 
-    }
-    .inv-footer { 
-        margin-top: 70px; 
-        display: flex; 
-        justify-content: space-between; 
-    }
-    .inv-sig { 
-        border-top: 1px solid #000; 
-        width: 160px; 
-        text-align: center; 
-        font-size: 12px; 
-        padding-top: 5px; 
+        .sig-box span {
+            font-size: 14px;
+            font-weight: bold;
+            color: #333;
+        }
     }
 
     /* সাধারণ স্ক্রিনে এটি দেখতে কেমন হবে (Optional) */
@@ -580,78 +531,6 @@ label.small.fw-bold {
 </div>
 </div>
     </div>
-    <!-- ২. ইনভয়েস স্ট্রাকচার অংশ (এটি আপনার মূল ফাইলের </body> এর ঠিক উপরে বসান) -->
-<div id="invoice-print-area" style="display: none;">
-    <div class="invoice-container">
-        <!-- হেডার অংশ -->
-        <div class="inv-header">
-            <h1 id="m_comp_name">নুর এন্টারপ্রাইজ</h1>
-            <p>প্রোপাইটার: নুর মোহাম্মদ</p>
-            <p>বিবরন: জেনারেল সাপ্লাইয়ার</p>
-            <p>ঠিকানা: আপনার অফিসের ঠিকানা এখানে লিখুন</p>
-            <p>যোগাযোগ: ০১৭১১-০০০০০০</p>
-        </div>
-
-        <!-- কাস্টমার এবং ইনভয়েস তথ্য -->
-        <div class="inv-info-row">
-            <div class="inv-col">
-                <div class="inv-field"><span class="inv-label">Customer Code <span class="inv-colon">:</span></span> <span class="inv-value" id="m_cust_code"></span></div>
-                <div class="inv-field"><span class="inv-label">Customer Name <span class="inv-colon">:</span></span> <span class="inv-value" id="m_cust_name"></span></div>
-                <div class="inv-field"><span class="inv-label">Address <span class="inv-colon">:</span></span> <span class="inv-value" id="m_address"></span></div>
-                <div class="inv-field"><span class="inv-label">Mobile No <span class="inv-colon">:</span></span> <span class="inv-value" id="m_mobile"></span></div>
-            </div>
-            <div class="inv-col">
-                <div class="inv-field"><span class="inv-label">Date <span class="inv-colon">:</span></span> <span class="inv-value" id="m_inv_date"></span></div>
-                <div class="inv-field"><span class="inv-label">Invoice No <span class="inv-colon">:</span></span> <span class="inv-value" id="m_inv_no"></span></div>
-                <div class="inv-field"><span class="inv-label">Payment Mode <span class="inv-colon">:</span></span> <span class="inv-value" id="m_pay_type"></span></div>
-                <div class="inv-field"><span class="inv-label">Customer Type <span class="inv-colon">:</span></span> <span class="inv-value" id="m_cust_type"></span></div>
-            </div>
-        </div>
-
-        <!-- প্রোডাক্ট টেবিল -->
-        <table class="inv-table">
-            <thead>
-                <tr>
-                    <th style="width: 50px;">SL</th>
-                    <th style="width: 100px;">Code</th>
-                    <th class="text-left">Product Description</th>
-                    <th style="width: 70px;">Qty</th>
-                    <th style="width: 100px;">Rate</th>
-                    <th style="width: 120px;">Total</th>
-                </tr>
-            </thead>
-            <tbody id="m_items_body">
-                <!-- জাভাস্ক্রিপ্ট এখানে ডাটা বসাবে -->
-            </tbody>
-            <tfoot>
-                <tr class="inv-total-row">
-                    <td colspan="5" class="text-right">Grand Total:</td>
-                    <td id="m_grand_total">0.00</td>
-                </tr>
-                <tr class="inv-total-row">
-                    <td colspan="5" class="text-right">Paid Amount:</td>
-                    <td id="m_paid_amount">0.00</td>
-                </tr>
-                <tr class="inv-total-row" style="color: #d9534f;">
-                    <td colspan="5" class="text-right">Due Amount:</td>
-                    <td id="m_due_amount">0.00</td>
-                </tr>
-            </tfoot>
-        </table>
-
-        <!-- কথায় লেখা অংশ -->
-        <div class="inv-words">
-            <strong>কথায়:</strong> <span id="m_words" style="padding-left: 10px; flex-grow: 1;">....................................................................................</span>
-        </div>
-
-        <!-- সিগনেচার অংশ -->
-        <div class="inv-footer">
-            <div class="inv-sig">Prepared By</div>
-            <div class="inv-sig">Authorized By</div>
-            <div class="inv-sig">Customer Signature</div>
-        </div>
-    </div>
-</div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzkDCX5zax-NuoSKRSxJIjL9Rx4MbtVxvm5QlrOEIxrTR-s3sVuRHJy_ISNIm3ehDYs/exec"; 
@@ -962,85 +841,54 @@ label.small.fw-bold {
         document.getElementById('prodDetailRow').classList.add('d-none');
     }
 
-   // আপনার বিদ্যমান handlePrintAction ফাংশনটি এই কোডটি দিয়ে রিপ্লেস করুন
-function handlePrintAction() {
-    // ১. মোডাল হাইড করা
+    function handlePrintAction() {
     successModal.hide();
     
-    if (!lastSavedData) {
-        console.error("No data found to print");
-        return;
-    }
-
-    // ২. মডিউলের সাধারণ তথ্য (Header & Info) সেট করা
-    const m = {
-        cust_code: document.getElementById('m_cust_code'),
-        cust_name: document.getElementById('m_cust_name'),
-        address: document.getElementById('m_address'),
-        mobile: document.getElementById('m_mobile'),
-        inv_date: document.getElementById('m_inv_date'),
-        inv_no: document.getElementById('m_inv_no'),
-        pay_type: document.getElementById('m_pay_type'),
-        cust_type: document.getElementById('m_cust_type'),
-        g_total: document.getElementById('m_grand_total'),
-        paid: document.getElementById('m_paid_amount'),
-        due: document.getElementById('m_due_amount')
-    };
-
-    // ডাটা ইনজেক্ট করা (যদি এলিমেন্টগুলো থাকে)
-    if(m.cust_code) m.cust_code.innerText = lastSavedData.custCode || '-';
-    if(m.cust_name) m.cust_name.innerText = lastSavedData.custName || '-';
-    if(m.address) m.address.innerText = lastSavedData.address || 'N/A';
-    if(m.mobile) m.mobile.innerText = lastSavedData.mobile || '-';
-    if(m.inv_date) m.inv_date.innerText = lastSavedData.date || '';
-    if(m.inv_no) m.inv_no.innerText = lastSavedData.invNo || '';
-    if(m.pay_type) m.pay_type.innerText = lastSavedData.paymentType || 'Cash';
-    if(m.cust_type) m.cust_type.innerText = lastSavedData.type || 'Regular';
+    // ডাটা বসানো
+    document.getElementById('pInvNo').innerText = lastSavedData.invNo;
+    document.getElementById('pDate').innerText = lastSavedData.date;
+    document.getElementById('pCName').innerText = lastSavedData.custName;
+    document.getElementById('pCMobile').innerText = lastSavedData.mobile || '';
     
-    if(m.g_total) m.g_total.innerText = lastSavedData.total.toFixed(2);
-    if(m.paid) m.paid.innerText = lastSavedData.paid.toFixed(2);
-    if(m.due) m.due.innerText = (lastSavedData.total - lastSavedData.paid).toFixed(2);
+    // পেইড স্ট্যাম্প
+    const stamp = document.getElementById('printPaidStamp');
+    if(stamp) stamp.style.display = lastSavedData.status === "Paid" ? 'block' : 'none';
 
-    // ৩. মডিউলের টেবিল (Product Items) তৈরি করা
-    const moduleBody = document.getElementById('m_items_body');
-    if (moduleBody) {
-        moduleBody.innerHTML = lastSavedData.cart.map((item, index) => `
-            <tr>
-                <td>${index + 1}</td>
-                <td>${item.code || '-'}</td>
-                <td class="text-left">${item.name}</td>
-                <td>${item.qty}</td>
-                <td>${item.rate.toFixed(2)}</td>
-                <td>${item.subtotal.toFixed(2)}</td>
-            </tr>
-        `).join('');
-    }
+    // টেবিল বডি (SL, CODE, NAME, PACK, RATE, QTY, TOTAL)
+    document.getElementById('pCartBody').innerHTML = lastSavedData.cart.map((i, idx) => `
+        <tr style="text-align: center;">
+            <td style="border:1px solid #333; padding:8px;">${idx+1}</td>
+            <td style="border:1px solid #333; padding:8px;">${i.code || '-'}</td>
+            <td style="border:1px solid #333; padding:8px; text-align:left;">${i.name}</td>
+            <td style="border:1px solid #333; padding:8px;">${i.pack || '-'}</td>
+            <td style="border:1px solid #333; padding:8px;">${i.rate.toFixed(2)}</td>
+            <td style="border:1px solid #333; padding:8px;">${i.qty}</td>
+            <td style="border:1px solid #333; padding:8px; text-align:right;">${i.subtotal.toFixed(2)}</td>
+        </tr>`).join('');
 
-    // ৪. কথার অংক (In Words) সেট করা (ঐচ্ছিক)
-    const wordsArea = document.getElementById('m_words');
-    if (wordsArea) {
-        // আপনি চাইলে এখানে একটি numberToWords ফাংশন ব্যবহার করতে পারেন
-        wordsArea.innerText = "........................................................";
-    }
-
-    // ৫. প্রিন্ট কমান্ড চালু করা
-    setTimeout(() => {
-        window.print();
+    // হিসাব সেট করা
+    document.getElementById('pGrandTotal').innerText = lastSavedData.total.toFixed(2);
+    document.getElementById('pPaidAmount').innerText = lastSavedData.paid.toFixed(2);
+    document.getElementById('pDueAmount').innerText = (lastSavedData.total - lastSavedData.paid).toFixed(2);
+    
+    // প্রিন্ট কমান্ড
+    setTimeout(() => { 
+        window.print(); 
         
-        // প্রিন্ট শেষে ফরম রিসেট করা (যাতে নতুন এন্ট্রি নেয়া যায়)
-        if (typeof resetForm === "function") resetForm();
+        // প্রিন্ট শেষে অটোমেটিক নতুন ইনভয়েসের জন্য ক্লিনিং
+        if(typeof resetForm === "function") resetForm();
         cart = [];
-        if (typeof render === "function") render();
+        if(typeof render === "function") render();
         
-        // কাস্টমার ডিটেইলস ক্লিয়ার করা
-        const detailFields = ['dispCCode', 'dispCName', 'dispCMobile', 'dispCArea', 'dispCAddress', 'dispCType', 'dispCPayment'];
-        detailFields.forEach(id => {
+        // কাস্টমার ডিটেইলস ফিল্ডগুলো ক্লিয়ার করা
+        const fields = ['dispCCode', 'dispCName', 'dispCMobile', 'dispCArea', 'dispCPayment'];
+        fields.forEach(id => {
             const el = document.getElementById(id);
-            if(el) el.value = '';
+            if(el) {
+                if(el.tagName === 'INPUT') el.value = '';
+                else el.innerText = '-';
+            }
         });
-        
-        // পুনরায় ইনভয়েস নম্বর রিফ্রেশ করা
-        refreshData();
     }, 500);
 }
 
