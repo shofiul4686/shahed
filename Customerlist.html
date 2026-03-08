@@ -73,30 +73,57 @@
       box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
     }
 
+    /* PRINT STYLES - Force Black & White */
     @media print {
-      body { background: white !important; }
+      * {
+        color: #000 !important;
+        text-shadow: none !important;
+        background: transparent !important;
+        box-shadow: none !important;
+        border-color: #000 !important;
+      }
+      body { background: white !important; margin: 0; padding: 0; }
       .no-print, .search-container, .btn-preview, #loaderUI, .action-cell, .modal-overlay { display: none !important; }
-      .main-content { padding: 0 !important; }
+      .main-content { padding: 0 !important; max-width: 100% !important; }
+      
+      .text-blue-900 { color: #000 !important; }
+      .bg-blue-700 { background: #fff !important; color: #000 !important; border: 1px solid #000 !important; }
+      
+      .custom-table-container { border: 1px solid #000 !important; }
       table { width: 100% !important; border-collapse: collapse !important; }
-      table thead th { background-color: #eeeeee !important; color: black !important; border: 1px solid #000 !important; }
-      table tbody td { border: 1px solid #000 !important; font-size: 9pt !important; padding: 5px !important; }
+      table thead th { 
+        background-color: #eee !important; 
+        color: #000 !important; 
+        border: 1px solid #000 !important; 
+        font-size: 10pt !important;
+      }
+      table tbody td { 
+        border: 1px solid #000 !important; 
+        font-size: 9pt !important; 
+        padding: 6px 4px !important; 
+      }
+      .text-blue-800, .text-slate-800, .text-slate-600 { color: #000 !important; }
     }
   </style>
 </head>
 <body class="p-4 md:p-6">
   <div class="max-w-7xl mx-auto main-content">
     
-    <!-- Header Section -->
-    <div class="text-center mb-8 border-b-2 border-slate-900 pb-6 relative">
+    <!-- Main Header Section -->
+    <div class="text-center mb-6 relative">
       <p class="text-sm font-bold text-slate-700 italic mb-1">বিসমিল্লাহির রাহমানির রাহিম</p>
-      
       <h1 class="text-4xl md:text-6xl font-black text-blue-900 tracking-tight mb-2">মেসার্স নূর এন্টারপ্রাইজ</h1>
-      
       <div class="inline-block bg-blue-700 text-white px-8 py-1.5 rounded-full font-bold text-lg mb-3 shadow-md">প্রোঃ এম. এম. নূর-ই-মোহাম্মদ</div>
-      
       <p class="text-lg md:text-xl font-bold text-slate-800 mb-1">বি,সি,আই,সি অনুমোদিত ডিলার, রাসায়নিক সার, কীটনাশক ও সিমেন্ট বিক্রেতা</p>
       <p class="text-md font-bold text-slate-600 mb-2">আমবাড়ী বাজার, পার্বতীপুর, দিনাজপুর।</p>
-      <p class="text-sm font-black text-slate-900">মোবাঃ ০১৭৭২-৯৫৭৫১৫, ০১৭২০-৩৩৭৮১২, ০১৭১৭-৫২৭২৯২, ০১৭৩১-৭৩৩৩৪০</p>
+      <p class="text-sm font-black text-slate-900 mb-4">মোবাঃ ০১৭৭২-৯৫৭৫১৫, ০১৭২০-৩৩৭৮১২, ০১৭১৭-৫২৭২৯২, ০১৭৩১-৭৩৩৩৪০</p>
+    </div>
+
+    <!-- Customer List Title (Centered, No BG, Smaller Text) -->
+    <div class="mb-6 text-center">
+      <h2 class="text-lg md:text-xl font-black tracking-[0.2em] uppercase text-black border-b-2 border-black inline-block pb-1">
+        Customer List
+      </h2>
     </div>
 
     <!-- Search & Actions Row -->
@@ -217,7 +244,6 @@
       const modal = document.getElementById('previewModal');
       const body = document.getElementById('modalBody');
 
-      // লোকাল স্টোরেজে কোড সেভ করা
       localStorage.setItem('selectedCustId', c.code);
 
       body.innerHTML = `
