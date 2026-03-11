@@ -1,766 +1,822 @@
+
 <!doctype html>
 <html lang="bn">
-  <head>
+<head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Data Entry Manual</title>
+    <title>Data Entry Auto </title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Flatpickr CSS -->
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"
-    />
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-
     <style>
-      @import url("https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;700;900&display=swap");
-      body {
-        font-family: "Noto Sans Bengali", sans-serif;
-        background-color: #f1f5f9;
-      }
+        @import url("https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;700;900&display=swap");
+        body { font-family: "Noto Sans Bengali", sans-serif; background-color: #014104; color: #1e293b; overflow: hidden; }
+        
+        #pageLoader {
+            position: fixed;
+            inset: 0;
+            background: #ffffff;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.5s ease;
+        }
 
-      @media print {
-        @page {
-          size: A4;
-          margin: 10mm;
+        .main-loader {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #2563eb;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
         }
-        .no-print {
-          display: none !important;
-        }
-        .print-container {
-          box-shadow: none !important;
-          border: none !important;
-          width: 100% !important;
-          padding: 0 !important;
-        }
-        input,
-        select {
-          border: none !important;
-          outline: none !important;
-          appearance: none;
-          background: transparent !important;
-        }
-        .bank-table {
-          border-collapse: collapse !important;
-          width: 100% !important;
-        }
-        .bank-table th,
-        .bank-table td {
-          border: 1px solid black !important;
-        }
-      }
+		@keyframes pulse-text {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.03); opacity: 0.8; }
+    100% { transform: scale(1); opacity: 1; }
+}
 
-      .bank-table input {
-        width: 100%;
-        border: none;
-        background: transparent;
-        padding: 6px 4px;
-        outline: none;
-      }
-      .focus-ring:focus {
-        border-color: #1e3a8a !important;
-        box-shadow: 0 0 0 2px rgba(30, 58, 138, 0.2);
-      }
-      .field-label {
-        color: #1e3a8a;
-        font-weight: 900;
-        text-transform: uppercase;
-        font-size: 14px;
-      }
+.animate-pulse-custom {
+    animation: pulse-text 1.5s ease-in-out infinite;
+    display: inline-block;
+}
 
-      /* Modals & Overlays */
-      #alertOverlay,
-      #confirmOverlay,
-      #successOverlay,
-      #loadingOverlay {
-        display: none;
-        position: fixed;
-        inset: 0;
-        z-index: 5000;
-        align-items: center;
+/* টেক্সট ঘোরানোর অ্যানিমেশন */
+    .rotating-text-wrapper {
+        position: relative;
+        width: 200px;
+        height: 200px;
+        display: flex;
         justify-content: center;
-        backdrop-filter: blur(4px);
-      }
-      #alertOverlay {
-        background: rgba(0, 0, 0, 0.5);
-      }
-      #confirmOverlay {
-        background: rgba(0, 0, 0, 0.7);
-      }
-      #successOverlay {
-        background: rgba(0, 0, 0, 0.6);
-      }
-      #loadingOverlay {
-        background: rgba(0, 0, 0, 0.85);
-        flex-direction: column;
-        color: white;
-      }
+        align-items: center;
+        margin: 0 auto;
+    }
 
-      .modal-box {
-        background: white;
-        padding: 25px;
-        border-radius: 15px;
-        max-width: 400px;
-        width: 90%;
-        text-align: center;
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-      }
+    .rotating-text {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        animation: spin 10s linear infinite;
+    }
 
-      .loader {
-        border: 4px solid #f3f3f3;
-        border-top: 4px solid #3498db;
-        border-radius: 50%;
-        width: 40px;
-        height: 40px;
-        animation: spin 1s linear infinite;
-        display: inline-block;
-      }
-      @keyframes spin {
-        0% {
-          transform: rotate(0deg);
-        }
-        100% {
-          transform: rotate(360deg);
-        }
-      }
-      .error-border {
-        border-color: #ef4444 !important;
-        background-color: #fef2f2 !important;
-      }
+    @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+
+    .rotating-text span {
+        position: absolute;
+        left: 50%;
+        transform-origin: 0 100px; /* বৃত্তের ব্যাসার্ধ নিয়ন্ত্রণ করে */
+        font-weight: bold;
+        color: #64748b; /* text-slate-500 */
+        font-family: sans-serif;
+        font-size: 12px;
+        text-transform: uppercase;
+    }
+
+    /* ইমেজ স্টাইল */
+   .center-img {
+    width: 100px;
+    height: auto;
+    z-index: 10;
+    /* নিশ্চিত করার জন্য ব্যাকগ্রাউন্ড রিমুভ করা হয়েছে */
+    background: transparent !important;
+}
+	/* রিফ্রেশ আইকন ঘোরানোর জন্য */
+.spin-animation {
+    animation: spin-icon 1s linear infinite;
+}
+
+@keyframes spin-icon {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+   #globalDatePicker {
+    position: absolute;
+    z-index: 99999 !important; /* অনেক বেশি ইন্ডেক্স যাতে সবার উপরে থাকে */
+    background: hsl(0, 0%, 100%) !important;
+    border: 1px solid #cbd5e1;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    border-radius: 12px;
+    padding: 10px;
+    width: 280px; /* ক্যালেন্ডারের নির্দিষ্ট উইডথ */
+}
+/* আজকের তারিখের বিশেষ ডিজাইন */
+.datepicker-day.today-highlight {
+    background-color: #1e40af !important; /* গাঢ় নীল রঙ */
+    color: white !important;
+    font-weight: bold;
+    border-radius: 50%; /* গোল আকৃতি */
+    box-shadow: 0 0 5px rgba(30, 64, 175, 0.5);
+}
+
+/* মাউস নিলে যেন ইফেক্ট থাকে */
+.datepicker-day.today-highlight:hover {
+    background-color: #1d4ed8 !important;
+    transform: scale(1.1);
+}
+
+
+
+/* স্ক্রিনে থাকাকালীন হাইড থাকবে কিন্তু প্রিন্টে আসবে এমন কিছু */
+.print-only { display: none; }
+@media print { .print-only { display: block; } }
+
+        .datepicker-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-weight: bold; }
+        .datepicker-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; text-align: center; }
+        .datepicker-day-name { font-size: 10px; color: #64748b; font-weight: bold; padding: 4px 0; }
+        .datepicker-day { padding: 6px; font-size: 12px; border-radius: 4px; cursor: pointer; }
+        .datepicker-day:hover { background: #eff6ff; color: #2563eb; }
+        .datepicker-day.selected { background: #2563eb; color: white; }
+        .datepicker-day.today { border: 1px solid #2563eb; color: #2563eb; font-weight: bold; }
+
+        .suggestions-container { position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #e2e8f0; border-radius: 0 0 12px 12px; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1); z-index: 1000; max-height: 250px; overflow-y: auto; display: none; }
+        .suggestion-item { padding: 12px 16px; cursor: pointer; border-bottom: 1px solid #f1f5f9; transition: all 0.2s; }
+        .suggestion-item:hover { background-color: #eff6ff; }
+        
+        #loadingOverlay, #successOverlay { display: none; position: fixed; inset: 0; z-index: 5000; align-items: center; justify-content: center; backdrop-filter: blur(6px); background: rgba(15, 23, 42, 0.7); }
+        .loader { border: 3px solid #e2e8f0; border-top: 3px solid #2563eb; border-radius: 50%; width: 24px; height: 24px; animation: spin 0.8s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        .input-group { display: flex; flex-direction: column; gap: 4px; }
+        .input-label { font-size: 0.9rem; font-weight: 900; color: #1e3a8a; text-transform: uppercase; margin-left: 2px; }
+        .customer-input { width: 100%; font-weight: 500; color: #000000; outline: none; background-color: #ffffff; border: 2px solid #cbd5e1; border-radius: 8px; padding: 8px 12px; font-size: 1rem; transition: all 0.2s; }
+        .customer-input[readonly] { background-color: #ffffff; border-color: #e2e8f0; color: #000000; cursor: default; }
+        
     </style>
-  </head>
-  <body class="p-4 md:p-8">
-    <!-- Loading Overlay -->
-    <div id="loadingOverlay" class="no-print">
-      <div class="loader mb-4"></div>
-      <p
-        id="loadingMessage"
-        class="font-bold text-lg text-white text-center px-4"
-      >
-        PLEASE WAIT SAVE DATA
-      </p>
-    </div>
+</head>
+<body class="p-2 md:p-6" onclick="closeAllPickers(event)" onscroll="closeAllPickers(event)">
+    
+    <!-- ইনিশিয়াল ফুল স্ক্রিন লোডার -->
+   <div id="pageLoader" class="flex flex-col items-center justify-center min-h-screen">
+    <div class="rotating-text-wrapper">
+        <img src="https://raw.githubusercontent.com/shofiul4686/shahed-test-code/main/Bismillah.png" 
+     alt="Bismillah" 
+     class="center-img" 
+     style="mix-blend-mode: multiply; background: transparent;">
 
-    <!-- Alert Modal -->
-    <div id="alertOverlay" class="no-print">
-      <div class="modal-box border-2 border-red-500">
-        <p id="alertMsg" class="text-gray-800 font-bold mb-4">
-          অনুগ্রহ করে তথ্য পূরণ করুন।
-        </p>
-        <button
-          onclick="closeAlert()"
-          class="bg-red-600 text-white px-6 py-1.5 rounded-lg font-bold hover:bg-red-700"
-        >
-          OK
-        </button>
-      </div>
-    </div>
-
-    <!-- Confirm Modal (Not used for validation now, replaced by direct alert) -->
-    <div id="confirmOverlay" class="no-print">
-      <div class="modal-box">
-        <h3 class="text-lg font-bold text-gray-800 mb-2">তথ্য অসম্পূর্ণ!</h3>
-        <p class="text-gray-600 mb-6 text-sm">
-          নিচের ঘরগুলো খালি আছে:<br /><span
-            id="emptyFieldNames"
-            class="font-bold text-red-600"
-          ></span>
-        </p>
-        <div class="flex gap-4">
-          <button
-            onclick="confirmSave(true)"
-            class="flex-1 bg-green-600 text-white py-2 rounded-lg font-bold hover:bg-green-700"
-          >
-            YES
-          </button>
-          <button
-            onclick="confirmSave(false)"
-            class="flex-1 bg-gray-200 text-gray-800 py-2 rounded-lg font-bold hover:bg-gray-300"
-          >
-            NO
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Success Modal -->
-    <div id="successOverlay" class="no-print">
-      <div class="modal-box">
-        <div class="text-green-500 mb-4">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            class="h-12 w-12 mx-auto"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M5 13l4 4L19 7"
-            />
-          </svg>
-        </div>
-        <h2 class="text-2xl font-bold text-gray-800 mb-6">SAVE SUCCESSFUL!</h2>
-        <button
-          onclick="closeSuccess()"
-          class="w-full bg-blue-600 text-white py-3 rounded-xl font-bold hover:bg-blue-700"
-        >
-          NEW ENTRY
-        </button>
-      </div>
-    </div>
-
-    <div
-      class="max-w-6xl mx-auto bg-white p-6 md:p-10 rounded-xl shadow-2xl border border-gray-200 print-container"
-    >
-      <!-- Header -->
-      <div
-        class="flex flex-col items-center border-b-4 border-blue-900 pb-6 mb-8 text-center relative"
-      >
-        <p class="text-sm font-bold text-gray-600 mb-1 italic">
-          বিসমিল্লাহির রাহমানির রাহিম
-        </p>
-        <h1 class="text-4xl md:text-5xl font-black text-blue-900 mb-2">
-          মেসার্স নূর এন্টারপ্রাইজ
-        </h1>
-        <div class="mb-3">
-          <span
-            class="bg-blue-800 text-white px-6 py-1 rounded-full text-lg font-bold inline-block shadow-md"
-            >প্রোঃ এম. এম. নূর-ই-মোহাম্মদ</span
-          >
-        </div>
-
-        <!-- Auto Entry Button -->
-        <div
-          class="md:absolute md:left-0 md:top-1/2 md:-translate-y-1/2 no-print my-4 md:my-0"
-        >
-          <button
-            onclick="window.location.href = 'Dataentryauto.html'"
-            style="
-              background-color: #1e293b;
-              color: white;
-              padding: 10px 20px;
-              border: none;
-              border-radius: 8px;
-              font-weight: bold;
-              cursor: pointer;
-              display: flex;
-              align-items: center;
-              gap: 8px;
-              font-family: sans-serif;
-              font-size: 14px;
-              box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            "
-          >
-            ⬅ Auto Entry
-          </button>
-        </div>
-
-        <p class="text-sm md:text-lg font-bold text-gray-700">
-          বি,সি,আই,সি অনুমোদিত ডিলার, রাসায়নিক সার, কীটনাশক ও সিমেন্ট বিক্রেতা
-        </p>
-        <p class="text-xs md:text-sm font-bold text-gray-600 mt-1">
-          আমবাড়ী বাজার, পার্বতীপুর, দিনাজপুর।
-        </p>
-        <p class="text-xs md:text-sm font-bold text-gray-800">
-          মোবাঃ ০১৭৭২-৯৫৭৫১৫, ০১৭২০-৩৩৭৮১২, ০১৭১৭-৫২৭২৯২, ০১৭৩১-৭৩৩৩৪০
-        </p>
-      </div>
-
-      <!-- Form Body -->
-      <div
-        class="mb-8 bg-slate-50 p-6 rounded-xl border border-gray-200 print:bg-transparent print:p-0 print:border-none"
-      >
-        <div class="mb-6 flex flex-wrap items-center justify-between gap-4">
-          <div class="flex items-center gap-4">
-            <label class="field-label">Cod:</label>
-            <input
-              type="text"
-              id="cod"
-              readonly
-              value="Loading..."
-              class="w-44 bg-gray-200 border border-blue-300 rounded px-3 py-1.5 text-lg font-black text-blue-900 uppercase focus:outline-none print:bg-transparent"
-            />
-          </div>
-          <div
-            id="connectionStatus"
-            class="text-xs font-bold text-blue-600 bg-blue-50 px-3 py-1 rounded-full no-print"
-          >
-            Connecting...
-          </div>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-          <div class="flex flex-col">
-            <label class="field-label mb-1">Customer Name:</label>
-            <input
-              type="text"
-              id="custName"
-              onkeydown="handleInfoNav(event, 'mobile')"
-              class="bg-white border border-blue-400 rounded px-3 py-2 font-bold focus-ring"
-            />
-          </div>
-          <div class="flex flex-col">
-            <label class="field-label mb-1">Mobile:</label>
-            <input
-              type="text"
-              id="mobile"
-              onkeydown="handleInfoNav(event, 'area')"
-              class="bg-white border border-blue-400 rounded px-3 py-2 font-bold focus-ring"
-            />
-          </div>
-          <div class="flex flex-col">
-            <label class="field-label mb-1">Area:</label>
-            <input
-              type="text"
-              id="area"
-              onkeydown="handleInfoNav(event, 'address')"
-              class="bg-white border border-blue-400 rounded px-3 py-2 font-bold focus-ring"
-            />
-          </div>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-          <div class="flex flex-col">
-            <label class="field-label mb-1">Address:</label>
-            <input
-              type="text"
-              id="address"
-              onkeydown="handleInfoNav(event, 'custType')"
-              class="bg-white border border-blue-400 rounded px-3 py-2 font-bold focus-ring"
-            />
-          </div>
-          <div class="grid grid-cols-2 gap-4">
-            <div class="flex flex-col">
-              <label class="field-label mb-1">Type:</label>
-              <select
-                id="custType"
-                onchange="document.getElementById('payType').focus()"
-                onkeydown="handleInfoNav(event, 'payType')"
-                class="bg-white border border-blue-400 rounded px-3 py-2 font-bold focus-ring"
-              >
-                <option value="">--Select--</option>
-                <option value="Retailer">Retailer</option>
-                <option value="Dealer">Dealer</option>
-                <option value="Sub-Dealer">Sub-Dealer</option>
-              </select>
+        <div class="rotating-text" id="textContainer">
             </div>
-            <div class="flex flex-col">
-              <label class="field-label mb-1">Payment:</label>
-              <select
-                id="payType"
-                onchange="document.getElementById('openingBalance').focus()"
-                onkeydown="handleInfoNav(event, 'openingBalance')"
-                class="bg-white border border-blue-400 rounded px-3 py-2 font-bold focus-ring"
-              >
-                <option value="">--Select--</option>
-                <option value="Cash">Cash</option>
-                <option value="Credit">Credit</option>
-                <option value="Cheque">Cheque</option>
-              </select>
-            </div>
-          </div>
-        </div>
-
-        <div class="flex flex-wrap items-center gap-4">
-          <div class="flex items-center gap-2">
-            <label class="field-label">Opening Balance:</label>
-           <input 
-                    type="number" 
-                    id="openingBalance" 
-                    onkeydown="handleOpeningBalanceNav(event)" 
-                    oninput="updateInWord(this.value)" 
-                    class="w-40 border border-blue-400 rounded px-3 py-2 text-right font-black text-blue-900 text-lg focus-ring" 
-                    placeholder="0.00"
-                    value="0"
-                >
-                
-                <!-- কথায় দেখানোর অংশ (In Word) -->
-                <span id="openingBalanceInWord" class="text-xs font-bold text-gray-500 italic bg-blue-50 px-3 py-2 rounded border border-blue-100 min-w-[200px]">
-                    Zero Taka Only
-                </span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Statement Table -->
-     <div class="overflow-x-auto">
-    <table class="w-full border-collapse border-2 border-black bank-table text-sm">
-        <thead class="bg-gray-800 text-white print:bg-gray-200 print:text-black">
-            <tr>
-                <th class="p-3 border border-black w-32">তারিখ</th>
-                <th class="p-3 border border-black">বিবরণ (Particulars)</th>
-                <th class="p-3 border border-black w-24">ভাউচার</th>
-                <th class="p-3 border border-black w-28 bg-green-700 print:bg-transparent">জমা</th>
-                <th class="p-3 border border-black w-28 bg-red-700 print:bg-transparent">খরচ</th>
-                <th class="p-3 border border-black w-32 bg-blue-800 print:bg-transparent">ব্যালেন্স</th>
-                <th class="no-print w-10"></th>
-            </tr>
-        </thead>
-        <tbody id="statementBody"></tbody>
-        <tfoot class="bg-gray-100 font-bold border-t-2 border-black print:bg-transparent">
-            <tr>
-                <td colspan="3" class="p-3 text-right uppercase text-xs">Total:</td>
-                <td class="p-3 text-right text-green-700" id="totalDeposit">0.00</td>
-                <td class="p-3 text-right text-red-700" id="totalExpense">0.00</td>
-                <td class="p-3 text-right text-blue-900 text-lg" id="finalBalance">0.00</td>
-                <td class="no-print"></td>
-            </tr>
-        </tfoot>
-    </table>
-    <!-- আপনার দেওয়া স্ট্রাকচার অনুযায়ী টেবিলের ঠিক নিচের অংশ -->
-    <table class="w-full border-collapse border-2 border-t-0 border-black bank-table text-sm">
-        <tr class="bg-blue-50">
-            <td colspan="6" class="p-2 text-left italic text-blue-900 font-bold" id="finalBalanceInWord">
-                In Word: Zero Taka Only
-            </td>
-            <td class="no-print w-10"></td>
-        </tr>
-    </table>
+    </div>
 </div>
 
-
-      <!-- Actions -->
-      <div class="mt-8 flex flex-wrap justify-between gap-4 no-print">
-        <div class="flex gap-2">
-          <button
-            id="addRowBtn"
-            onclick="addRow(true)"
-            class="bg-blue-600 text-white px-8 py-2 rounded-lg font-bold text-2xl shadow-lg hover:bg-blue-700 transition"
-          >
-            +
-          </button>
-          <button
-            onclick="window.print()"
-            class="bg-gray-600 text-white px-6 py-2 rounded-lg font-bold shadow-lg hover:bg-gray-700 transition"
-          >
-            PRINT
-          </button>
+    <!-- সেভিং এবং রি-লোডিং ওভারলে -->
+    <div id="loadingOverlay">
+        <div class="bg-white p-6 rounded-2xl shadow-2xl flex items-center gap-4">
+            <div class="loader"></div>
+            <p id="loadingMessage" class="font-bold text-slate-700"> PLEASE WAIT DATA SAVE...</p>
         </div>
-        <button
-          id="saveBtn"
-          onclick="initiateSave()"
-          class="bg-green-600 text-white px-10 py-2 rounded-lg font-bold shadow-lg hover:bg-green-700 transition flex items-center gap-2"
-        >
-          <span>SAVE DATA</span>
-        </button>
-      </div>
     </div>
 
-    <script>
-       const SCRIPT_URL ="https://script.google.com/macros/s/AKfycbxwBXVROsZF5WcdlDpPUHCTDhoZYHrZka0Y-RKM6ggphitVLxFaj2W-ZxXIVTc9-7oh/exec";
+    <!-- সাকসেস মেসেজ -->
+    <div id="successOverlay">
+        <div class="bg-white p-8 rounded-3xl text-center max-w-xs w-full shadow-2xl">
+            <div class="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl">✓</div>
+            <h2 class="text-xl font-black text-slate-800">SAVE SUCCESSFUL</h2>
+            <p class="text-slate-500 text-sm mt-1">NEW ENTRY </p>
+            <button onclick="closeSuccess()" class="w-full bg-slate-900 text-white py-3 rounded-xl font-bold mt-6">OK</button>
+        </div>
+    </div>
 
-      window.onload = function () {
-        const today = new Date().toLocaleDateString("en-GB");
-        const statusEl = document.getElementById("connectionStatus");
-        if (statusEl) statusEl.innerText = "Today: " + today;
-        resetFormUI();
-      };
+    <div class="max-w-6xl mx-auto bg-white p-4 md:p-8 rounded-2xl shadow-lg border border-slate-200 print-container">
+        
+        <div class="text-center mb-8 border-b-2 border-slate-900 pb-6 relative">
+            <p class="text-sm font-bold text-slate-700 italic mb-1">বিসমিল্লাহির রাহমানির রাহিম</p>
+            
+            <h1 class="text-4xl md:text-6xl font-black text-blue-900 tracking-tight mb-2">মেসার্স নূর এন্টারপ্রাইজ</h1>
+            
+            <div class="inline-block bg-blue-700 text-white px-8 py-1.5 rounded-full font-bold text-lg mb-3 shadow-md">প্রোঃ এম. এম. নূর-ই-মোহাম্মদ</div>
+            
+            <p class="text-lg md:text-xl font-bold text-slate-800 mb-1">বি,সি,আই,সি অনুমোদিত ডিলার, রাসায়নিক সার, কীটনাশক ও সিমেন্ট বিক্রেতা</p>
+            <p class="text-md font-bold text-slate-600 mb-2">আমবাড়ী বাজার, পার্বতীপুর, দিনাজপুর।</p>
+            <p class="text-sm font-black text-slate-900">মোবাঃ ০১৭৭২-৯৫৭৫১৫, ০১৭২০-৩৩৭৮১২, ০১৭১৭-৫২৭২৯২, ০১৭৩১-৭৩৩৩৪০</p>
+            <div class="absolute top-0 right-0 no-print">
+   <div class="absolute top-2 right-2 no-print flex flex-col items-end gap-0">
+    <div id="digitalClock" class="text-xl font-mono font-black text-slate-900 whitespace-nowrap leading-none">
+        00:00:00 AM
+    </div>
+    <div id="digitalDate" class="text-[13px] font-bold text-slate-700 uppercase tracking-tighter whitespace-nowrap mt-1">
+        01-JAN-2026
+    </div>
+</div>
+</div>
+            
+        </div>
 
-      async function fetchNextCode() {
-        const codInput = document.getElementById("cod");
-        try {
-          const response = await fetch(
-            `${SCRIPT_URL}?action=getNextCustomerCode`,
-          );
-          const data = await response.json();
-          if (data && data.nextCode) {
-            codInput.value = data.nextCode;
-          } else {
-            codInput.value = "NEP-0001";
-          }
-        } catch (e) {
-          console.error("Fetch Error:", e);
-          codInput.value = "NEP-0001";
+        <div class="mb-6 space-y-5 no-print">
+            <div class="mb-6 no-print flex flex-col md:flex-row justify-between items-center gap-4">
+  <!-- বাম পাশের অংশ: কাস্টমার সার্চ বক্স (আলাদা কন্টেইনার) -->
+  <div class="flex items-center gap-2 bg-blue-50 p-2 rounded-lg border border-blue-100 max-w-md w-full">
+    <label class="text-blue-900 font-bold text-sm whitespace-nowrap px-1">কাস্টমার সার্চ:</label>
+    <div class="relative flex-grow">
+      <input type="text" id="searchBox" placeholder="খুঁজুন..." oninput="showSuggestions(this.value)" autocomplete="off" class="w-full bg-white border border-blue-200 rounded-md px-3 py-1.5 font-bold focus:border-blue-500 outline-none transition-all shadow-sm text-sm" />
+      <div id="suggestionsBox" class="suggestions-container" style="position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #ddd; border-radius: 0 0 8px 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); z-index: 1000; display: none;"></div>
+    </div>
+  </div>
+  <div class="flex-shrink-0 flex items-center gap-2">
+    <button onclick="refreshData()" class="bg-gray-600 text-white px-4 py-2.5 rounded-lg font-bold hover:bg-gray-700 shadow-md flex items-center gap-2 transition-all active:scale-95">
+    <svg id="refreshIcon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+    </svg>
+    Refresh
+</button>
+
+    <button onclick="window.location.href='Dataentry.html'" class="bg-indigo-600 text-white px-5 py-2.5 rounded-lg font-bold hover:bg-indigo-700 shadow-md flex items-center gap-2 whitespace-nowrap text-sm transition-all active:scale-95">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+        <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
+        <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"/>
+      </svg>
+      Manual Entry
+    </button>
+</div>
+</div>
+
+           <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm mb-6 print-container">
+    <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+        <div class="input-group">
+            <label class="input-label">কোড</label>
+            <input type="text" id="cod" readonly class="customer-input" />
+        </div>
+        <div class="input-group md:col-span-2">
+            <label class="input-label">কাস্টমার নাম</label>
+            <input type="text" id="custName" readonly class="customer-input" />
+        </div>
+        <div class="input-group">
+            <label class="input-label">মোবাইল</label>
+            <input type="text" id="mobile" readonly class="customer-input" />
+        </div>
+        <div class="input-group md:col-span-2">
+            <label class="input-label">ঠিকানা</label>
+            <input type="text" id="address" readonly class="customer-input" />
+        </div>
+        <div class="input-group">
+            <label class="input-label">টাইপ</label>
+            <input type="text" id="custType" readonly class="customer-input" />
+        </div>
+        <div class="input-group">
+            <label class="input-label">পেমেন্ট</label>
+            <input type="text" id="payType" readonly class="customer-input" />
+        </div>
+        <div class="input-group">
+            <label class="input-label">এলাকা</label>
+            <input type="text" id="area" readonly class="customer-input" />
+        </div>
+        <div class="input-group">
+            <label class="input-label">ওপেনিং ব্যালেন্স</label>
+            <input type="number" id="openingBalance" value="0.00" readonly class="customer-input bg-yellow-50 font-bold text-right text-black border-yellow-200" />
+        </div>
+    </div>
+</div>
+
+        <div class="table-wrapper rounded-xl border-2 border-slate-900 mb-4 shadow-sm">
+            <table class="w-full border-collapse bank-table text-sm">
+                <thead class="bg-slate-900 text-white">
+                    <tr>
+                        <th class="p-3 w-40 border-r border-slate-700">তারিখ</th>
+                        <th class="p-3 text-left border-r border-slate-700">বিবরণ (Details)</th>
+                        <th class="p-3 w-28 border-r border-slate-700">ভাউচার</th>
+                        <th class="p-3 w-28 bg-green-700 border-r border-slate-700">জমা</th>
+                        <th class="p-3 w-28 bg-red-700 border-r border-slate-700">খরচ</th>
+                        <th class="p-3 w-32 bg-slate-800">ব্যালেন্স</th>
+                        <th class="p-2 no-print w-8"></th>
+                    </tr>
+                </thead>
+                <tbody id="statementBody" class="font-medium"></tbody>
+                <tfoot class="bg-slate-50 border-t-2 border-slate-900 font-black">
+                    <tr>
+                        <td colspan="3" class="p-3 text-right text-slate-500 uppercase text-[10px]">Grand Total:</td>
+                        <td id="totalDeposit" class="p-3 text-right text-green-700">0.00</td>
+                        <td id="totalExpense" class="p-3 text-right text-red-700">0.00</td>
+                        <td id="finalBalance" class="p-3 text-right text-slate-900 text-lg">0.00</td>
+                        <td class="no-print"></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+
+        <div class="flex flex-col md:flex-row justify-between items-center gap-4 bg-slate-50 p-4 rounded-xl border border-slate-200 no-print">
+            <div class="text-sm font-bold text-slate-600">
+                <span class="text-blue-600">In Words:</span> <span id="inwordText" class="italic">Zero Taka Only</span>
+            </div>
+            <div class="flex gap-2">
+				<button onclick="prepareAndPrint()" class="bg-slate-800 text-white px-8 py-2 rounded-lg font-black hover:bg-slate-900 shadow-md flex items-center gap-2">
+    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
+        <path d="M2.5 8a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z"/>
+        <path d="M5 1a2 2 0 0 0-2 2v2H2a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h1v1a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-1h1a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-1V3a2 2 0 0 0-2-2H5zM4 3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2H4V3zm1 5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-1a.5.5 0 0 1-.5-.5zm-7 2h8v1a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-1z"/>
+    </svg>
+    PRINT
+</button>
+                <button onclick="addRow(true)" class="bg-blue-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-blue-700 shadow-md">ADD ROW</button>
+                <button id="saveBtn" onclick="saveData()" class="bg-green-600 text-white px-8 py-2 rounded-lg font-black hover:bg-green-700 shadow-md transition-all uppercase tracking-wider">SAVE</button>         </div>        </div>
+    </div>
+
+    <!-- ডেট পিকার মডাল -->
+    <div id="globalDatePicker" class="datepicker-modal" onclick="event.stopPropagation()">
+        <div class="datepicker-header text-slate-800"></div>
+        <div class="datepicker-grid"></div>
+    </div>
+
+    
+
+   <script>
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxwBXVROsZF5WcdlDpPUHCTDhoZYHrZka0Y-RKM6ggphitVLxFaj2W-ZxXIVTc9-7oh/exec";
+
+let currentMonth = new Date().getMonth();
+let currentYear = new Date().getFullYear();
+let activeDateCell = null;
+
+
+      window.onload = () => { 
+    // ১. টেক্সট ঘোরানোর কোড (এটি আগে রাখুন)
+    try {
+        const text = "BISMILLAHIR RAHMANIR RAHIM • PLEASE WAIT LOADING DATA •";
+        const container = document.getElementById('textContainer');
+        
+        if (container) {
+            container.innerHTML = ""; // আগের কিছু থাকলে মুছে ফেলবে
+            const characters = text.split("");
+            const degreeStep = 360 / characters.length;
+
+            characters.forEach((char, i) => {
+                const span = document.createElement('span');
+                span.innerText = char;
+                span.style.position = "absolute";
+                span.style.left = "50%";
+                span.style.transformOrigin = "0 100px"; // বৃত্তের সাইজ অনুযায়ী
+                span.style.transform = `rotate(${i * degreeStep}deg)`;
+                container.appendChild(span);
+            });
         }
-      }
+    } catch (e) {
+        console.error("Text rotation error:", e);
+    }
 
-      function resetFormUI() {
-        document.getElementById("statementBody").innerHTML = "";
-        document.getElementById("custName").value = "";
-        document.getElementById("mobile").value = "";
-        document.getElementById("area").value = "";
-        document.getElementById("address").value = "";
-        document.getElementById("custType").value = "";
-        document.getElementById("payType").value = "";
-        document.getElementById("openingBalance").value = "";
-        addRow(false);
-        fetchNextCode();
-        document.getElementById("custName").focus();
-      }
+    // ২. আপনার মুল কাজগুলো (এগুলো এখন অবশ্যই রান হবে)
+    resetForm(); 
+    loadInitialData(); 
 
-      function addRow(focus = true) {
-        const tbody = document.getElementById("statementBody");
-        const row = document.createElement("tr");
-        row.className =
-          "border-b border-black even:bg-gray-50 print:bg-transparent";
-        row.innerHTML = `
-      <td class="border border-black p-0"><input type="text" class="date-input text-center font-bold" placeholder="DD-MM-YYYY" onkeydown="handleTableNav(event, 'particulars')"></td>
-      <td class="border border-black p-0"><input type="text" class="particular-input px-2" placeholder="Details" onkeydown="handleTableNav(event, 'voucher')"></td>
-      <td class="border border-black p-0"><input type="text" class="voucher-input text-center" placeholder="-" onkeydown="handleTableNav(event, 'deposit')"></td>
-      <td class="border border-black p-0 bg-green-50 print:bg-transparent"><input type="number" class="deposit-input text-right font-bold text-green-700 print:text-black" oninput="calculateStatement()" onkeydown="handleTableNav(event, 'expense')" placeholder="0"></td>
-      <td class="border border-black p-0 bg-red-50 print:bg-transparent"><input type="number" class="expense-input text-right font-bold text-red-700 print:text-black" oninput="calculateStatement()" onkeydown="handleTableNav(event, 'nextRow')" placeholder="0"></td>
-      <td class="border border-black p-3 text-right font-bold text-blue-900 row-balance">0.00</td>
-      <td class="no-print text-center"><button onclick="this.closest('tr').remove(); calculateStatement();" class="text-red-500 font-bold hover:text-red-700">×</button></td>
+    // সাকসেস মেসেজ চেক
+    if (localStorage.getItem("saveSuccess") === "true") {
+        const successOverlay = document.getElementById("successOverlay");
+        if (successOverlay) {
+            successOverlay.style.display = "flex";
+            setTimeout(() => { successOverlay.style.display = "none"; }, 3000);
+        }
+        localStorage.removeItem("saveSuccess");
+    }
+};
+
+
+function prepareAndPrint() {
+    // ১. ডাটা ইনপুটগুলো প্রিন্ট ফ্রেন্ডলি করা
+    const inputs = document.querySelectorAll('input');
+    inputs.forEach(input => {
+        input.setAttribute('value', input.value);
+    });
+
+    // ২. overflow সমস্যা সমাধান করা
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = "visible";
+
+    // ৩. প্রিন্ট করা
+    window.print();
+
+    // ৪. আগের অবস্থায় ফেরত আনা
+    setTimeout(() => {
+        document.body.style.overflow = originalOverflow;
+    }, 500);
+}
+
+async function refreshData() {
+    const icon = document.getElementById("refreshIcon");
+
+    // ১. শুধু বাটনের আইকনটি ঘোরা শুরু করবে
+    if (icon) {
+        icon.classList.add("spin-animation");
+    }
+
+    // ২. ফুল স্ক্রিন লোডার দেখাবে না, তাই সরাসরি loadInitialData কল হবে
+    // এখানে 'true' পাঠানো হয়েছে যাতে loadInitialData বুঝতে পারে এটা সাইলেন্ট রিফ্রেশ
+    const success = await loadInitialData(true);
+
+    // ৩. ডাটা লোড হয়ে গেলে আইকন ঘোরা বন্ধ হবে
+    if (icon) {
+        icon.classList.remove("spin-animation");
+    }
+}
+
+function updateClockAndDate() {
+        const now = new Date();
+        
+        // সময় সেট করা
+        let hours = now.getHours();
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        const seconds = String(now.getSeconds()).padStart(2, '0');
+        const ampm = hours >= 12 ? 'PM' : 'AM';
+        hours = hours % 12 || 12;
+        const timeString = `${String(hours).padStart(2, '0')}:${minutes}:${seconds} ${ampm}`;
+        document.getElementById('digitalClock').textContent = timeString;
+
+        // তারিখ সেট করা (Format: DD-MMM-YYYY)
+        const day = String(now.getDate()).padStart(2, '0');
+        const months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+        const month = months[now.getMonth()];
+        const year = now.getFullYear();
+        const dateString = `${day}-${month}-${year}`;
+        document.getElementById('digitalDate').textContent = dateString;
+    }
+
+    // প্রতি সেকেন্ডে আপডেট হবে
+    setInterval(updateClockAndDate, 1000);
+    updateClockAndDate();
+
+        function openDatePicker(element) {
+    // ইভেন্ট বাবলিং বন্ধ করা যাতে পেজের অন্য ক্লিকের সাথে কনফ্লিক্ট না হয়
+    if (window.event) window.event.stopPropagation(); 
+    
+    closeAllPickers(); 
+    activeDateCell = element;
+    
+    const modal = document.getElementById('globalDatePicker');
+    if (!modal) {
+        console.error("DatePicker Modal not found!");
+        return;
+    }
+
+    const rect = element.getBoundingClientRect();
+    const modalHeight = 280; 
+    const spaceBelow = window.innerHeight - rect.bottom;
+    
+    // ডিসপ্লে ব্লক আগে করতে হবে পজিশন সেট করার জন্য
+    modal.style.display = 'block';
+    modal.style.position = 'fixed'; // স্ক্রলিং এর সুবিধা পেতে fixed ব্যবহার ভালো
+    modal.style.zIndex = '9999';
+
+    if (spaceBelow < modalHeight) {
+        // যদি নিচে জায়গা কম থাকে তবে উপরে দেখাবে
+        modal.style.top = (rect.top - modalHeight - 5) + 'px';
+    } else {
+        // অন্যথায় নিচে দেখাবে
+        modal.style.top = (rect.bottom + 5) + 'px';
+    }
+    
+    modal.style.left = rect.left + 'px';
+    renderCalendar();
+}
+        function renderCalendar() {
+    const modal = document.getElementById('globalDatePicker');
+    const header = modal.querySelector('.datepicker-header');
+    const grid = modal.querySelector('.datepicker-grid');
+    grid.innerHTML = '';
+    
+    const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+    header.innerHTML = `
+        <button onclick="event.stopPropagation(); changeMonth(-1)">❮</button>
+        <span>${monthNames[currentMonth]} ${currentYear}</span>
+        <button onclick="event.stopPropagation(); changeMonth(1)">❯</button>
     `;
-        tbody.appendChild(row);
 
-        flatpickr(row.querySelector(".date-input"), {
-          dateFormat: "d-m-Y",
-          defaultDate: "today",
-          allowInput: true,
-          onClose: function (selectedDates, dateStr, instance) {
-            setTimeout(() => {
-              const r = instance.element.closest("tr");
-              if (r) r.querySelector(".particular-input").focus();
-            }, 50);
-          },
-        });
+    const dayNames = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
+    dayNames.forEach(d => grid.innerHTML += `<div class="datepicker-day-name">${d}</div>`);
 
-        if (focus) row.querySelector(".date-input").focus();
-      }
+    const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+    const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+    
+    // আজকের তারিখ বের করা
+    const now = new Date();
+    const isThisMonth = now.getMonth() === currentMonth && now.getFullYear() === currentYear;
+    const todayDate = now.getDate();
 
-      function calculateStatement() {
-        let opening =
-          parseFloat(document.getElementById("openingBalance").value) || 0;
-        let tDep = 0,
-          tExp = 0,
-          running = opening;
+    for (let i = 0; i < firstDay; i++) grid.innerHTML += '<div></div>';
 
-        document.querySelectorAll("#statementBody tr").forEach((row) => {
-          let d = parseFloat(row.querySelector(".deposit-input").value) || 0;
-          let e = parseFloat(row.querySelector(".expense-input").value) || 0;
-          tDep += d;
-          tExp += e;
-          running = running + e - d;
-          row.querySelector(".row-balance").innerText = running.toLocaleString(
-            "en-IN",
-            { minimumFractionDigits: 2 },
-          );
-        });
+   for (let d = 1; d <= daysInMonth; d++) {
+    const dateStr = `${String(d).padStart(2, '0')}-${String(currentMonth + 1).padStart(2, '0')}-${currentYear}`;
+    
+    // ১. আজকের তারিখ বের করা
+    const now = new Date();
+    const isToday = (now.getDate() === d && 
+                     now.getMonth() === currentMonth && 
+                     now.getFullYear() === currentYear) ? 'today-highlight' : '';
+    
+    // ২. গ্রিডে ক্লাসটি যোগ করা
+    grid.innerHTML += `
+        <div class="datepicker-day ${isToday}" onclick="event.stopPropagation(); selectDate('${dateStr}')">
+            ${d}
+        </div>`;
+}
+  }
 
-        document.getElementById("totalDeposit").innerText = tDep.toFixed(2);
-        document.getElementById("totalExpense").innerText = tExp.toFixed(2);
-        document.getElementById("finalBalance").innerText = running.toFixed(2);
-      }
-
-      function handleInfoNav(e, nextId) {
-        if (e.key === "Enter") {
-          e.preventDefault();
-          const nextEl = document.getElementById(nextId);
-          if (nextEl) nextEl.focus();
-        }
-      }
-
-   function numberToWords(num) {
-        const a = ['', 'One ', 'Two ', 'Three ', 'Four ', 'Five ', 'Six ', 'Seven ', 'Eight ', 'Nine ', 'Ten ', 'Eleven ', 'Twelve ', 'Thirteen ', 'Fourteen ', 'Fifteen ', 'Sixteen ', 'Seventeen ', 'Eighteen ', 'Nineteen '];
-        const b = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
-
-        function toWords(n) {
-            if (n < 20) return a[n];
-            if (n < 100) return b[Math.floor(n / 10)] + (n % 10 !== 0 ? ' ' + a[n % 10] : '');
-            if (n < 1000) return a[Math.floor(n / 100)] + 'Hundred ' + (n % 100 !== 0 ? toWords(n % 100) : '');
-            if (n < 100000) return toWords(Math.floor(n / 1000)) + 'Thousand ' + (n % 1000 !== 0 ? toWords(n % 1000) : '');
-            if (n < 10000000) return toWords(Math.floor(n / 100000)) + 'Lakh ' + (n % 100000 !== 0 ? toWords(n % 100000) : '');
-            return toWords(Math.floor(n / 10000000)) + 'Crore ' + (n % 10000000 !== 0 ? toWords(n % 10000000) : '');
+        function changeMonth(step) {
+            currentMonth += step;
+            if (currentMonth > 11) { currentMonth = 0; currentYear++; }
+            if (currentMonth < 0) { currentMonth = 11; currentYear--; }
+            renderCalendar();
         }
 
-        let n = Math.floor(Math.abs(num));
-        if (n === 0) return 'Zero Taka Only';
-        return toWords(n).trim() + ' Taka Only';
-    }
-
-    /**
-     * ওপেনিং ব্যালেন্স আপডেট করার ফাংশন
-     */
-    function updateInWord(val) {
-        const display = document.getElementById('openingBalanceInWord');
-        if (display) {
-            display.innerText = numberToWords(parseFloat(val) || 0);
-        }
-        if (typeof calculateStatement === 'function') {
-            calculateStatement();
-            updateFinalBalanceInWord(); 
+        function selectDate(date) {
+    // ১. যদি কোনো সেল আগে থেকে সিলেক্ট করা থাকে (activeDateCell)
+    if (activeDateCell) {
+        // সেলের ভেতরের .date-text ক্লাসে নতুন তারিখটি বসিয়ে দাও
+        const textElement = activeDateCell.querySelector('.date-text');
+        if (textElement) {
+            textElement.innerText = date;
+            
+            // ভিজ্যুয়াল ফিডব্যাক: তারিখ সেট হলে হালকা এনিমেশন বা কালার চেঞ্জ (ঐচ্ছিক)
+            textElement.style.color = "#1e40af"; 
         }
     }
 
-    /**
-     * ফাইনাল ব্যালেন্সকে কথায় রূপান্তর করার আপডেট কোড
-     */
-    function updateFinalBalanceInWord() {
-        const finalBalEl = document.getElementById('finalBalance');
-        const wordDisplay = document.getElementById('finalBalanceInWord');
-        
-        if (finalBalEl && wordDisplay) {
-            const amountText = finalBalEl.innerText || "0.00";
-            const amount = parseFloat(amountText.replace(/,/g, '')) || 0;
-            wordDisplay.innerText = "In Word: " + numberToWords(amount);
-        }
+    // ২. তারিখ সিলেক্ট হওয়ার পর ক্যালেন্ডারটি হাইড বা বন্ধ করে দাও
+    const modal = document.getElementById('globalDatePicker');
+    if (modal) {
+        modal.style.display = 'none';
     }
 
-    /**
-     * Enter নেভিগেশন
-     */
-    function handleOpeningBalanceNav(event) {
-        if (event.key === "Enter") {
-            event.preventDefault(); 
-            const firstTableInput = document.querySelector("#statementBody tr:first-child input");
-            if (firstTableInput) {
-                firstTableInput.focus();
+    // ৩. তারিখ সেট করার পর অটোমেটিক পরের ঘরে (বিবরণ/Description) ফোকাস নিয়ে যাওয়া
+    const row = activeDateCell.closest('tr');
+    if (row) {
+        const descInput = row.querySelector('.desc-input');
+        if (descInput) {
+            descInput.focus();
+        }
+    }
+}
+
+        function closeAllPickers(e) {
+            document.getElementById('globalDatePicker').style.display = 'none';
+            document.getElementById('suggestionsBox').style.display = 'none';
+        }
+
+       async function loadInitialData(isSilent = false) {
+    if(!isSilent) {
+        const loader = document.getElementById("pageLoader");
+        loader.style.display = "flex";
+        loader.style.opacity = "1";
+        document.body.style.overflow = "hidden";
+    }
+
+    try {
+        const res = await fetch(`${SCRIPT_URL}?action=getSalesMasterData`);
+        const data = await res.json();
+        if (Array.isArray(data)) {
+            allCustomers = data.slice(1).map(row => ({
+                cod: String(row[2] || "").trim(),
+                name: String(row[3] || ""),
+                mobile: String(row[4] || ""),
+                area: String(row[5] || ""),
+                address: String(row[6] || ""),
+                custType: String(row[7] || ""),
+                payType: String(row[8] || ""),
+                
+                // N কলাম (Index 13) থেকে ব্যালেন্স নেওয়ার জন্য:
+                balance: parseFloat(row[13]) || 0, 
+                
+                // O কলাম (Index 14) থেকে স্ট্যাটাস চেক করার জন্য:
+                statusN: String(row[14] || "").trim().toUpperCase() 
+            }));
+            
+            if(!isSilent) {
+                const loader = document.getElementById("pageLoader");
+                loader.style.opacity = "0";
+                setTimeout(() => {
+                    loader.style.display = "none";
+                    document.body.style.overflow = "auto";
+                    document.getElementById("searchBox").focus();
+                }, 500);
             }
+            return true;
         }
+    } catch (e) { 
+        console.error("Data Load Failed", e);
+        if(!isSilent) alert("ডাটা লোড করতে সমস্যা হচ্ছে, দয়া করে পেজটি রিফ্রেশ দিন।");
+        return false;
     }
+}
 
-    // উইন্ডো লোড হওয়ার সময় এক্সিকিউশন
-    window.onload = function () {
-        const today = new Date().toLocaleDateString("en-GB");
-        const statusEl = document.getElementById("connectionStatus");
-        if (statusEl) statusEl.innerText = "Today: " + today;
-        
-        if (typeof resetFormUI === 'function') resetFormUI();
-
-        const opInput = document.getElementById('openingBalance');
-        if(opInput) updateInWord(opInput.value);
-        
-        // রিয়েল টাইম ক্যালকুলেশনের জন্য অবজার্ভার
-        setInterval(updateFinalBalanceInWord, 1000);
-    };
-
-      function showAlert(msg, targetId = null) {
-        const alertOverlay = document.getElementById("alertOverlay");
-        document.getElementById("alertMsg").innerText = msg;
-        alertOverlay.style.display = "flex";
-
-        // Store target focus for closing
-        alertOverlay.dataset.targetId = targetId || "";
-      }
-
-      function closeAlert() {
-        const alertOverlay = document.getElementById("alertOverlay");
-        alertOverlay.style.display = "none";
-        const targetId = alertOverlay.dataset.targetId;
-        if (targetId) {
-          const el = document.getElementById(targetId);
-          if (el) el.focus();
-        }
-      }
-
-      function handleTableNav(e, fieldType) {
-        if (e.key === "Enter") {
-          e.preventDefault();
-          const row = e.target.closest("tr");
-
-          // Validation: Particular, Deposit, Expense must not be empty/zero to move forward
-          const depVal =
-            parseFloat(row.querySelector(".deposit-input").value) || 0;
-          const expVal =
-            parseFloat(row.querySelector(".expense-input").value) || 0;
-          const partVal = row.querySelector(".particular-input").value.trim();
-
-          if (fieldType === "nextRow") {
-            if (depVal === 0 && expVal === 0) {
-              showAlert("জমা অথবা খরচ এর ঘরে সঠিক সংখ্যা লিখুন।", null);
-              row.querySelector(".deposit-input").focus();
-              return;
-            }
-            addRow(true);
-          } else {
-            let nextSelector = "";
-            switch (fieldType) {
-              case "particulars":
-                nextSelector = ".particular-input";
-                break;
-              case "voucher":
-                if (!partVal) {
-                  showAlert("বিবরণ (Particulars) এর ঘরটি পূরণ করুন।");
-                  row.querySelector(".particular-input").focus();
-                  return;
+        function showSuggestions(val) {
+            const box = document.getElementById("suggestionsBox");
+            if (!val) { box.style.display = "none"; return; }
+            const sVal = val.toLowerCase().trim();
+            
+            const uniqueSuggestions = [];
+            const seen = new Set();
+            
+            allCustomers.forEach(c => {
+                const match = c.cod.toLowerCase().includes(sVal) || c.mobile.includes(sVal) || c.name.toLowerCase().includes(sVal);
+                if (match && !seen.has(c.cod)) {
+                    seen.add(c.cod);
+                    uniqueSuggestions.push(c);
                 }
-                nextSelector = ".voucher-input";
-                break;
-              case "deposit":
-                nextSelector = ".deposit-input";
-                break;
-              case "expense":
-                nextSelector = ".expense-input";
-                break;
+            });
+
+            const filtered = uniqueSuggestions.slice(0, 15);
+            if (filtered.length === 0) { box.style.display = "none"; return; }
+            box.innerHTML = filtered.map(c => `
+                <div class="suggestion-item" onclick="selectSuggestion('${c.cod}')">
+                    <div class="flex justify-between font-bold text-slate-900">
+                        <span>${c.cod}</span>
+                        <span class="text-[10px] text-blue-500 font-black">SELECT</span>
+                    </div>
+                    <div class="flex justify-between text-xs text-slate-500">
+                        <span>${c.name}</span>
+                        <span>${c.area}</span>
+                    </div>
+                </div>`).join("");
+            box.style.display = "block";
+        }
+
+        function selectSuggestion(cod) {
+            document.getElementById("searchBox").value = cod;
+            document.getElementById("suggestionsBox").style.display = "none";
+            executeSearch(cod);
+        }
+
+        function executeSearch(query) {
+    if (!query) return;
+    const cod = query.trim();
+    // ওই কাস্টমারের সব এন্ট্রি ফিল্টার করা হচ্ছে
+    const customerEntries = allCustomers.filter(c => c.cod === cod);
+    
+    if (customerEntries.length > 0) {
+        // ১. বেসিক তথ্য নেওয়ার জন্য প্রথম এন্ট্রি (Index 0)
+        const baseInfo = customerEntries[0];
+        
+        document.getElementById("cod").value = baseInfo.cod;
+        document.getElementById("custName").value = baseInfo.name;
+        document.getElementById("mobile").value = baseInfo.mobile;
+        document.getElementById("address").value = baseInfo.address || "";
+        document.getElementById("custType").value = baseInfo.custType || "";
+        document.getElementById("payType").value = baseInfo.payType || "";
+        document.getElementById("area").value = baseInfo.area || "";
+        
+        // ২. ওপেনিং ব্যালেন্সের জন্য সর্বশেষ এন্ট্রি (Last Index)
+        // এটি সরাসরি N কলামের (Total Due) সর্বশেষ ভ্যালু নেবে
+        const lastEntry = customerEntries[customerEntries.length - 1];
+        const lastDueBalance = parseFloat(lastEntry.balance) || 0;
+
+        document.getElementById("openingBalance").value = lastDueBalance.toFixed(2);
+        
+        // ফর্ম ক্লিয়ার এবং ক্যালকুলেশন
+        document.getElementById("searchBox").value = "";
+        calculateStatement();
+        
+        setTimeout(() => { 
+            const firstDesc = document.querySelector(".desc-input"); 
+            if(firstDesc) firstDesc.focus(); 
+        }, 100);
+    }
+}
+        function addRow(focus = false) {
+    const tbody = document.getElementById("statementBody");
+    const row = document.createElement("tr");
+    
+    // তারিখ ফরম্যাট ঠিক করা (DD-MM-YYYY)
+    const now = new Date();
+    const day = String(now.getDate()).padStart(2, '0');
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const year = now.getFullYear();
+    const today = `${day}-${month}-${year}`;
+
+    row.className = "border-b border-slate-100 hover:bg-slate-50";
+    row.innerHTML = `
+        <td tabindex="0" class="p-2 border-r border-slate-900 date-cell cursor-pointer" 
+            onclick="openDatePicker(this)" 
+            onkeydown="if(event.key==='Enter') openDatePicker(this)">
+            <div class="flex items-center justify-between bg-white px-2 py-1.5 rounded border border-slate-200 date-wrapper pointer-events-none">
+                <span class="date-text font-bold text-blue-900">${today}</span>
+                <span class="text-[10px] text-slate-400 no-print">▼</span>
+            </div>
+        </td>
+        <td class="border-r border-slate-900"><input type="text" placeholder="বিবরণ..." class="desc-input font-bold border-none outline-none w-full px-1" onkeydown="handleEnter(event, 'desc')"></td>
+        <td class="border-r border-slate-900"><input type="text" class="voucher-input text-center border-none outline-none w-full" onkeydown="handleEnter(event, 'voucher')"></td>
+        <td class="border-r border-slate-900 bg-green-50"><input type="number" step="0.01" class="deposit-input text-right font-black text-green-700 border-none outline-none w-full px-1" oninput="calculateStatement()" onkeydown="handleEnter(event, 'deposit')"></td>
+        <td class="border-r border-slate-900 bg-red-50"><input type="number" step="0.01" class="expense-input text-right font-black text-red-700 border-none outline-none w-full px-1" oninput="calculateStatement()" onkeydown="handleEnter(event, 'expense')"></td>
+        <td class="text-right px-3 py-2 font-black text-slate-900 bg-slate-100 row-balance">0.00</td>
+        <td class="no-print text-center"><button onclick="this.closest('tr').remove(); calculateStatement();" class="text-red-400 font-bold px-2">×</button></td>
+    `;
+    tbody.appendChild(row);
+    if (focus) row.querySelector('.desc-input').focus();
+}
+
+        function handleEnter(e, type) {
+            if (e.key === "Enter") {
+                e.preventDefault();
+                const row = e.target.closest('tr');
+                let next;
+                
+                switch(type) {
+                    case 'date': next = row.querySelector('.desc-input'); break;
+                    case 'desc': next = row.querySelector('.voucher-input'); break;
+                    case 'voucher': next = row.querySelector('.deposit-input'); break;
+                    case 'deposit': next = row.querySelector('.expense-input'); break;
+                    case 'expense':
+                        const nextRow = row.nextElementSibling;
+                        if (nextRow) {
+                            next = nextRow.querySelector('.date-cell');
+                        } else {
+                            addRow(true);
+                            return;
+                        }
+                        break;
+                }
+                if (next) next.focus();
             }
-            const nextInput = row.querySelector(nextSelector);
-            if (nextInput) nextInput.focus();
-          }
-        }
-      }
-
-      function initiateSave() {
-        // Required IDs and Labels for user focus
-        const required = [
-          { id: "custName", label: "Customer Name" },
-          { id: "mobile", label: "Mobile" },
-          { id: "area", label: "Area" },
-          { id: "address", label: "Address" },
-          { id: "custType", label: "Type" },
-          { id: "payType", label: "Payment Method" },
-        ];
-
-        for (let field of required) {
-          const el = document.getElementById(field.id);
-          if (!el.value.trim()) {
-            showAlert(
-              `${field.label} এর ঘরটি খালি। অনুগ্রহ করে পূরণ করুন।`,
-              field.id,
-            );
-            return; // Stop execution
-          }
         }
 
-        // If all passed, check if there's at least one transaction row with values
-        const rows = document.querySelectorAll("#statementBody tr");
-        let hasTransaction = false;
-        rows.forEach((r) => {
-          const d = parseFloat(r.querySelector(".deposit-input").value) || 0;
-          const e = parseFloat(r.querySelector(".expense-input").value) || 0;
-          if (d > 0 || e > 0) hasTransaction = true;
-        });
-
-        if (!hasTransaction) {
-          showAlert("অন্তত একটি জমা বা খরচের এন্ট্রি থাকতে হবে।");
-          return;
+        function calculateStatement() {
+            const opening = parseFloat(document.getElementById("openingBalance").value) || 0;
+            let running = opening, td = 0, te = 0;
+            document.querySelectorAll("#statementBody tr").forEach(row => {
+                const d = parseFloat(row.querySelector(".deposit-input").value) || 0;
+                const e = parseFloat(row.querySelector(".expense-input").value) || 0;
+                td += d; te += e;
+                running = (running + e - d);
+                row.querySelector(".row-balance").innerText = running.toFixed(2);
+            });
+            document.getElementById("totalDeposit").innerText = td.toFixed(2);
+            document.getElementById("totalExpense").innerText = te.toFixed(2);
+            document.getElementById("finalBalance").innerText = running.toFixed(2);
+            document.getElementById("inwordText").innerText = numberToWords(Math.abs(running));
         }
 
-        saveData();
-      }
+        function numberToWords(num) {
+            const ones = ["", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten", "Eleven", "Twelve", "Thirteen", "Fourteen", "Fifteen", "Sixteen", "Seventeen", "Eighteen", "Nineteen"];
+            const tens = ["", "", "Twenty", "Thirty", "Forty", "Fifty", "Sixty", "Seventy", "Eighty", "Ninety"];
+            if (num <= 0) return "Zero Taka Only";
+            function convert(n) {
+                if (n < 20) return ones[n];
+                if (n < 100) return tens[Math.floor(n / 10)] + (n % 10 !== 0 ? " " + ones[n % 10] : "");
+                if (n < 1000) return ones[Math.floor(n / 100)] + " Hundred" + (n % 100 !== 0 ? " and " + convert(n % 100) : "");
+                if (n < 100000) return convert(Math.floor(n / 1000)) + " Thousand" + (n % 1000 !== 0 ? " " + convert(n % 1000) : "");
+                return convert(Math.floor(n / 100000)) + " Lakh" + (n % 100000 !== 0 ? " " + convert(n % 100000) : "");
+            }
+            return convert(Math.floor(num)) + " Taka Only";
+        }
 
-     async function saveData() {
+
+document.querySelectorAll('input, select').forEach(element => {
+    element.addEventListener('input', function() {
+        if (this.value.trim() !== "") {
+            this.style.border = ""; // বর্ডার রিসেট
+        }
+    });
+});
+
+async function saveData() {
+
+// ১. প্রয়োজনীয় ফিল্ডগুলোর আইডি লিস্ট
+    const requiredFields = ["cod", "custName", "mobile", "area", "address", "custType", "payType"];
+    let isFormValid = true;
+
+    // ২. ফিল্ডগুলো চেক করা (Validation)
+    for (const id of requiredFields) {
+        const field = document.getElementById(id);
+        if (!field || field.value.trim() === "") {
+            isFormValid = false;
+            field.style.border = "2px solid red"; // ফাঁকা ফিল্ড লাল বর্ডার হবে
+        } else {
+            field.style.border = ""; // তথ্য থাকলে বর্ডার রিসেট
+        }
+    }
+
+    // ৩. যদি কোনো ফিল্ড ফাঁকা থাকে তবে মেসেজ দিয়ে ফাংশন বন্ধ করে দেওয়া
+    if (!isFormValid) {
+        alert("দয়া করে সব প্রয়োজনীয় তথ্য (COD, Name, Mobile, ইত্যাদি) সঠিকভাবে পূরণ করুন।");
+        return; 
+    }
+
     const btn = document.getElementById("saveBtn");
-    const overlay = document.getElementById("loadingOverlay");
-
-    // ১. লোকাল স্টোরেজ থেকে ডাটা সরাসরি ভেরিয়েবলে নেওয়া
-    const currentId = localStorage.getItem('userId');
-    const currentName = localStorage.getItem('userName');
-
-    // কনসোলে চেক করার জন্য (ঐচ্ছিক)
-    console.log("Sending ID:", currentId);
-    console.log("Sending Name:", currentName);
-
-    overlay.style.display = "flex";
+    const loaderOverlay = document.getElementById("loadingOverlay");
+    const loadingMessage = document.getElementById("loadingMessage");
+    
+    // ১. লোডিং ওভারলে দেখানো এবং বাটন ডিজেবল করা
+    loaderOverlay.style.display = "flex";
+    loadingMessage.innerText = "PLEASE WAIT DATA SAVE..."; 
+    loadingMessage.classList.add("animate-pulse-custom"); // অ্যানিমেশন যোগ করা
     btn.disabled = true;
+    const oldText = btn.innerHTML;
+    btn.innerHTML = 'Saving...';
 
-    // ... rows ডাটা সংগ্রহের অংশ আগের মতোই থাকবে ...
-    const rows = Array.from(document.querySelectorAll("#statementBody tr")).map((tr) => {
+	// লোকাল স্টোরেজ থেকে ইউজারের তথ্য সংগ্রহ
+    const currentId = localStorage.getItem('userId') || "000";
+    const currentName = localStorage.getItem('userName') || "Unknown User";
+
+    // ২. ফরম থেকে ডাটা সংগ্রহ করা
+    const rows = Array.from(document.querySelectorAll("#statementBody tr")).map(tr => {
         return {
-            date: tr.querySelector(".date-input")?.value || "",
-            description: tr.querySelector(".particular-input")?.value || "",
+            date: tr.querySelector(".date-text")?.innerText.trim() || "",
+            description: tr.querySelector(".desc-input")?.value.trim() || "",
             voucher: tr.querySelector(".voucher-input")?.value || "",
             deposit: parseFloat(tr.querySelector(".deposit-input")?.value) || 0,
             expense: parseFloat(tr.querySelector(".expense-input")?.value) || 0,
-            balance: tr.querySelector(".row-balance")?.innerText.replace(/,/g, "") || "0.00",
+            balance: tr.querySelector(".row-balance")?.innerText.replace(/,/g, '') || "0.00"
         };
     });
 
     const payload = {
-        action: "saveLedger",
+        action: "updateSalesPaidAmount",
         cod: document.getElementById("cod").value,
         name: document.getElementById("custName").value,
         mobile: document.getElementById("mobile").value,
@@ -771,38 +827,73 @@
         openingBalance: document.getElementById("openingBalance").value || 0,
         finalBalance: document.getElementById("finalBalance").innerText,
         rows: rows,
-        // এখানে নামগুলো হুবহু ব্যাকএন্ডের requestData.operatorId এর সাথে মিল রাখা হয়েছে
-        operatorId: currentId ? currentId : "Not Found",
-        operatorName: currentName ? currentName : "Not Found"
+		operatorId: currentId,
+        operatorName: currentName
     };
 
     try {
-        const response = await fetch(SCRIPT_URL, {
-            method: "POST",
-            body: JSON.stringify(payload), // JSON হিসেবে পাঠানো হচ্ছে
+        // ৩. গুগল শিটে ডাটা পাঠানো
+        const response = await fetch(SCRIPT_URL, { 
+            method: "POST", 
+            body: JSON.stringify(payload) 
         });
         const result = await response.json();
-
-        overlay.style.display = "none";
-        btn.disabled = false;
-
+        
         if (result.status === "success") {
-            document.getElementById("successOverlay").style.display = "flex";
+            // ৪. সেভ সফল হলে মেসেজ আপডেট করে ডাটা সিঙ্ক করা
+            loadingMessage.innerText = "PLEASE WAIT DATA SAVE...";
+            loadingMessage.style.color = "#059669"; // টেক্সট কালার গ্রিন করা
+
+            // ৫. শীট থেকে লেটেস্ট ডাটা ফেচ করা (পেজ রিলোড ছাড়াই)
+            const isLoaded = await loadInitialData(true); 
+            
+            if (isLoaded) {
+                loaderOverlay.style.display = "none";
+                const successOverlay = document.getElementById("successOverlay");
+                
+                if (successOverlay) {
+                    successOverlay.style.display = "flex";
+                    
+                    // ২ সেকেন্ড পর সাকসেস মেসেজ বন্ধ করে ফর্ম ক্লিয়ার করা
+                    setTimeout(() => {
+                        successOverlay.style.display = "none";
+                        resetForm(); 
+                        document.getElementById("searchBox").focus();
+                    }, 2000);
+                }
+            }
         } else {
             alert("Error: " + result.message);
+            loaderOverlay.style.display = "none";
         }
-    } catch (e) {
-        console.error(e);
-        overlay.style.display = "none";
-        btn.disabled = false;
-        alert("সংরক্ষণে সমস্যা হয়েছে।");
+    } catch (e) { 
+        console.error("Save Error:", e);
+        alert("সংরক্ষণে সমস্যা হয়েছে। ইন্টারনেট কানেকশন চেক করুন।"); 
+        loaderOverlay.style.display = "none";
+    } finally { 
+        // ৬. বাটন এবং ওভারলে রিসেট করা
+        btn.disabled = false; 
+        btn.innerHTML = oldText; 
+        loadingMessage.classList.remove("animate-pulse-custom"); // অ্যানিমেশন বন্ধ করা
+        loadingMessage.style.color = ""; // কালার রিসেট
     }
 }
 
-      function closeSuccess() {
-        document.getElementById("successOverlay").style.display = "none";
-        resetFormUI();
-      }
+        function resetForm() {
+            ["cod", "custName", "mobile", "address", "custType", "payType", "area", "openingBalance", "searchBox"].forEach(id => { 
+                const el = document.getElementById(id); 
+                if(el) el.value = (id === "openingBalance") ? "0.00" : ""; 
+            });
+            document.getElementById("statementBody").innerHTML = "";
+            addRow(); 
+            calculateStatement();
+        }
+
+        function closeSuccess() { 
+            document.getElementById("successOverlay").style.display = "none"; 
+            resetForm(); 
+            document.getElementById("searchBox").focus();
+        }
     </script>
-  </body>
+</body>
 </html>
