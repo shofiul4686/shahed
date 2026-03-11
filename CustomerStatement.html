@@ -2,6 +2,7 @@
 <html>
 <head>
   <base target="_top">
+  <title>Customer Details</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
   
@@ -84,6 +85,28 @@
       flex: 1;
       color: #0f172a;
     }
+	#reportTable {
+  border: 2px solid #1e3a8a;
+  font-size: 18px; /* ফন্ট সাইজ ১৮ পিক্সেল করা হয়েছে */
+}
+
+#reportTable td {
+  border: 1px solid #94a3b8; /* গ্রিড লাইন আরও স্পষ্ট */
+  padding: 12px 6px; /* প্যাডিং বাড়ানো হয়েছে যাতে সেল বড় দেখায় */
+  color: #000; 
+  font-weight: 600; /* লেখা বোল্ড করা হয়েছে */
+}
+
+
+#reportTable thead th {
+  font-size: 17px; /* হেডার ফন্ট আরও বড় */
+  padding: 15px 5px;
+}
+/* তারিখের কলামের জন্য বিশেষ স্টাইল */
+.col-date {
+  background-color: #f1f5f9; /* হালকা ব্যাকগ্রাউন্ড */
+  font-family: 'Courier New', Courier, monospace; /* ফিক্সড উইথ ফন্ট */
+}
 
     @media print {
       @page { size: auto; margin: 15mm 10mm 15mm 10mm; }
@@ -147,17 +170,17 @@
       <div id="pDetails" class="hidden">
         <div class="print-grid grid grid-cols-1 md:grid-cols-2 gap-8 border border-slate-200 p-8 rounded-xl mb-10 bg-white shadow-sm" id="customerInfoCard">
           <div class="space-y-1">
-            <div class="detail-row"><span class="detail-label text-slate-500">কাস্টমার কোড</span><span class="detail-separator">:</span><span class="detail-value font-mono font-bold text-blue-700" id="c"></span></div>
-            <div class="detail-row"><span class="detail-label text-slate-500">কাস্টমার নাম</span><span class="detail-separator">:</span><span class="detail-value font-bold text-2xl text-slate-900" id="n"></span></div>
-            <div class="detail-row"><span class="detail-label text-slate-500">মোবাইল</span><span class="detail-separator">:</span><span class="detail-value font-medium" id="m"></span></div>
-            <div class="detail-row"><span class="detail-label text-slate-500">ঠিকানা</span><span class="detail-separator">:</span><span class="detail-value text-slate-600" id="ad"></span></div>
+            <div class="detail-row"><span class="detail-label text-slate-500">Customer Code</span><span class="detail-separator">:</span><span class="detail-value font-mono font-bold text-blue-700" id="c"></span></div>
+            <div class="detail-row"><span class="detail-label text-slate-500">Customer Name</span><span class="detail-separator">:</span><span class="detail-value font-bold text-2xl text-slate-900" id="n"></span></div>
+            <div class="detail-row"><span class="detail-label text-slate-500">Mobile</span><span class="detail-separator">:</span><span class="detail-value font-medium" id="m"></span></div>
+            <div class="detail-row"><span class="detail-label text-slate-500">Address</span><span class="detail-separator">:</span><span class="detail-value text-slate-600" id="ad"></span></div>
           </div>
           <div class="space-y-1">
-            <div class="detail-row"><span class="detail-label text-slate-500">টাইপ</span><span class="detail-separator">:</span><span class="detail-value" id="type"></span></div>
-            <div class="detail-row"><span class="detail-label text-slate-500">পেমেন্ট</span><span class="detail-separator">:</span><span class="detail-value" id="pay"></span></div>
-            <div class="detail-row"><span class="detail-label text-slate-500">এলাকা</span><span class="detail-separator">:</span><span class="detail-value" id="a"></span></div>
+            <div class="detail-row"><span class="detail-label text-slate-500">Type</span><span class="detail-separator">:</span><span class="detail-value" id="type"></span></div>
+            <div class="detail-row"><span class="detail-label text-slate-500">Payment</span><span class="detail-separator">:</span><span class="detail-value" id="pay"></span></div>
+            <div class="detail-row"><span class="detail-label text-slate-500">Area</span><span class="detail-separator">:</span><span class="detail-value" id="a"></span></div>
             <div class="detail-row bg-blue-50 p-2 rounded-md -ml-2">
-              <span class="detail-label text-blue-700">ওপেনিং ব্যালেন্স</span><span class="detail-separator">:</span><span class="detail-value font-bold text-xl text-blue-900" id="open"></span>
+              <span class="detail-label text-blue-700">Opening Balance</span><span class="detail-separator">:</span><span class="detail-value font-bold text-xl text-blue-900" id="open"></span>
             </div>
           </div>
         </div>
@@ -179,8 +202,9 @@
         </div>
 
         <div class="mt-28 flex justify-between px-12 pb-24">
-          <div class="border-t border-slate-400 pt-2 w-48 text-center font-bold text-sm text-slate-700">কাস্টমার স্বাক্ষর</div>
-          <div class="border-t border-slate-400 pt-2 w-48 text-center font-bold text-sm text-slate-700">কর্তৃপক্ষের স্বাক্ষর</div>
+          <div class="border-t border-slate-400 pt-2 w-48 text-center font-bold text-sm text-slate-700">Prepared by</div>
+          <div class="border-t border-slate-400 pt-2 w-48 text-center font-bold text-sm text-slate-700">Authority Signature</div>
+		  <div class="border-t border-slate-400 pt-2 w-48 text-center font-bold text-sm text-slate-700">Customer Signature</div>
         </div>
       </div>
     </div>
@@ -272,7 +296,9 @@
           let h = "";
           d.data.forEach(x => {
             h += `<tr class="hover:bg-slate-50 transition-colors">
-              <td class="py-3 px-2 text-slate-500 font-medium">${x.date}</td>
+              <td class="py-3 px-2 text-slate-900 font-bold">
+  ${new Date(x.date).toLocaleDateString('en-GB').replace(/\//g, '.')}
+</td>
               <td class="py-3 px-3 text-left font-semibold text-slate-700">${x.description}</td>
               <td class="py-3 px-2 text-slate-600 font-mono">${x.voucher || '-'}</td>
               <td class="py-3 px-2 text-right text-emerald-600 font-bold">${x.paid > 0 ? x.paid.toLocaleString() : '-'}</td>
