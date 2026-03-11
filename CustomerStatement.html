@@ -107,18 +107,85 @@
   background-color: #f1f5f9; /* হালকা ব্যাকগ্রাউন্ড */
   font-family: 'Courier New', Courier, monospace; /* ফিক্সড উইথ ফন্ট */
 }
-
-    @media print {
-      @page { size: auto; margin: 15mm 10mm 15mm 10mm; }
-      .no-print, .sticky-top-section .bg-slate-50, #errorBox, .search-container, .date-filter-box { display: none !important; }
-      .sticky-top-section { position: static !important; border-bottom: 2px solid black !important; }
-      #reportTable thead th { position: static !important; background-color: #1e3a8a !important; color: white !important; -webkit-print-color-adjust: exact; }
-      .main-wrapper { max-width: 100% !important; box-shadow: none !important; margin: 0 !important; }
-      body { background: white; font-size: 11pt; }
-      .print-grid { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 30px !important; }
-      .print-footer { display: flex !important; position: fixed; bottom: 0; left: 0; right: 0; font-size: 9pt; border-top: 1px solid #000; padding: 8px 20px; color: #000; background: white; justify-content: space-between; }
+@media print {
+    /* ১. টেবিল স্ট্রাকচার ফিক্স */
+    table {
+        width: 100% !important;
+        border-collapse: collapse !important;
+        table-layout: auto !important; /* লেখা অনুযায়ী কলাম জায়গা নিবে */
+        margin-top: 20px;
     }
-    .print-footer { display: none; }
+
+    /* ২. হেডার টেক্সট কন্ট্রোল (No Wrap) */
+    table th {
+        background-color: #f2f2f2 !important; 
+        color: black !important;
+        border: 2px solid black !important; /* আরো স্পষ্ট বর্ডার */
+        padding: 10px 5px !important;
+        font-weight: 900 !important;
+        font-size: 13px !important;
+        white-space: nowrap !important; /* লেখা এক লাইনে থাকবে, ভাঙবে না */
+        vertical-align: middle !important;
+        -webkit-print-color-adjust: exact;
+    }
+
+    /* ৩. ডেটা সেল কন্ট্রোল */
+    table td {
+        border: 1px solid black !important;
+        padding: 8px 4px !important;
+        color: black !important;
+        font-size: 12px !important;
+        white-space: nowrap !important; /* ডেটাও এক লাইনে রাখার জন্য */
+    }
+
+    /* বিবরণ (Details) কলামটি যদি বড় হয় তবে সেটি এলাউ করার জন্য */
+    .col-details {
+        white-space: normal !important; /* শুধু ডেসক্রিপশন কলাম ভাঙতে পারবে */
+        text-align: left !important;
+        min-width: 150px;
+    }
+
+    /* ৪. কাস্টমার কার্ড ও অন্যান্য স্টাইল */
+    #customerInfoCard {
+        display: grid !important;
+        grid-template-columns: 1.2fr 1fr !important;
+        border: 2px solid black !important;
+        padding: 15px !important;
+        border-radius: 8px !important;
+    }
+
+    .bg-blue-50 {
+        background: transparent !important;
+        border: 2px dashed black !important;
+        padding: 8px !important;
+    }
+
+    #open {
+        font-size: 20px !important;
+        font-weight: 900 !important;
+    }
+
+    .no-print, .search-container, button, #topHeader > div.bg-slate-50 {
+        display: none !important;
+    }
+/* ৫. সিগনেচার এরিয়া */
+    .mt-28 {
+        margin-top: 40px !important;
+        display: flex !important;
+        justify-content: space-between !important;
+    }
+
+    .mt-28 > div {
+        border-top: 1.5px solid black !important;
+        width: 25% !important;
+        font-weight: bold !important;
+        font-size: 12px !important;
+    }
+    @page {
+        size: A4;
+        margin: 1cm;
+    }
+}
   </style>
 </head>
 <body>
@@ -209,12 +276,7 @@
       </div>
     </div>
 
-    <div class="print-footer">
-      <div>প্রিন্ট সময়: <span id="printTime" class="font-bold"></span></div>
-      <div class="font-medium">মেসার্স নূর এন্টারপ্রাইজ - আমবাড়ী বাজার</div>
-      <div class="text-right italic">Software Powered by SHOFIU ALOM</div>
-    </div>
-  </div>
+    
 
   <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbxwBXVROsZF5WcdlDpPUHCTDhoZYHrZka0Y-RKM6ggphitVLxFaj2W-ZxXIVTc9-7oh/exec";
