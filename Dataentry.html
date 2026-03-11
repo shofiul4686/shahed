@@ -450,7 +450,7 @@
     </div>
 
     <script>
-       const SCRIPT_URL ="https://script.google.com/macros/s/AKfycbzTeOGvSd2EaxCZMouhcjZHaHuaUxJTBySk-5d2okEY3_YGyfBohszmkGHaq0pGo4B9ng/exec";
+       const SCRIPT_URL ="https://script.google.com/macros/s/AKfycbxwBXVROsZF5WcdlDpPUHCTDhoZYHrZka0Y-RKM6ggphitVLxFaj2W-ZxXIVTc9-7oh/exec";
 
       window.onload = function () {
         const today = new Date().toLocaleDateString("en-GB");
@@ -732,20 +732,23 @@
         saveData();
       }
 
-      async function saveData() {
+     async function saveData() {
     const btn = document.getElementById("saveBtn");
     const overlay = document.getElementById("loadingOverlay");
+
+    // ১. লোকাল স্টোরেজ থেকে ডাটা সরাসরি ভেরিয়েবলে নেওয়া
+    const currentId = localStorage.getItem('userId');
+    const currentName = localStorage.getItem('userName');
+
+    // কনসোলে চেক করার জন্য (ঐচ্ছিক)
+    console.log("Sending ID:", currentId);
+    console.log("Sending Name:", currentName);
 
     overlay.style.display = "flex";
     btn.disabled = true;
 
-    // localStorage থেকে ইউজারের তথ্য সংগ্রহ
-    const currentUserId = localStorage.getItem('userId') || "000";
-    const currentUserName = localStorage.getItem('userName') || "Unknown User";
-
-    const rows = Array.from(
-        document.querySelectorAll("#statementBody tr"),
-    ).map((tr) => {
+    // ... rows ডাটা সংগ্রহের অংশ আগের মতোই থাকবে ...
+    const rows = Array.from(document.querySelectorAll("#statementBody tr")).map((tr) => {
         return {
             date: tr.querySelector(".date-input")?.value || "",
             description: tr.querySelector(".particular-input")?.value || "",
@@ -768,15 +771,15 @@
         openingBalance: document.getElementById("openingBalance").value || 0,
         finalBalance: document.getElementById("finalBalance").innerText,
         rows: rows,
-        // --- নতুন যোগ করা অংশ ---
-        operatorId: currentUserId,
-        operatorName: currentUserName
+        // এখানে নামগুলো হুবহু ব্যাকএন্ডের requestData.operatorId এর সাথে মিল রাখা হয়েছে
+        operatorId: currentId ? currentId : "Not Found",
+        operatorName: currentName ? currentName : "Not Found"
     };
 
     try {
         const response = await fetch(SCRIPT_URL, {
             method: "POST",
-            body: JSON.stringify(payload),
+            body: JSON.stringify(payload), // JSON হিসেবে পাঠানো হচ্ছে
         });
         const result = await response.json();
 
@@ -792,7 +795,7 @@
         console.error(e);
         overlay.style.display = "none";
         btn.disabled = false;
-        alert("সংরক্ষণে সমস্যা হয়েছে। ইন্টারনেট সংযোগ চেক করুন।");
+        alert("সংরক্ষণে সমস্যা হয়েছে।");
     }
 }
 
