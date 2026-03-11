@@ -1,13 +1,14 @@
+
 <!doctype html>
 <html lang="bn">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Data Enyry Autol</title>
+    <title>Data Entry Auto </title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url("https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;700;900&display=swap");
-        body { font-family: "Noto Sans Bengali", sans-serif; background-color: #f1f5f9; color: #1e293b; overflow: hidden; }
+        body { font-family: "Noto Sans Bengali", sans-serif; background-color: #014104; color: #1e293b; overflow: hidden; }
         
         #pageLoader {
             position: fixed;
@@ -29,37 +30,100 @@
             border-radius: 50%;
             animation: spin 1s linear infinite;
         }
+		@keyframes pulse-text {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.03); opacity: 0.8; }
+    100% { transform: scale(1); opacity: 1; }
+}
 
-        @media print {
-            @page { size: A4; margin: 10mm; }
-            body { background-color: white; padding: 0; overflow: visible !important; }
-            .no-print { display: none !important; }
-            .print-container { box-shadow: none !important; border: none !important; width: 100% !important; max-width: 100% !important; padding: 0 !important; }
-            .bank-table { border: 2pt solid black !important; width: 100% !important; }
-            .bank-table th, .bank-table td { border: 1pt solid black !important; color: black !important; padding: 4px !important; }
-            input { border: none !important; background: transparent !important; }
-        }
+.animate-pulse-custom {
+    animation: pulse-text 1.5s ease-in-out infinite;
+    display: inline-block;
+}
 
-        .bank-table input { 
-            width: 100%; border: 1px solid #e2e8f0; background: #ffffff; 
-            padding: 6px 8px; font-size: 14px; border-radius: 4px;
-            transition: all 0.2s ease;
-        }
+/* টেক্সট ঘোরানোর অ্যানিমেশন */
+    .rotating-text-wrapper {
+        position: relative;
+        width: 200px;
+        height: 200px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin: 0 auto;
+    }
 
-        .date-cell { position: relative; cursor: pointer; outline: none; }
-        .date-cell:focus .date-wrapper { border-color: #2563eb; ring: 2px; ring-color: #bfdbfe; }
-        
-        .datepicker-modal {
-            position: absolute;
-            background: white; 
-            border: 1px solid #cbd5e1; 
-            border-radius: 12px; 
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
-            z-index: 9999; 
-            padding: 10px; 
-            width: 250px; 
-            display: none;
-        }
+    .rotating-text {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        animation: spin 10s linear infinite;
+    }
+
+    @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+
+    .rotating-text span {
+        position: absolute;
+        left: 50%;
+        transform-origin: 0 100px; /* বৃত্তের ব্যাসার্ধ নিয়ন্ত্রণ করে */
+        font-weight: bold;
+        color: #64748b; /* text-slate-500 */
+        font-family: sans-serif;
+        font-size: 12px;
+        text-transform: uppercase;
+    }
+
+    /* ইমেজ স্টাইল */
+   .center-img {
+    width: 100px;
+    height: auto;
+    z-index: 10;
+    /* নিশ্চিত করার জন্য ব্যাকগ্রাউন্ড রিমুভ করা হয়েছে */
+    background: transparent !important;
+}
+	/* রিফ্রেশ আইকন ঘোরানোর জন্য */
+.spin-animation {
+    animation: spin-icon 1s linear infinite;
+}
+
+@keyframes spin-icon {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+   #globalDatePicker {
+    position: absolute;
+    z-index: 99999 !important; /* অনেক বেশি ইন্ডেক্স যাতে সবার উপরে থাকে */
+    background: hsl(0, 0%, 100%) !important;
+    border: 1px solid #cbd5e1;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    border-radius: 12px;
+    padding: 10px;
+    width: 280px; /* ক্যালেন্ডারের নির্দিষ্ট উইডথ */
+}
+/* আজকের তারিখের বিশেষ ডিজাইন */
+.datepicker-day.today-highlight {
+    background-color: #1e40af !important; /* গাঢ় নীল রঙ */
+    color: white !important;
+    font-weight: bold;
+    border-radius: 50%; /* গোল আকৃতি */
+    box-shadow: 0 0 5px rgba(30, 64, 175, 0.5);
+}
+
+/* মাউস নিলে যেন ইফেক্ট থাকে */
+.datepicker-day.today-highlight:hover {
+    background-color: #1d4ed8 !important;
+    transform: scale(1.1);
+}
+
+
+
+/* স্ক্রিনে থাকাকালীন হাইড থাকবে কিন্তু প্রিন্টে আসবে এমন কিছু */
+.print-only { display: none; }
+@media print { .print-only { display: block; } }
+
         .datepicker-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-weight: bold; }
         .datepicker-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; text-align: center; }
         .datepicker-day-name { font-size: 10px; color: #64748b; font-weight: bold; padding: 4px 0; }
@@ -80,29 +144,29 @@
         .input-label { font-size: 0.9rem; font-weight: 900; color: #1e3a8a; text-transform: uppercase; margin-left: 2px; }
         .customer-input { width: 100%; font-weight: 500; color: #000000; outline: none; background-color: #ffffff; border: 2px solid #cbd5e1; border-radius: 8px; padding: 8px 12px; font-size: 1rem; transition: all 0.2s; }
         .customer-input[readonly] { background-color: #ffffff; border-color: #e2e8f0; color: #000000; cursor: default; }
-        /* আজকের তারিখ হাইলাইট স্টাইল */
-      .datepicker-day.today-highlight { 
-        background: #1e40af !important; 
-        color: white !important; 
-        font-weight: bold;
-        border-radius: 50%;
-      }
+        
     </style>
 </head>
 <body class="p-2 md:p-6" onclick="closeAllPickers(event)" onscroll="closeAllPickers(event)">
     
     <!-- ইনিশিয়াল ফুল স্ক্রিন লোডার -->
-    <div id="pageLoader">
-        <div class="main-loader mb-4"></div>
-        <h2 class="text-xl font-black text-blue-900 mb-1">আসলামু আলাইকুম ওয়ারাহমাতুল্লাহ্</h2><BR
-        <p class="text-slate-500 font-bold animate-pulse">PLEASE WAIT, LOADING DATA...</p>
+   <div id="pageLoader" class="flex flex-col items-center justify-center min-h-screen">
+    <div class="rotating-text-wrapper">
+        <img src="https://raw.githubusercontent.com/shofiul4686/shahed-test-code/main/Bismillah.png" 
+     alt="Bismillah" 
+     class="center-img" 
+     style="mix-blend-mode: multiply; background: transparent;">
+
+        <div class="rotating-text" id="textContainer">
+            </div>
     </div>
+</div>
 
     <!-- সেভিং এবং রি-লোডিং ওভারলে -->
     <div id="loadingOverlay">
         <div class="bg-white p-6 rounded-2xl shadow-2xl flex items-center gap-4">
             <div class="loader"></div>
-            <p id="loadingMessage" class="font-bold text-slate-700">PLEASE WAIT DATA SAVE</p>
+            <p id="loadingMessage" class="font-bold text-slate-700"> PLEASE WAIT DATA SAVE...</p>
         </div>
     </div>
 
@@ -129,8 +193,15 @@
             <p class="text-md font-bold text-slate-600 mb-2">আমবাড়ী বাজার, পার্বতীপুর, দিনাজপুর।</p>
             <p class="text-sm font-black text-slate-900">মোবাঃ ০১৭৭২-৯৫৭৫১৫, ০১৭২০-৩৩৭৮১২, ০১৭১৭-৫২৭২৯২, ০১৭৩১-৭৩৩৩৪০</p>
             <div class="absolute top-0 right-0 no-print">
-                <span class="text-[10px] bg-green-100 text-green-700 px-2 py-1 rounded-full font-bold uppercase">Live Connection</span>
-            </div>
+   <div class="absolute top-2 right-2 no-print flex flex-col items-end gap-0">
+    <div id="digitalClock" class="text-xl font-mono font-black text-slate-900 whitespace-nowrap leading-none">
+        00:00:00 AM
+    </div>
+    <div id="digitalDate" class="text-[13px] font-bold text-slate-700 uppercase tracking-tighter whitespace-nowrap mt-1">
+        01-JAN-2026
+    </div>
+</div>
+</div>
             
         </div>
 
@@ -144,9 +215,14 @@
       <div id="suggestionsBox" class="suggestions-container" style="position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #ddd; border-radius: 0 0 8px 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); z-index: 1000; display: none;"></div>
     </div>
   </div>
+  <div class="flex-shrink-0 flex items-center gap-2">
+    <button onclick="refreshData()" class="bg-gray-600 text-white px-4 py-2.5 rounded-lg font-bold hover:bg-gray-700 shadow-md flex items-center gap-2 transition-all active:scale-95">
+    <svg id="refreshIcon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+    </svg>
+    Refresh
+</button>
 
-  <!-- ডান পাশের অংশ: ম্যানুয়াল এন্ট্রি বাটন (আলাদা কন্টেইনার) -->
-  <div class="flex-shrink-0">
     <button onclick="window.location.href='Dataentry.html'" class="bg-indigo-600 text-white px-5 py-2.5 rounded-lg font-bold hover:bg-indigo-700 shadow-md flex items-center gap-2 whitespace-nowrap text-sm transition-all active:scale-95">
       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
         <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
@@ -154,7 +230,7 @@
       </svg>
       Manual Entry
     </button>
-  </div>
+</div>
 </div>
 
            <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm mb-6 print-container">
@@ -225,6 +301,13 @@
                 <span class="text-blue-600">In Words:</span> <span id="inwordText" class="italic">Zero Taka Only</span>
             </div>
             <div class="flex gap-2">
+				<button onclick="prepareAndPrint()" class="bg-slate-800 text-white px-8 py-2 rounded-lg font-black hover:bg-slate-900 shadow-md flex items-center gap-2">
+    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
+        <path d="M2.5 8a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z"/>
+        <path d="M5 1a2 2 0 0 0-2 2v2H2a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h1v1a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-1h1a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-1V3a2 2 0 0 0-2-2H5zM4 3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2H4V3zm1 5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-1a.5.5 0 0 1-.5-.5zm-7 2h8v1a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-1z"/>
+    </svg>
+    PRINT
+</button>
                 <button onclick="addRow(true)" class="bg-blue-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-blue-700 shadow-md">ADD ROW</button>
                 <button id="saveBtn" onclick="saveData()" class="bg-green-600 text-white px-8 py-2 rounded-lg font-black hover:bg-green-700 shadow-md transition-all uppercase tracking-wider">SAVE</button>         </div>        </div>
     </div>
@@ -237,42 +320,151 @@
 
     
 
-    <script>
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxwBXVROsZF5WcdlDpPUHCTDhoZYHrZka0Y-RKM6ggphitVLxFaj2W-ZxXIVTc9-7oh/exec";
-        let allCustomers = [];
-        let currentYear = new Date().getFullYear();
-        let currentMonth = new Date().getMonth();
-        let activeDateCell = null;
+   <script>
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzTeOGvSd2EaxCZMouhcjZHaHuaUxJTBySk-5d2okEY3_YGyfBohszmkGHaq0pGo4B9ng/exec";
 
-        window.onload = () => { 
-            resetForm(); 
-            loadInitialData(); 
-        };
+let currentMonth = new Date().getMonth();
+let currentYear = new Date().getFullYear();
+let activeDateCell = null;
+
+
+      window.onload = () => { 
+    // ১. টেক্সট ঘোরানোর কোড (এটি আগে রাখুন)
+    try {
+        const text = "BISMILLAHIR RAHMANIR RAHIM • PLEASE WAIT LOADING DATA •";
+        const container = document.getElementById('textContainer');
+        
+        if (container) {
+            container.innerHTML = ""; // আগের কিছু থাকলে মুছে ফেলবে
+            const characters = text.split("");
+            const degreeStep = 360 / characters.length;
+
+            characters.forEach((char, i) => {
+                const span = document.createElement('span');
+                span.innerText = char;
+                span.style.position = "absolute";
+                span.style.left = "50%";
+                span.style.transformOrigin = "0 100px"; // বৃত্তের সাইজ অনুযায়ী
+                span.style.transform = `rotate(${i * degreeStep}deg)`;
+                container.appendChild(span);
+            });
+        }
+    } catch (e) {
+        console.error("Text rotation error:", e);
+    }
+
+    // ২. আপনার মুল কাজগুলো (এগুলো এখন অবশ্যই রান হবে)
+    resetForm(); 
+    loadInitialData(); 
+
+    // সাকসেস মেসেজ চেক
+    if (localStorage.getItem("saveSuccess") === "true") {
+        const successOverlay = document.getElementById("successOverlay");
+        if (successOverlay) {
+            successOverlay.style.display = "flex";
+            setTimeout(() => { successOverlay.style.display = "none"; }, 3000);
+        }
+        localStorage.removeItem("saveSuccess");
+    }
+};
+
+
+function prepareAndPrint() {
+    // ১. ডাটা ইনপুটগুলো প্রিন্ট ফ্রেন্ডলি করা
+    const inputs = document.querySelectorAll('input');
+    inputs.forEach(input => {
+        input.setAttribute('value', input.value);
+    });
+
+    // ২. overflow সমস্যা সমাধান করা
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = "visible";
+
+    // ৩. প্রিন্ট করা
+    window.print();
+
+    // ৪. আগের অবস্থায় ফেরত আনা
+    setTimeout(() => {
+        document.body.style.overflow = originalOverflow;
+    }, 500);
+}
+
+async function refreshData() {
+    const icon = document.getElementById("refreshIcon");
+
+    // ১. শুধু বাটনের আইকনটি ঘোরা শুরু করবে
+    if (icon) {
+        icon.classList.add("spin-animation");
+    }
+
+    // ২. ফুল স্ক্রিন লোডার দেখাবে না, তাই সরাসরি loadInitialData কল হবে
+    // এখানে 'true' পাঠানো হয়েছে যাতে loadInitialData বুঝতে পারে এটা সাইলেন্ট রিফ্রেশ
+    const success = await loadInitialData(true);
+
+    // ৩. ডাটা লোড হয়ে গেলে আইকন ঘোরা বন্ধ হবে
+    if (icon) {
+        icon.classList.remove("spin-animation");
+    }
+}
+
+function updateClockAndDate() {
+        const now = new Date();
+        
+        // সময় সেট করা
+        let hours = now.getHours();
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        const seconds = String(now.getSeconds()).padStart(2, '0');
+        const ampm = hours >= 12 ? 'PM' : 'AM';
+        hours = hours % 12 || 12;
+        const timeString = `${String(hours).padStart(2, '0')}:${minutes}:${seconds} ${ampm}`;
+        document.getElementById('digitalClock').textContent = timeString;
+
+        // তারিখ সেট করা (Format: DD-MMM-YYYY)
+        const day = String(now.getDate()).padStart(2, '0');
+        const months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+        const month = months[now.getMonth()];
+        const year = now.getFullYear();
+        const dateString = `${day}-${month}-${year}`;
+        document.getElementById('digitalDate').textContent = dateString;
+    }
+
+    // প্রতি সেকেন্ডে আপডেট হবে
+    setInterval(updateClockAndDate, 1000);
+    updateClockAndDate();
 
         function openDatePicker(element) {
-            event.stopPropagation(); 
-            closeAllPickers(); 
-            activeDateCell = element;
-            const modal = document.getElementById('globalDatePicker');
-            
-            // পজিশনিং লজিক আপডেট করা হয়েছে
-            const rect = element.getBoundingClientRect();
-            const modalHeight = 280; // আনুমানিক উচ্চতা
-            const spaceBelow = window.innerHeight - rect.bottom;
-            
-            if (spaceBelow < modalHeight) {
-                // উপরে দেখাও
-                modal.style.top = (rect.top + window.scrollY - modalHeight - 5) + 'px';
-            } else {
-                // নিচে দেখাও
-                modal.style.top = (rect.bottom + window.scrollY + 5) + 'px';
-            }
-            
-            modal.style.left = rect.left + 'px';
-            modal.style.display = 'block';
-            renderCalendar();
-        }
+    // ইভেন্ট বাবলিং বন্ধ করা যাতে পেজের অন্য ক্লিকের সাথে কনফ্লিক্ট না হয়
+    if (window.event) window.event.stopPropagation(); 
+    
+    closeAllPickers(); 
+    activeDateCell = element;
+    
+    const modal = document.getElementById('globalDatePicker');
+    if (!modal) {
+        console.error("DatePicker Modal not found!");
+        return;
+    }
 
+    const rect = element.getBoundingClientRect();
+    const modalHeight = 280; 
+    const spaceBelow = window.innerHeight - rect.bottom;
+    
+    // ডিসপ্লে ব্লক আগে করতে হবে পজিশন সেট করার জন্য
+    modal.style.display = 'block';
+    modal.style.position = 'fixed'; // স্ক্রলিং এর সুবিধা পেতে fixed ব্যবহার ভালো
+    modal.style.zIndex = '9999';
+
+    if (spaceBelow < modalHeight) {
+        // যদি নিচে জায়গা কম থাকে তবে উপরে দেখাবে
+        modal.style.top = (rect.top - modalHeight - 5) + 'px';
+    } else {
+        // অন্যথায় নিচে দেখাবে
+        modal.style.top = (rect.bottom + 5) + 'px';
+    }
+    
+    modal.style.left = rect.left + 'px';
+    renderCalendar();
+}
         function renderCalendar() {
     const modal = document.getElementById('globalDatePicker');
     const header = modal.querySelector('.datepicker-header');
@@ -299,17 +491,21 @@
 
     for (let i = 0; i < firstDay; i++) grid.innerHTML += '<div></div>';
 
-    for (let d = 1; d <= daysInMonth; d++) {
-        const dateStr = `${String(d).padStart(2, '0')}-${String(currentMonth + 1).padStart(2, '0')}-${currentYear}`;
-        
-        // আজকের তারিখ হলে 'today-highlight' ক্লাস যোগ হবে
-        const isToday = (isThisMonth && d === todayDate) ? 'today-highlight' : '';
-        
-        grid.innerHTML += `
-            <div class="datepicker-day ${isToday}" onclick="selectDate('${dateStr}')">
-                ${d}
-            </div>`;
-    }
+   for (let d = 1; d <= daysInMonth; d++) {
+    const dateStr = `${String(d).padStart(2, '0')}-${String(currentMonth + 1).padStart(2, '0')}-${currentYear}`;
+    
+    // ১. আজকের তারিখ বের করা
+    const now = new Date();
+    const isToday = (now.getDate() === d && 
+                     now.getMonth() === currentMonth && 
+                     now.getFullYear() === currentYear) ? 'today-highlight' : '';
+    
+    // ২. গ্রিডে ক্লাসটি যোগ করা
+    grid.innerHTML += `
+        <div class="datepicker-day ${isToday}" onclick="event.stopPropagation(); selectDate('${dateStr}')">
+            ${d}
+        </div>`;
+}
   }
 
         function changeMonth(step) {
@@ -320,11 +516,33 @@
         }
 
         function selectDate(date) {
-            if (activeDateCell) activeDateCell.querySelector('.date-text').innerText = date;
-            document.getElementById('globalDatePicker').style.display = 'none';
-            const row = activeDateCell.closest('tr');
-            if(row) row.querySelector('.desc-input').focus();
+    // ১. যদি কোনো সেল আগে থেকে সিলেক্ট করা থাকে (activeDateCell)
+    if (activeDateCell) {
+        // সেলের ভেতরের .date-text ক্লাসে নতুন তারিখটি বসিয়ে দাও
+        const textElement = activeDateCell.querySelector('.date-text');
+        if (textElement) {
+            textElement.innerText = date;
+            
+            // ভিজ্যুয়াল ফিডব্যাক: তারিখ সেট হলে হালকা এনিমেশন বা কালার চেঞ্জ (ঐচ্ছিক)
+            textElement.style.color = "#1e40af"; 
         }
+    }
+
+    // ২. তারিখ সিলেক্ট হওয়ার পর ক্যালেন্ডারটি হাইড বা বন্ধ করে দাও
+    const modal = document.getElementById('globalDatePicker');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+
+    // ৩. তারিখ সেট করার পর অটোমেটিক পরের ঘরে (বিবরণ/Description) ফোকাস নিয়ে যাওয়া
+    const row = activeDateCell.closest('tr');
+    if (row) {
+        const descInput = row.querySelector('.desc-input');
+        if (descInput) {
+            descInput.focus();
+        }
+    }
+}
 
         function closeAllPickers(e) {
             document.getElementById('globalDatePicker').style.display = 'none';
@@ -451,26 +669,36 @@
     }
 }
         function addRow(focus = false) {
-            const tbody = document.getElementById("statementBody");
-            const row = document.createElement("tr");
-            const today = new Date().toISOString().split('T')[0];
-            row.className = "border-b border-slate-100 hover:bg-slate-50";
-            row.innerHTML = `
-                <td tabindex="0" class="p-2 border-r border-slate-900 date-cell" onclick="openDatePicker(this)" onkeydown="handleEnter(event, 'date')">
-                    <div class="flex items-center justify-between bg-white px-2 py-1.5 rounded border border-slate-200 date-wrapper">
-                        <span class="date-text font-bold text-blue-900">${today}</span>
-                    </div>
-                </td>
-                <td class="border-r border-slate-900"><input type="text" placeholder="বিবরণ..." class="desc-input font-bold border-none outline-none" onkeydown="handleEnter(event, 'desc')"></td>
-                <td class="border-r border-slate-900"><input type="text" class="voucher-input text-center border-none outline-none" onkeydown="handleEnter(event, 'voucher')"></td>
-                <td class="border-r border-slate-900 bg-green-50"><input type="number" step="0.01" class="deposit-input text-right font-black text-green-700 border-none outline-none" oninput="calculateStatement()" onkeydown="handleEnter(event, 'deposit')"></td>
-                <td class="border-r border-slate-900 bg-red-50"><input type="number" step="0.01" class="expense-input text-right font-black text-red-700 border-none outline-none" oninput="calculateStatement()" onkeydown="handleEnter(event, 'expense')"></td>
-                <td class="text-right px-3 py-2 font-black text-slate-900 bg-slate-100 row-balance">0.00</td>
-                <td class="no-print text-center"><button onclick="this.closest('tr').remove(); calculateStatement();" class="text-red-400 font-bold px-2">×</button></td>
-            `;
-            tbody.appendChild(row);
-            if (focus) row.querySelector('.desc-input').focus();
-        }
+    const tbody = document.getElementById("statementBody");
+    const row = document.createElement("tr");
+    
+    // তারিখ ফরম্যাট ঠিক করা (DD-MM-YYYY)
+    const now = new Date();
+    const day = String(now.getDate()).padStart(2, '0');
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const year = now.getFullYear();
+    const today = `${day}-${month}-${year}`;
+
+    row.className = "border-b border-slate-100 hover:bg-slate-50";
+    row.innerHTML = `
+        <td tabindex="0" class="p-2 border-r border-slate-900 date-cell cursor-pointer" 
+            onclick="openDatePicker(this)" 
+            onkeydown="if(event.key==='Enter') openDatePicker(this)">
+            <div class="flex items-center justify-between bg-white px-2 py-1.5 rounded border border-slate-200 date-wrapper pointer-events-none">
+                <span class="date-text font-bold text-blue-900">${today}</span>
+                <span class="text-[10px] text-slate-400 no-print">▼</span>
+            </div>
+        </td>
+        <td class="border-r border-slate-900"><input type="text" placeholder="বিবরণ..." class="desc-input font-bold border-none outline-none w-full px-1" onkeydown="handleEnter(event, 'desc')"></td>
+        <td class="border-r border-slate-900"><input type="text" class="voucher-input text-center border-none outline-none w-full" onkeydown="handleEnter(event, 'voucher')"></td>
+        <td class="border-r border-slate-900 bg-green-50"><input type="number" step="0.01" class="deposit-input text-right font-black text-green-700 border-none outline-none w-full px-1" oninput="calculateStatement()" onkeydown="handleEnter(event, 'deposit')"></td>
+        <td class="border-r border-slate-900 bg-red-50"><input type="number" step="0.01" class="expense-input text-right font-black text-red-700 border-none outline-none w-full px-1" oninput="calculateStatement()" onkeydown="handleEnter(event, 'expense')"></td>
+        <td class="text-right px-3 py-2 font-black text-slate-900 bg-slate-100 row-balance">0.00</td>
+        <td class="no-print text-center"><button onclick="this.closest('tr').remove(); calculateStatement();" class="text-red-400 font-bold px-2">×</button></td>
+    `;
+    tbody.appendChild(row);
+    if (focus) row.querySelector('.desc-input').focus();
+}
 
         function handleEnter(e, type) {
             if (e.key === "Enter") {
@@ -526,33 +754,56 @@
             }
             return convert(Math.floor(num)) + " Taka Only";
         }
+
+
+document.querySelectorAll('input, select').forEach(element => {
+    element.addEventListener('input', function() {
+        if (this.value.trim() !== "") {
+            this.style.border = ""; // বর্ডার রিসেট
+        }
+    });
+});
+
 async function saveData() {
-    const btn = document.getElementById("saveBtn");
-    
-    // ১. পুরো পেজ লক করার জন্য একটি ওভারলে দেখানো (যদি HTML এ না থাকে তবে তৈরি হবে)
-    let loaderOverlay = document.getElementById("loadingOverlay");
-    if (!loaderOverlay) {
-        loaderOverlay = document.createElement("div");
-        loaderOverlay.id = "loadingOverlay";
-        loaderOverlay.style = "position:fixed; inset:0; background:rgba(255,255,255,0.7); z-index:9999; display:flex; align-items:center; justify-content:center; cursor:wait;";
-        loaderOverlay.innerHTML = '<div class="text-center"><div class="loader"></div><p class="font-bold text-blue-900 mt-2">Saving Data... Please Wait</p></div>';
-        document.body.appendChild(loaderOverlay);
+
+// ১. প্রয়োজনীয় ফিল্ডগুলোর আইডি লিস্ট
+    const requiredFields = ["cod", "custName", "mobile", "area", "address", "custType", "payType"];
+    let isFormValid = true;
+
+    // ২. ফিল্ডগুলো চেক করা (Validation)
+    for (const id of requiredFields) {
+        const field = document.getElementById(id);
+        if (!field || field.value.trim() === "") {
+            isFormValid = false;
+            field.style.border = "2px solid red"; // ফাঁকা ফিল্ড লাল বর্ডার হবে
+        } else {
+            field.style.border = ""; // তথ্য থাকলে বর্ডার রিসেট
+        }
     }
+
+    // ৩. যদি কোনো ফিল্ড ফাঁকা থাকে তবে মেসেজ দিয়ে ফাংশন বন্ধ করে দেওয়া
+    if (!isFormValid) {
+        alert("দয়া করে সব প্রয়োজনীয় তথ্য (COD, Name, Mobile, ইত্যাদি) সঠিকভাবে পূরণ করুন।");
+        return; 
+    }
+
+    const btn = document.getElementById("saveBtn");
+    const loaderOverlay = document.getElementById("loadingOverlay");
+    const loadingMessage = document.getElementById("loadingMessage");
     
-    // পেজ এবং বাটন লক করা
+    // ১. লোডিং ওভারলে দেখানো এবং বাটন ডিজেবল করা
     loaderOverlay.style.display = "flex";
+    loadingMessage.innerText = "PLEASE WAIT DATA SAVE..."; 
+    loadingMessage.classList.add("animate-pulse-custom"); // অ্যানিমেশন যোগ করা
     btn.disabled = true;
     const oldText = btn.innerHTML;
     btn.innerHTML = 'Saving...';
 
-    // ডাটা সংগ্রহ
+    // ২. ফরম থেকে ডাটা সংগ্রহ করা
     const rows = Array.from(document.querySelectorAll("#statementBody tr")).map(tr => {
-        const rowDate = tr.querySelector(".date-text")?.innerText || "";
-        const rowDesc = tr.querySelector(".desc-input")?.value || "";
-
         return {
-            date: String(rowDate).trim(),
-            description: String(rowDesc).trim(),
+            date: tr.querySelector(".date-text")?.innerText.trim() || "",
+            description: tr.querySelector(".desc-input")?.value.trim() || "",
             voucher: tr.querySelector(".voucher-input")?.value || "",
             deposit: parseFloat(tr.querySelector(".deposit-input")?.value) || 0,
             expense: parseFloat(tr.querySelector(".expense-input")?.value) || 0,
@@ -561,7 +812,7 @@ async function saveData() {
     });
 
     const payload = {
-        action: "saveLedger",
+        action: "updateSalesPaidAmount",
         cod: document.getElementById("cod").value,
         name: document.getElementById("custName").value,
         mobile: document.getElementById("mobile").value,
@@ -575,6 +826,7 @@ async function saveData() {
     };
 
     try {
+        // ৩. গুগল শিটে ডাটা পাঠানো
         const response = await fetch(SCRIPT_URL, { 
             method: "POST", 
             body: JSON.stringify(payload) 
@@ -582,21 +834,42 @@ async function saveData() {
         const result = await response.json();
         
         if (result.status === "success") {
-            // সেভ সফল হলে ওভারলে লুকানো এবং সাকসেস মেসেজ দেখানো
-            loaderOverlay.style.display = "none";
-            document.getElementById("successOverlay").style.display = "flex";
+            // ৪. সেভ সফল হলে মেসেজ আপডেট করে ডাটা সিঙ্ক করা
+            loadingMessage.innerText = "PLEASE WAIT DATA SAVE...";
+            loadingMessage.style.color = "#059669"; // টেক্সট কালার গ্রিন করা
+
+            // ৫. শীট থেকে লেটেস্ট ডাটা ফেচ করা (পেজ রিলোড ছাড়াই)
+            const isLoaded = await loadInitialData(true); 
+            
+            if (isLoaded) {
+                loaderOverlay.style.display = "none";
+                const successOverlay = document.getElementById("successOverlay");
+                
+                if (successOverlay) {
+                    successOverlay.style.display = "flex";
+                    
+                    // ২ সেকেন্ড পর সাকসেস মেসেজ বন্ধ করে ফর্ম ক্লিয়ার করা
+                    setTimeout(() => {
+                        successOverlay.style.display = "none";
+                        resetForm(); 
+                        document.getElementById("searchBox").focus();
+                    }, 2000);
+                }
+            }
         } else {
-            loaderOverlay.style.display = "none";
             alert("Error: " + result.message);
+            loaderOverlay.style.display = "none";
         }
     } catch (e) { 
+        console.error("Save Error:", e);
+        alert("সংরক্ষণে সমস্যা হয়েছে। ইন্টারনেট কানেকশন চেক করুন।"); 
         loaderOverlay.style.display = "none";
-        alert("সংরক্ষণে সমস্যা হয়েছে। ইন্টারনেট সংযোগ চেক করুন।"); 
     } finally { 
+        // ৬. বাটন এবং ওভারলে রিসেট করা
         btn.disabled = false; 
         btn.innerHTML = oldText; 
-        // নিশ্চিত করা যে কোনো কারণে এরর হলেও যেন পেজ লক হয়ে না থাকে
-        if (loaderOverlay) loaderOverlay.style.display = "none";
+        loadingMessage.classList.remove("animate-pulse-custom"); // অ্যানিমেশন বন্ধ করা
+        loadingMessage.style.color = ""; // কালার রিসেট
     }
 }
 
