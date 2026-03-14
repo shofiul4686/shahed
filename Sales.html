@@ -721,24 +721,24 @@ label.small.fw-bold {
         toggleLoader(true, "Saving Invoice..."); 
         toggleInputs(true);
         let status = (paid >= total) ? "Paid" : (paid > 0 ? "Partial" : "Unpaid");
-       let master = { 
-        action: "saveInvoice", 
-        invNo: currentInvNo, 
-        date: document.getElementById('invDate').value, 
-        custCode: custCode, 
+       let master = {
+        action: "saveInvoice",
+        invNo: currentInvNo,
+        date: document.getElementById('invDate').value,
+        custCode: custCode,
         custName: document.getElementById('fCName').value,
         mobile: document.getElementById('dispCMobile').value,
         area: document.getElementById('dispCArea').value,
         address: document.getElementById('dispCAddress').value,
         type: document.getElementById('dispCType').value,
-        paymentType: document.getElementById('dispCPayment').value,
-        total: total, 
-        paid: paid, 
-        status: status, 
+        paymentType: document.getElementById('dispCPayment').value || "CASH",
+        total: total,
+        paid: paid,
+        due: dueAmount,
+        status: status,
         cart: cart,
-        // --- এই দুটি লাইন ইউজার আইডি ও নাম সিটে পাঠানোর জন্য ---
-        operatorName: activeUser.name,
-        operatorId: activeUser.id
+        entryBy: activeUser.name, // ইউজার নাম
+        entryById: activeUser.id   // ইউজার আইডি
     };
 
         fetch(WEB_APP_URL, {
